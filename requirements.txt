@@ -1,0 +1,4 @@
+SwissArmyTransformer>=0.2
+icetk
+gifmaker
+torchvision
