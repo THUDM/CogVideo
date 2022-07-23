@@ -4,9 +4,9 @@ This is the official repo for the paper: [CogVideo: Large-scale Pretraining for 
 
 # Web Demo
 
-Integrated into [Huggingface Spaces 🤗](https://huggingface.co/spaces) using [Gradio](https://github.com/gradio-app/gradio). Try out the Web Demo [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/THUDM/CogVideo)
 
-**News!** The [demo](https://wudao.aminer.cn/cogvideo/) for CogVideo is available! 
+**News!** The [demo](https://wudao.aminer.cn/cogvideo/) for CogVideo is available! It's also integrated into [Huggingface Spaces 🤗](https://huggingface.co/spaces) using [Gradio](https://github.com/gradio-app/gradio). Try out the Web Demo [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/THUDM/CogVideo)
+
 
 **News!** The code and model for text-to-video generation is now available! Currently we only supports *simplified Chinese input*. 
 
