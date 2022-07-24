@@ -1,0 +1,31 @@
+# Configuration for Cog ⚙️
+# Reference: https://github.com/replicate/cog/blob/main/docs/yaml.md
+
+build:  
+  gpu: true  
+
+  system_packages:
+    - "ffmpeg"
+    - "libsm6"
+    - "libxext6"
+    - "libglib2.0-0"
+  
+  python_version: "3.8"      
+  python_packages:    
+    - "deep-translator==1.8.3"
+    - "gifmaker==1.5"
+    - "icetk==0.0.4"
+    - "opencv-python==4.6.0.66"
+    - "SwissArmyTransformer==0.2.9"
+    - "torch==1.9.0"
+    - "torchvision==0.10.0"
+
+  run:
+    - "mkdir -p /sharefs/cogview-new; cd /sharefs/cogview-new; wget https://models.nmb.ai/cogvideo/cogvideo-stage1.tar.gz -O - | tar xz"
+    - "cd /sharefs/cogview-new; wget https://models.nmb.ai/cogvideo/cogvideo-stage2.tar.gz -O - | tar xz"
+    - "cd /sharefs/cogview-new; wget https://models.nmb.ai/cogview2/cogview2-dsr.tar.gz -O - | tar xz"
+    - "mkdir -p /root/.icetk_models; wget -O /root/.icetk_models/ice_text.model https://models.nmb.ai/cogvideo/ice_text.model"
+    - "mkdir -p /root/.tcetk_models; wget -O /root/.icetk_models/ice_image.pt https://models.nmb.ai/cogvideo/ice_image.pt"
+
+predict: "predict.py:Predictor"
+image: "r8.im/nightmareai/cogvideo"

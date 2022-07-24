@@ -1,0 +1,3 @@
+[submodule "Image-Local-Attention"]
+	path = Image-Local-Attention
+	url = https://github.com/Sleepychord/Image-Local-Attention
