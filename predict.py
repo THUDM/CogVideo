@@ -183,7 +183,7 @@ def my_filling_sequence(
         guider_tokens = guider_tokens[..., :context_length-guider_index_delta]
         guider_input_tokens = guider_tokens.clone()
         
-    for fid in trange(current_frame_num):
+    for fid in range(current_frame_num):
         input_tokens[:, text_len+400*fid] = tokenizer['<start_of_image>']
         if guider_seq is not None:
             guider_input_tokens[:, guider_text_len+400*fid] = tokenizer['<start_of_image>']
