@@ -19,6 +19,7 @@ build:
     - "SwissArmyTransformer==0.2.9"
     - "torch==1.9.0"
     - "torchvision==0.10.0"
+    - "tqdm==4.64.0"
 
   run:
     - "mkdir -p /sharefs/cogview-new; cd /sharefs/cogview-new; wget https://models.nmb.ai/cogvideo/cogvideo-stage1.tar.gz -O - | tar xz"
