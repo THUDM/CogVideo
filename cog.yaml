@@ -3,14 +3,14 @@
 
 build:  
   gpu: true  
-
+  
   system_packages:
     - "ffmpeg"
     - "libsm6"
     - "libxext6"
     - "libglib2.0-0"
   
-  python_version: "3.8"      
+  python_version: "3.9"
   python_packages:    
     - "deep-translator==1.8.3"
     - "gifmaker==1.5"
