@@ -12,7 +12,6 @@ import torch
 import time
 import logging,sys
 import stat
-from tqdm import trange
 from torchvision.utils import save_image
 from icetk import icetk as tokenizer
 import torch.distributed as dist
@@ -27,7 +26,7 @@ from SwissArmyTransformer.resources import auto_create
 from models.cogvideo_cache_model import CogVideoCacheModel
 from coglm_strategy import CoglmStrategy
 
-sys.path.append('./Image-Local-Attention')
+
 
 
 def get_masks_and_position_ids_stage1(data, textlen, framelen):
@@ -114,13 +113,13 @@ def my_save_multiple_images(imgs, path, subdir, debug=True):
     # imgs: list of tensor images
     if debug:
         imgs = torch.cat(imgs, dim=0)
-        #print("\nSave to: ", path, flush=True)
+        logging.debug("\nSave to: ", path, flush=True)
         save_image(imgs, path, normalize=True)
     else:
-        #print("\nSave to: ", path, flush=True)
+        logging.debug("\nSave to: ", path, flush=True)
         single_frame_path = os.path.join(path, subdir)
         os.makedirs(single_frame_path, exist_ok=True)
-        for i in trange(len(imgs)):
+        for i in range(len(imgs)):
             save_image(imgs[i], os.path.join(single_frame_path, f'{str(i).rjust(4,"0")}.jpg'), normalize=True)
             os.chmod(os.path.join(single_frame_path,f'{str(i).rjust(4,"0")}.jpg'), stat.S_IRWXO+stat.S_IRWXG+stat.S_IRWXU)
         save_image(torch.cat(imgs, dim=0), os.path.join(single_frame_path,f'frame_concat.jpg'), normalize=True)
@@ -416,8 +415,7 @@ class InferenceModel_Interpolate(CogVideoCacheModel):
 
 class Predictor(BasePredictor):
     def setup(self):
-        logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S')
-        subprocess.call("python setup.py develop", cwd="/src/Image-Local-Attention", shell=True)        
+        logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')        
         os.environ["SAT_HOME"] = "/sharefs/cogview-new"
         args = get_args([
             "--batch-size", "1",                                               
@@ -457,6 +455,8 @@ class Predictor(BasePredictor):
         
         # enable dsr if model exists
         if os.path.exists('/sharefs/cogview-new/cogview2-dsr'):
+            subprocess.check_output("python setup.py develop", cwd="/src/Image-Local-Attention", shell=True)
+            sys.path.append('./Image-Local-Attention')
             from sr_pipeline import DirectSuperResolution 
             dsr_path = auto_create('cogview2-dsr', path=None)
             self.dsr = DirectSuperResolution(args, dsr_path,
@@ -475,7 +475,7 @@ class Predictor(BasePredictor):
     def predict(
         self,
         prompt: str = Input(description="Prompt"),
-        seed: int = Input(description="Seed (-1 to use a random seed)", default=-1, le=(2**32 - 1), ge=-1),
+        seed: int = Input(description="Seed (-1 to use a random seed)", default=-1, le=(100000), ge=-1),
         translate: bool = Input(
             description="Translate prompt from English to Simplified Chinese (required if not entering Chinese text)",
             default=True,
@@ -483,29 +483,38 @@ class Predictor(BasePredictor):
         both_stages: bool = Input(
             description="Run both stages (uncheck to run more quickly and output only a few frames)", default=True
         ),
-        use_guidance: bool = Input(description="Use stage 1 guidance (recommended)", default=True)        
+        use_guidance: bool = Input(description="Use stage 1 guidance (recommended)", default=True),
     ) -> typing.Iterator[Path]:
         if translate:
             prompt = self.translator.translate(prompt.strip())
+
+        if seed == -1:
+            seed = randint(0, 100000)
+
+        self.args.seed = seed
+        self.args.use_guidance_stage1 = use_guidance        
+        self.prompt = prompt
+        self.args.both_stages = both_stages
+
+        for file in self.run():
+            yield Path(file)       
+        torch.cuda.empty_cache()
+        return         
+
+    def run(self):
+        invalid_slices = [slice(tokenizer.num_image_tokens, None)]
+        strategy_cogview2 = CoglmStrategy(invalid_slices, 
+            temperature=1.0, top_k=16)
+        strategy_cogvideo = CoglmStrategy(invalid_slices, 
+            temperature=self.args.temperature, top_k=self.args.top_k,
+            temperature2=self.args.coglm_temperature2)
+
+        torch.manual_seed(self.args.seed)
+        random.seed(self.args.seed)
         workdir = tempfile.mkdtemp()
         os.makedirs(f"{workdir}/output/stage1", exist_ok=True)
         os.makedirs(f"{workdir}/output/stage2", exist_ok=True)
 
-        if seed == -1:
-            seed = randint(0, 2**32)
-
-        invalid_slices = [slice(tokenizer.num_image_tokens, None)]
-        self.strategy_cogview2 = CoglmStrategy(invalid_slices, 
-            temperature=1.0, top_k=16)
-        self.strategy_cogvideo = CoglmStrategy(invalid_slices, 
-            temperature=self.args.temperature, top_k=self.args.top_k,
-            temperature2=self.args.coglm_temperature2)
-
-
-        torch.manual_seed(seed)
-        random.seed(seed)
-        self.args.seed = seed
-        self.args.use_guidance_stage1 = use_guidance        
         move_start_time = time.time()
         logging.debug("moving stage 2 model to cpu")
         self.model_stage2 = self.model_stage2.cpu()
@@ -513,35 +522,17 @@ class Predictor(BasePredictor):
         logging.debug("moving stage 1 model to cuda")
         self.model_stage1 = self.model_stage1.cuda()
         logging.debug("moving in model1 takes time: {:.2f}".format(time.time()-move_start_time))
-                
-        parent_given_tokens = self.process_stage1(self.model_stage1, prompt, duration=4.0, video_raw_text=prompt, video_guidance_text="视频",
-                                                    image_text_suffix=" 高清摄影",
-                                                    outputdir=f'{workdir}/output/stage1', batch_size=1)
-        
-        logging.debug("moving stage 1 model to cpu")
-        self.model_stage1 = self.model_stage1.cpu()
-        torch.cuda.empty_cache()
-        yield Path(f"{workdir}/output/stage1/0.gif")
-        if both_stages:                                        
-            move_start_time = time.time()
-            logging.debug("moving stage 2 model to cuda")
-            self.model_stage2 = self.model_stage2.cuda()
-            logging.debug("moving in model2 takes time: {:.2f}".format(time.time()-move_start_time))
-            self.process_stage2(self.model_stage2, prompt, duration=2.0, video_raw_text=prompt+" 视频", 
-                                video_guidance_text="视频", parent_given_tokens=parent_given_tokens, 
-                                outputdir=f'{workdir}/output/stage2',
-                                gpu_rank=0, gpu_parallel_size=1)        
-            yield Path(f"{workdir}/output/stage2/0.gif")
-
-        logging.debug("complete, exiting")        
-                
-    def process_stage1(self, model, seq_text, duration, video_raw_text=None, video_guidance_text="视频", image_text_suffix="", outputdir=None, batch_size=1):
+                       
         process_start_time = time.time()
         args = self.args
         use_guide = args.use_guidance_stage1        
-            
-        if video_raw_text is None: 
-            video_raw_text = seq_text
+        batch_size = 1
+        seq_text = self.prompt
+        video_raw_text = self.prompt
+        duration=4.0
+        video_guidance_text="视频"
+        image_text_suffix=" 高清摄影"
+        outputdir=f'{workdir}/output/stage1'
         mbz = args.stage1_max_inference_batch_size if args.stage1_max_inference_batch_size > 0 else args.max_inference_batch_size
         assert batch_size < mbz or batch_size % mbz == 0
         frame_len = 400
@@ -557,13 +548,13 @@ class Predictor(BasePredictor):
         for tim in range(max(batch_size // mbz, 1)):
             start_time = time.time()
             output_list_1st.append(
-                my_filling_sequence(model, args,seq_1st.clone(),
+                my_filling_sequence(self.model_stage1, args,seq_1st.clone(),
                     batch_size=min(batch_size, mbz),
                     get_masks_and_position_ids=get_masks_and_position_ids_stage1,
                     text_len=text_len_1st, 
                     frame_len=frame_len,
-                    strategy=self.strategy_cogview2,
-                    strategy2=self.strategy_cogvideo,
+                    strategy=strategy_cogview2,
+                    strategy2=strategy_cogvideo,
                     log_text_attention_weights=1.4,
                     enforce_no_swin=True,
                     mode_stage1=True,
@@ -604,12 +595,12 @@ class Predictor(BasePredictor):
             input_seq = seq[:min(batch_size, mbz)].clone() if tim == 0 else seq[mbz*tim:mbz*(tim+1)].clone()
             guider_seq2 = (guider_seq[:min(batch_size, mbz)].clone() if tim == 0 else guider_seq[mbz*tim:mbz*(tim+1)].clone()) if guider_seq is not None else None
             output_list.append(
-                my_filling_sequence(model, args,input_seq,
+                my_filling_sequence(self.model_stage1, args,input_seq,
                     batch_size=min(batch_size, mbz),
                     get_masks_and_position_ids=get_masks_and_position_ids_stage1,
                     text_len=text_len, frame_len=frame_len,
-                    strategy=self.strategy_cogview2,
-                    strategy2=self.strategy_cogvideo,
+                    strategy=strategy_cogview2,
+                    strategy2=strategy_cogvideo,
                     log_text_attention_weights=video_log_text_attention_weights,
                     guider_seq=guider_seq2,
                     guider_text_len=guider_text_len,
@@ -633,27 +624,37 @@ class Predictor(BasePredictor):
             for clip_i in range(len(imgs)):
                 # os.makedirs(output_dir_full_paths[clip_i], exist_ok=True)
                 my_save_multiple_images(imgs[clip_i], outputdir, subdir=f"frames/{clip_i}", debug=False)
-                subprocess.call(f"gifmaker -i '{outputdir}'/frames/'{clip_i}'/0*.jpg -o '{outputdir}/{clip_i}.gif' -d 0.25", shell=True)
+                out_filename = f'{outputdir}/{clip_i}.gif'
+                subprocess.check_output(f"gifmaker -i '{outputdir}'/frames/'{clip_i}'/0*.jpg -o '{out_filename}' -d 0.25", shell=True)
+                yield out_filename
             torch.save(save_tokens, os.path.join(outputdir, 'frame_tokens.pt'))
         
         logging.info("CogVideo Stage1 completed. Taken time {:.2f}\n".format(time.time() - process_start_time))
-        
-        return save_tokens
+            
+        logging.debug("moving stage 1 model to cpu")
+        self.model_stage1 = self.model_stage1.cpu()
+        torch.cuda.empty_cache()        
 
-    def process_stage2(self, model, seq_text, duration, video_raw_text=None, video_guidance_text="视频", parent_given_tokens=None, conddir=None, outputdir=None, gpu_rank=0, gpu_parallel_size=1):
-        stage2_starttime = time.time()
-        args = self.args
-        use_guidance = args.use_guidance_stage2
-        if args.both_stages:
-            move_start_time = time.time()
-            logging.debug("moving stage-2 model to cuda")
-            model = model.cuda()
-            logging.debug("moving in stage-2 model takes time: {:.2f}".format(time.time()-move_start_time))
+        if not self.args.both_stages:
+            logging.info("only stage 1 selected, exiting")        
+            return
+                
+        gpu_rank=0
+        gpu_parallel_size=1
+        video_raw_text=self.prompt+" 视频"            
+        duration=2.0
+        video_guidance_text="视频"
+        outputdir=f'{workdir}/output/stage2'
+        parent_given_tokens = save_tokens
+        stage2_starttime = time.time()        
+        use_guidance = args.use_guidance_stage2        
+
+        move_start_time = time.time()
+        logging.debug("moving stage-2 model to cuda")
+        self.model_stage2 = self.model_stage2.cuda()
+        logging.debug("moving in stage-2 model takes time: {:.2f}".format(time.time()-move_start_time))
             
         try:
-            if parent_given_tokens is None:
-                assert conddir is not None
-                parent_given_tokens = torch.load(os.path.join(conddir, 'frame_tokens.pt'), map_location='cpu')
             sample_num_allgpu = parent_given_tokens.shape[0]
             sample_num = sample_num_allgpu // gpu_parallel_size
             assert sample_num * gpu_parallel_size == sample_num_allgpu
@@ -708,12 +709,12 @@ class Predictor(BasePredictor):
                 input_seq = seq[:min(generate_batchsize_total, mbz)].clone() if tim == 0 else seq[mbz*tim:mbz*(tim+1)].clone()
                 guider_seq2 = (guider_seq[:min(generate_batchsize_total, mbz)].clone() if tim == 0 else guider_seq[mbz*tim:mbz*(tim+1)].clone()) if guider_seq is not None else None
                 output_list.append(
-                    my_filling_sequence(model, args, input_seq,
+                    my_filling_sequence(self.model_stage2, args, input_seq,
                         batch_size=min(generate_batchsize_total, mbz),
                         get_masks_and_position_ids=get_masks_and_position_ids_stage2,
                         text_len=text_len, frame_len=frame_len,
-                        strategy=self.strategy_cogview2,
-                        strategy2=self.strategy_cogvideo,
+                        strategy=strategy_cogview2,
+                        strategy2=strategy_cogvideo,
                         log_text_attention_weights=video_log_text_attention_weights,
                         mode_stage1=False,
                         guider_seq=guider_seq2,
@@ -742,8 +743,7 @@ class Predictor(BasePredictor):
         parent_given_tokens_2d = parent_given_tokens.reshape(-1, 400)        
             
         logging.debug("moving stage 2 model to cpu")
-        self.model_stage2 = self.model_stage2.cpu()
-        model = model.cpu()
+        self.model_stage2 = self.model_stage2.cpu()        
         torch.cuda.empty_cache()
             
         # use dsr if loaded
@@ -764,14 +764,19 @@ class Predictor(BasePredictor):
 
             for sample_i in range(sample_num):
                 my_save_multiple_images(decoded_sr_videos[sample_i], outputdir,subdir=f"frames/{sample_i+sample_num*gpu_rank}", debug=False)
-                subprocess.call(f"gifmaker -i '{outputdir}'/frames/'{sample_i+sample_num*gpu_rank}'/0*.jpg -o '{outputdir}/{sample_i+sample_num*gpu_rank}.gif' -d 0.125", shell=True)
+                output_file = f'{outputdir}/{sample_i+sample_num*gpu_rank}.gif'
+                subprocess.check_output(f"gifmaker -i '{outputdir}'/frames/'{sample_i+sample_num*gpu_rank}'/0*.jpg -o '{output_file}' -d 0.125", shell=True)
+                yield output_file
             
             logging.info("Direct super-resolution completed. Taken time {:.2f}\n".format(time.time() - dsr_starttime))
         else:            
             #imgs = [torch.nn.functional.interpolate(tokenizer.decode(image_ids=seq.tolist()), size=(480, 480)) for seq in output_tokens_merge]
             #os.makedirs(outputdir, exist_ok=True)
             #my_save_multiple_images(imgs, outputdir,subdir="frames", debug=False)            
-            #os.system(f"gifmaker -i '{outputdir}'/frames/0*.jpg -o '{outputdir}/{str(float(duration))}_concat.gif' -d 0.2")                                
+            #os.system(f"gifmaker -i '{outputdir}'/frames/0*.jpg -o '{outputdir}/{str(float(duration))}_concat.gif' -d 0.2")
+        
+            
+            output_tokens = torch.cat(output_list, dim=0)[:, 1+text_len:]
             decoded_videos = []
 
             for sample_i in range(sample_num):
@@ -783,18 +788,6 @@ class Predictor(BasePredictor):
 
             for sample_i in range(sample_num):
                 my_save_multiple_images(decoded_videos[sample_i], outputdir,subdir=f"frames/{sample_i+sample_num*gpu_rank}", debug=False)
-                subprocess.call(f"gifmaker -i '{outputdir}'/frames/'{sample_i+sample_num*gpu_rank}'/0*.jpg -o '{outputdir}/{sample_i+sample_num*gpu_rank}.gif' -d 0.125", shell=True)                
-
-            
-            #imgs = []
-            #for seq in output_tokens:
-            #    decoded_imgs = [torch.nn.functional.interpolate(tokenizer.decode(image_ids=seq.tolist()[i*400: (i+1)*400]), size=(480, 480)) for i in range(total_frames)]
-            #    decoded_video.extend(decoded_imgs) # only the last image (target)
-                    
-            #for sample_i in range(sample_num):
-            #    my_save_multiple_images(decoded_video, outputdir,subdir=f"frames/{sample_i+sample_num*gpu_rank}", debug=False)
-            #    os.system(f"gifmaker -i '{outputdir}'/frames/'{sample_i+sample_num*gpu_rank}'/0*.jpg -o '{outputdir}/{sample_i+sample_num*gpu_rank}.gif' -d 0.125")
-            
-        return True                    
-
-
+                output_file = f'{outputdir}/{sample_i+sample_num*gpu_rank}.gif'
+                subprocess.check_output(f"gifmaker -i '{outputdir}'/frames/'{sample_i+sample_num*gpu_rank}'/0*.jpg -o '{output_file}' -d 0.125", shell=True)
+                yield output_file
