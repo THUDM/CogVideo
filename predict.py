@@ -486,7 +486,7 @@ class Predictor(BasePredictor):
             description="Run both stages (uncheck to run more quickly and output only a few frames)", default=True
         ),
         use_guidance: bool = Input(description="Use stage 1 guidance (recommended)", default=True),
-        image_prompt: Path = Input(description="Starting image", default=None)
+        image_prompt: Path = Input(description="Starting image (optional, prompt has little effect when used)", default=None)
     ) -> typing.Iterator[Path]:
         if translate:
             prompt = self.translator.translate(prompt.strip())
@@ -500,11 +500,15 @@ class Predictor(BasePredictor):
         self.image_prompt = None
         if os.path.exists(str(image_prompt)):
             try:
-                Image.open(str(image_prompt))
+                image = Image.open(str(image_prompt)).convert("RGBA")
+                # Remove alpha channel if present
+                bg = Image.new("RGBA", image.size, (255, 255, 255))
+                image = Image.alpha_composite(bg, image).convert("RGB")
+                imagefile = f'{tempfile.mkdtemp()}/input.png'
+                image.save(imagefile, format="png")
+                self.image_prompt = imagefile
             except (FileNotFoundError, UnidentifiedImageError):
-                logging.debug("Bad image prompt; ignoring")  # Is there a better way to input images?
-            else:
-                self.image_prompt = str(image_prompt)
+                logging.debug("Bad image prompt; ignoring")  # Is there a better way to input images?            
         self.args.both_stages = both_stages
 
         for file in self.run():
