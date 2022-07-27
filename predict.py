@@ -499,7 +499,7 @@ class Predictor(BasePredictor):
         self.prompt = prompt
         if os.path.exists(image_prompt):
             try:
-                Image.open(image_prompt)
+                Image.open(str(image_prompt))
             except (FileNotFoundError, UnidentifiedImageError):
                 logging.debug("Bad image prompt; ignoring")  # Is there a better way to input images?
             else:
