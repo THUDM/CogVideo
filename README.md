@@ -55,9 +55,18 @@ A 4-second clip of 32 frames is shown below.
 * LocalAttention: Make sure you have CUDA installed and compile the local attention kernel.
 
 ```shell
-git clone https://github.com/Sleepychord/Image-Local-Attention
-cd Image-Local-Attention && python setup.py install
+pip install git+https://github.com/Sleepychord/Image-Local-Attention
 ```
+
+## Docker
+Alternatively you can use Docker to handle all dependencies.
+
+1. Run ```./build_image.sh```
+2. Run ```./run_image.sh```
+3. Run ```./install_image_local_attention```
+
+Optionally, after that you can recommit the image to avoid having to install image local attention again.
+
 
 ### Download
 
