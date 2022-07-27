@@ -504,7 +504,7 @@ class Predictor(BasePredictor):
             except (FileNotFoundError, UnidentifiedImageError):
                 logging.debug("Bad image prompt; ignoring")  # Is there a better way to input images?
             else:
-                self.image_prompt = Image.open(image_prompt)
+                self.image_prompt = str(image_prompt)
         self.args.both_stages = both_stages
 
         for file in self.run():
