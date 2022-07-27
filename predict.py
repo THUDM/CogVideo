@@ -497,7 +497,8 @@ class Predictor(BasePredictor):
         self.args.seed = seed
         self.args.use_guidance_stage1 = use_guidance        
         self.prompt = prompt
-        if os.path.exists(image_prompt):
+        self.image_prompt = None
+        if os.path.exists(str(image_prompt)):
             try:
                 Image.open(str(image_prompt))
             except (FileNotFoundError, UnidentifiedImageError):
