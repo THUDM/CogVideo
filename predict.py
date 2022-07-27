@@ -486,7 +486,7 @@ class Predictor(BasePredictor):
             description="Run both stages (uncheck to run more quickly and output only a few frames)", default=True
         ),
         use_guidance: bool = Input(description="Use stage 1 guidance (recommended)", default=True),
-        image_prompt: Path = Input(description="Starting image")
+        image_prompt: Path = Input(description="Starting image", default=None)
     ) -> typing.Iterator[Path]:
         if translate:
             prompt = self.translator.translate(prompt.strip())
