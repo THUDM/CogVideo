@@ -70,7 +70,7 @@ Optionally, after that you can recommit the image to avoid having to install ima
 
 ### Download
 
-Our code will automatically download or detect the models into the path defined by environment variable `SAT_HOME`. You can also manually download [CogVideo-Stage1](https://lfs.aminer.cn/misc/cogvideo/cogvideo-stage1.zip) and [CogVideo-Stage2](https://lfs.aminer.cn/misc/cogvideo/cogvideo-stage2.zip) and place them under SAT_HOME (with folders named `cogvideo-stage1` and `cogvideo-stage2`)
+Our code will automatically download or detect the models into the path defined by environment variable `SAT_HOME`. You can also manually download [CogVideo-Stage1](https://lfs.aminer.cn/misc/cogvideo/cogvideo-stage1.zip) , [CogVideo-Stage2](https://lfs.aminer.cn/misc/cogvideo/cogvideo-stage2.zip) and [CogView2-dsr](https://model.baai.ac.cn/model-detail/100041) place them under SAT_HOME (with folders named `cogvideo-stage1` , `cogvideo-stage2` and `cogview2-dsr`)
 
 ### Text-to-Video Generation
 
