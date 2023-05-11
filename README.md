@@ -3,7 +3,7 @@
 This is the official repo for the paper: [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](http://arxiv.org/abs/2205.15868).
 
 
-**News!** The [demo](https://wudao.aminer.cn/cogvideo/) for CogVideo is available! 
+**News!** The [demo](https://models.aminer.cn/cogvideo/) for CogVideo is available! 
 
 It's also integrated into [Huggingface Spaces 🤗](https://huggingface.co/spaces) using [Gradio](https://github.com/gradio-app/gradio). Try out the Web Demo [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/THUDM/CogVideo)
 
@@ -13,7 +13,7 @@ It's also integrated into [Huggingface Spaces 🤗](https://huggingface.co/space
 https://user-images.githubusercontent.com/48993524/170857367-2033c514-3c9f-4297-876f-2468592a254b.mp4
 
 * **Read** our paper [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) on ArXiv for a formal introduction. 
-* **Try** our demo at [https://wudao.aminer.cn/cogvideo/](https://wudao.aminer.cn/cogvideo/)
+* **Try** our demo at [https://models.aminer.cn/cogvideo/](https://models.aminer.cn/cogvideo/)
 * **Run** our pretrained models for text-to-video generation. Please use A100 GPU.
 * **Cite** our paper if you find our work helpful
 
@@ -28,7 +28,7 @@ https://user-images.githubusercontent.com/48993524/170857367-2033c514-3c9f-4297-
 
 ## Web Demo
 
-The demo for CogVideo is at [https://wudao.aminer.cn/cogvideo/](https://wudao.aminer.cn/cogvideo/), where you can get hands-on practice on text-to-video generation. *The original input is in Chinese.*
+The demo for CogVideo is at [https://models.aminer.cn/cogvideo/](https://models.aminer.cn/cogvideo/), where you can get hands-on practice on text-to-video generation. *The original input is in Chinese.*
 
 
 ## Generated Samples
