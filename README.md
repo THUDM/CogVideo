@@ -75,7 +75,7 @@ Our code will automatically download or detect the models into the path defined 
 ### Text-to-Video Generation
 
 ```
-./script/inference_cogvideo_pipeline.sh
+./scripts/inference_cogvideo_pipeline.sh
 ```
 
 Arguments useful in inference are mainly:
