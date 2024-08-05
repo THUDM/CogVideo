@@ -166,7 +166,7 @@ class SATVideoDiffusionEngine(nn.Module):
                 else:
                     kwargs = {}
                 use_cp = False
-                out = self.first_stage_model.decode(z[n * n_samples : (n + 1) * n_samples], use_cp=use_cp, **kwargs)
+                out = self.first_stage_model.decode(z[n * n_samples : (n + 1) * n_samples], **kwargs)
                 all_out.append(out)
         out = torch.cat(all_out, dim=0)
         return out
@@ -186,7 +186,7 @@ class SATVideoDiffusionEngine(nn.Module):
         all_out = []
         with torch.autocast("cuda", enabled=not self.disable_first_stage_autocast):
             for n in range(n_rounds):
-                out = self.first_stage_model.encode(x[n * n_samples : (n + 1) * n_samples], use_cp=use_cp)
+                out = self.first_stage_model.encode(x[n * n_samples : (n + 1) * n_samples])
                 all_out.append(out)
         z = torch.cat(all_out, dim=0)
         z = self.scale_factor * z

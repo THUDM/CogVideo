@@ -136,8 +136,11 @@ def sampling_main(args, model_cls):
     T, H, W, C, F = args.sampling_num_frames, image_size[0], image_size[1], args.latent_channels, 8
     num_samples = [1]
     force_uc_zero_embeddings = ["txt"]
+    device = model.device
     with torch.no_grad():
         for text, cnt in tqdm(data_iter):
+            # reload model on GPU
+            model.to(device)
             print("rank:", rank, "start to process", text, cnt)
             # TODO: broadcast image2video
             value_dict = {
@@ -166,6 +169,8 @@ def sampling_main(args, model_cls):
                 if not k == "crossattn":
                     c[k], uc[k] = map(lambda y: y[k][: math.prod(num_samples)].to("cuda"), (c, uc))
             for index in range(args.batch_size):
+                # reload model on GPU
+                model.to(device)
                 samples_z = sample_func(
                     c,
                     uc=uc,
@@ -173,11 +178,18 @@ def sampling_main(args, model_cls):
                     shape=(T, C, H // F, W // F),
                 )
                 samples_z = samples_z.permute(0, 2, 1, 3, 4).contiguous()
+                
+                # Unload the model from GPU to save GPU memory
+                model.to('cpu')
+                torch.cuda.empty_cache()
+                first_stage_model = model.first_stage_model
+                first_stage_model = first_stage_model.to(device)
 
                 latent = 1.0 / model.scale_factor * samples_z
-
+                
+                # Decode latent serial to save GPU memory
                 recons = []
-                loop_num = (T - 1) // 2
+                loop_num = (T-1)//2
                 for i in range(loop_num):
                     if i == 0:
                         start_frame, end_frame = 0, 3
@@ -188,11 +200,10 @@ def sampling_main(args, model_cls):
                     else:
                         clear_fake_cp_cache = False
                     with torch.no_grad():
-                        recon = model.first_stage_model.decode(latent[:, :, start_frame:end_frame].contiguous(), clear_fake_cp_cache=clear_fake_cp_cache)
+                        recon = first_stage_model.decode(latent[:, :, start_frame:end_frame].contiguous(), clear_fake_cp_cache=clear_fake_cp_cache)
 
                     recons.append(recon)
 
-                
                 recon = torch.cat(recons, dim=2).to(torch.float32)
                 samples_x = recon.permute(0, 2, 1, 3, 4).contiguous()
                 samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0).cpu()

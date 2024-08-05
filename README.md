@@ -60,8 +60,8 @@ along with related basic information:
 | Model Name                                | CogVideoX-2B                                                                                                                          | 
 |-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
 | Prompt Language                           | English                                                                                                                               | 
-| GPU Memory Required for Inference (FP16)  | 36GB using diffusers (will be optimized before the PR is merged)  and 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer) | 
-| GPU Memory Required for Fine-tuning(bs=1) | 42GB                                                                                                                                  |
+| GPU Memory Required for Inference (FP16)  | 18GB if using [SAT](https://github.com/THUDM/SwissArmyTransformer); 36GB if using diffusers (will be optimized before the PR is merged)  | 
+| GPU Memory Required for Fine-tuning(bs=1) | 40GB                                                                                                                                  |
 | Prompt Max  Length                        | 226 Tokens                                                                                                                            |
 | Video Length                              | 6 seconds                                                                                                                             | 
 | Frames Per Second                         | 8 frames                                                                                                                              | 
@@ -112,7 +112,7 @@ This folder contains some tools for model conversion / caption generation, etc.
     - [x] CogVideoX model fine-tuning example (SAT)
     - [ ] CogVideoX model fine-tuning example (Huggingface / SAT)
     - [ ] Open source CogVideoX-Pro (adapted for CogVideoX-2B suite)
-    - [ ] Release CogVideoX technical report
+    - [x] Release CogVideoX technical report
 
 We welcome your contributions. You can click [here](resources/contribute.md) for more information.
 
@@ -126,4 +126,4 @@ The model weights and implementation code are released under the [CogVideoX LICE
 
 🌟 If you find our work helpful, please leave us a star. 🌟
 
-The paper is still being written and will be released soon. Stay tuned!
+The paper on Arxiv is coming soon!

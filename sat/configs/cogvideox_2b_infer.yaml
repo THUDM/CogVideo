@@ -5,7 +5,7 @@ args:
   batch_size: 1
   input_type: txt
   input_file: test.txt
-  sampling_num_frames: 13  # Must be 11,13 or 19
+  sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True
   output_dir: outputs/

@@ -122,7 +122,7 @@ model:
         lora_config: ## Using Lora
           target: sat.model.finetune.lora2.LoraMixin
           params:
-            r: 256
+            r: 128
 
         patch_embed_config:
           target: dit_video_concat.ImagePatchEmbeddingMixin
