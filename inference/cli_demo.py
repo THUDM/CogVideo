@@ -43,7 +43,7 @@ def generate_video(
 
     # Load the pre-trained CogVideoX pipeline with the specified precision (float16) and move it to the specified device
     pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype).to(device)
-
+    pipe.enable_sequential_cpu_offload() # Enable sequential CPU offload for faster inference
     # Encode the prompt to get the prompt embeddings
     prompt_embeds, _ = pipe.encode_prompt(
         prompt=prompt,  # The textual description for video generation

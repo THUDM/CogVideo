@@ -4,7 +4,7 @@ This script demonstrates how to encode video frames using a pre-trained CogVideo
 Note:
     This script requires the `diffusers>=0.30.0` library to be installed.
     If the video appears “completely green” and cannot be viewed, please switch to a different player to watch it. This is a normal phenomenon.
-    Cost 71GB of GPU memory for encoding a 1-minute video at 720p resolution.
+    Cost 71GB of GPU memory for encoding a 6s video at 720p resolution.
 
 Run the script:
     $ python cli_demo.py --model_path THUDM/CogVideoX-2b --video_path path/to/video.mp4 --output_path path/to/output
