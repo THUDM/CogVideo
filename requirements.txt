@@ -1,4 +1,8 @@
-SwissArmyTransformer==0.2.9
-icetk
-gifmaker
-torchvision
+git+https://github.com/huggingface/diffusers.git@878f609aa5ce4a78fea0f048726889debde1d7e8#egg=diffusers
+torch>=2.4.0
+torchvision>=0.19.0
+streamlit>=1.37.0
+opencv-python>=4.10
+imageio-ffmpeg>=0.5.1
+openai>=1.38.0
+transformers>=4.43.3

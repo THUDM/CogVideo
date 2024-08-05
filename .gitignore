@@ -6,3 +6,4 @@ checkpoints/
 master_ip
 logs/
 *.DS_Store
+.idea
