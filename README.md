@@ -18,7 +18,8 @@
 
 ## Update and News
 
-- 🔥 **News**: ``2024/8/6``: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct the video almost losslessly.
+- 🔥 **News**: ``2024/8/6``: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct
+  the video almost losslessly.
 - 🔥 **News**: ``2024/8/6``: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
   generation models.
 
@@ -57,7 +58,7 @@ along with related basic information:
 | Model Name                                | CogVideoX-2B                                                 | 
 |-------------------------------------------|--------------------------------------------------------------|
 | Prompt Language                           | English                                                      | 
-| GPU Memory Required for Inference (FP16)  | 21.6GB                                                       | 
+| GPU Memory Required for Inference (FP16)  | 36GB (will be optimized before the PR is merged)             | 
 | GPU Memory Required for Fine-tuning(bs=1) | 46.2GB                                                       |
 | Prompt Max  Length                        | 226 Tokens                                                   |
 | Video Length                              | 6 seconds                                                    | 
@@ -76,7 +77,8 @@ of the **CogVideoX** open-source model.
 
 + [cli_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of
   common parameters.
-+ [cli_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory, but it will be optimized in the future.
++ [cli_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory,
+  but it will be optimized in the future.
 + [convert_demo](inference/converter_demo.py): How to convert user input into a format suitable for CogVideoX.
 + [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model
   to generate videos.
