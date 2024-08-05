@@ -4,11 +4,13 @@
 
 <div align="center">
 <img src=resources/logo.svg width="50%"/>
+</div>
 <p align="center">
-
 🤗 Experience on <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a>
 </p>
-</div>
+<p align="center">
+📚 Check here to view <a href="resources/CogVideoX.pdf" target="_blank">Paper</a>
+</p>
 <p align="center">
     👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> 
 </p>
@@ -55,18 +57,18 @@ to [清影](https://chatglm.cn/video).
 The table below shows the list of video generation models we currently provide,
 along with related basic information:
 
-| Model Name                                | CogVideoX-2B                                                 | 
-|-------------------------------------------|--------------------------------------------------------------|
-| Prompt Language                           | English                                                      | 
-| GPU Memory Required for Inference (FP16)  | 36GB (will be optimized before the PR is merged)             | 
-| GPU Memory Required for Fine-tuning(bs=1) | 46.2GB                                                       |
-| Prompt Max  Length                        | 226 Tokens                                                   |
-| Video Length                              | 6 seconds                                                    | 
-| Frames Per Second                         | 8 frames                                                     | 
-| Resolution                                | 720 * 480                                                    |
-| Quantized Inference                       | Not Supported                                                |          
-| Multi-card Inference                      | Not Supported                                                |                             
-| Download Link                             | 🤗 [CogVideoX-2B](https://huggingface.co/THUDM/CogVideoX-2B) |
+| Model Name                                | CogVideoX-2B                                                                                                                         | 
+|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Prompt Language                           | English                                                                                                                              | 
+| GPU Memory Required for Inference (FP16)  | 36GB using diffusers (will be optimized before the PR is merged)  and 25G using [SAT](https://github.com/THUDM/SwissArmyTransformer) | 
+| GPU Memory Required for Fine-tuning(bs=1) | 42GB                                                                                                                                 |
+| Prompt Max  Length                        | 226 Tokens                                                                                                                           |
+| Video Length                              | 6 seconds                                                                                                                            | 
+| Frames Per Second                         | 8 frames                                                                                                                             | 
+| Resolution                                | 720 * 480                                                                                                                            |
+| Quantized Inference                       | Not Supported                                                                                                                        |          
+| Multi-card Inference                      | Not Supported                                                                                                                        |                             
+| Download Link                             | 🤗 [CogVideoX-2B](https://huggingface.co/THUDM/CogVideoX-2B)                                                                         |
 
 ## Project Structure
 
@@ -89,7 +91,7 @@ of the **CogVideoX** open-source model.
 
 ### sat
 
-+ [sat_demo](sat/configs/README_zh.md): Contains the inference code and fine-tuning code of SAT weights. It is
++ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is
   recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform
   rapid stacking and development.
 

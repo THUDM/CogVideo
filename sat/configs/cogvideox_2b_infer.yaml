@@ -5,7 +5,7 @@ args:
   batch_size: 1
   input_type: txt
   input_file: test.txt
-  sampling_num_frames: 13
+  sampling_num_frames: 13  # Must be 11,13 or 19
   sampling_fps: 8
   fp16: True
   output_dir: outputs/
@@ -82,13 +82,13 @@ model:
     target: sgm.modules.GeneralConditioner
     params:
       emb_models:
-          - is_trainable: false
-            input_key: txt
-            ucg_rate: 0.1
-            target: sgm.modules.encoders.modules.FrozenT5Embedder
-            params:
-              model_dir: "google/t5-v1_1-xxl"
-              max_length: 226
+        - is_trainable: false
+          input_key: txt
+          ucg_rate: 0.1
+          target: sgm.modules.encoders.modules.FrozenT5Embedder
+          params:
+            model_dir: "google/t5-v1_1-xxl"
+            max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper

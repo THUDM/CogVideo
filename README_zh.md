@@ -5,11 +5,13 @@
 
 <div align="center">
 <img src=resources/logo.svg width="50%"/>
+</div>
 <p align="center">
-
 🤗 在 <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a> 体验视频生成模型
 </p>
-</div>
+<p align="center">
+📚 查看 <a href="resources/CogVideoX.pdf" target="_blank">论文</a>
+</p>
 <p align="center">
     👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> 
 </p>
@@ -52,18 +54,18 @@ CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生�
 
 下表战展示目前我们提供的视频生成模型列表，以及相关基础信息:
 
-| 模型名字           | CogVideoX-2B                                                 | 
-|----------------|--------------------------------------------------------------|
-| 提示词语言          | English                                                      | 
-| 推理显存消耗 (FP-16) | 36GB                                                         | 
-| 微调显存消耗 (bs=1)  | 46.2GB                                                       |
-| 提示词长度上限        | 226 Tokens                                                   |
-| 视频长度           | 6 seconds                                                    | 
-| 帧率（每秒）         | 8 frames                                                     | 
-| 视频分辨率          | 720 * 480                                                    |
-| 量化推理           | 不支持                                                          |          
-| 多卡推理           | 不支持                                                          |                             
-| 权重地址           | 🤗 [CogVideoX-2B](https://huggingface.co/THUDM/CogVideoX-2B) |
+| 模型名字           | CogVideoX-2B                                                                                                                        | 
+|----------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| 提示词语言          | English                                                                                                                             | 
+| 推理显存消耗 (FP-16) | 36GB using diffusers (will be optimized before the PR is merged) and 25G using [SAT](https://github.com/THUDM/SwissArmyTransformer) | 
+| 微调显存消耗 (bs=1)  | 42GB                                                                                                                                |
+| 提示词长度上限        | 226 Tokens                                                                                                                          |
+| 视频长度           | 6 seconds                                                                                                                           | 
+| 帧率（每秒）         | 8 frames                                                                                                                            | 
+| 视频分辨率          | 720 * 480                                                                                                                           |
+| 量化推理           | 不支持                                                                                                                                 |          
+| 多卡推理           | 不支持                                                                                                                                 |                             
+| 权重地址           | 🤗 [CogVideoX-2B](https://huggingface.co/THUDM/CogVideoX-2B)                                                                        |
 
 ## 项目结构
 
@@ -77,12 +79,12 @@ CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生�
 + [web_demo](inference/web_demo.py): 一个简单的streamlit网页应用，展示如何使用 CogVideoX-2B 模型生成视频。
 
 <div style="text-align: center;">
-    <img src="resources/web_demo.png" style="width: 100%%; height: auto;" />
+    <img src="resources/web_demo.png" style="width: 100%; height: auto;" />
 </div>
 
 ### sat
 
-+ [sat_demo](sat/configs/README_zh.md): 包含了 SAT 权重的推理代码和微调代码，推荐基于 CogVideoX
++ [sat_demo](sat/README_zh.md): 包含了 SAT 权重的推理代码和微调代码，推荐基于 CogVideoX
   模型结构进行改进，创新的研究者使用改代码以更好的进行快速的堆叠和开发。
 
 ### tools
