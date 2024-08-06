@@ -6,5 +6,6 @@ opencv-python==4.10
 imageio-ffmpeg==0.5.1
 openai==1.38.0
 transformers==4.43.4
+accelerate==0.33.0
 sentencepiece==0.2.0
 pillow==9.5.0
