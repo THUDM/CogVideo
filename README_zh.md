@@ -92,7 +92,7 @@ CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生�
 本文件夹包含了一些工具，用于模型的转换 / Caption 等工作。
 
 + [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): 将 SAT 模型权重转换为 Huggingface 模型权重。
-+ [caption_demo](tools/caption): Caption 工具，对视频理解并用文字输出的模型。
++ [caption_demo](tools/caption/README_zh.md):  Caption 工具，对视频理解并用文字输出的模型。
 
 ## 项目规划
 
