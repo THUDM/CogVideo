@@ -54,18 +54,19 @@ CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生�
 
 下表战展示目前我们提供的视频生成模型列表，以及相关基础信息:
 
-| 模型名字           | CogVideoX-2B                                                                                                                         | 
-|----------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| 提示词语言          | English                                                                                                                              | 
-| 推理显存消耗 (FP-16) | 36GB using diffusers (will be optimized before the PR is merged) and 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer) | 
-| 微调显存消耗 (bs=1)  | 42GB                                                                                                                                 |
-| 提示词长度上限        | 226 Tokens                                                                                                                           |
-| 视频长度           | 6 seconds                                                                                                                            | 
-| 帧率（每秒）         | 8 frames                                                                                                                             | 
-| 视频分辨率          | 720 * 480                                                                                                                            |
-| 量化推理           | 不支持                                                                                                                                  |          
-| 多卡推理           | 不支持                                                                                                                                  |                             
-| 权重地址           | 🤗 [CogVideoX-2B](https://huggingface.co/THUDM/CogVideoX-2B)                                                                         |
+| 模型名字                | CogVideoX-2B                                                                                                                         | 
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| 提示词语言               | English                                                                                                                              | 
+| 推理显存消耗 (FP-16)      | 36GB using diffusers (will be optimized before the PR is merged) and 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer) | 
+| 微调显存消耗 (bs=1)       | 42GB                                                                                                                                 |
+| 提示词长度上限             | 226 Tokens                                                                                                                           |
+| 视频长度                | 6 seconds                                                                                                                            | 
+| 帧率（每秒）              | 8 frames                                                                                                                             | 
+| 视频分辨率               | 720 * 480                                                                                                                            |
+| 量化推理                | 不支持                                                                                                                                  |          
+| 多卡推理                | 不支持                                                                                                                                  |                             
+| 下载地址 (Diffusers 模型) | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)  [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)      |
+| 下载地址 (SAT 模型)       | [SAT](./sat/README_zh.md)                                                                                                            |
 
 ## 项目结构
 

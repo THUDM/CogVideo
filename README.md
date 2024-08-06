@@ -57,18 +57,19 @@ to [清影](https://chatglm.cn/video).
 The table below shows the list of video generation models we currently provide,
 along with related basic information:
 
-| Model Name                                | CogVideoX-2B                                                                                                                          | 
-|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Prompt Language                           | English                                                                                                                               | 
-| GPU Memory Required for Inference (FP16)  | 18GB if using [SAT](https://github.com/THUDM/SwissArmyTransformer); 36GB if using diffusers (will be optimized before the PR is merged)  | 
-| GPU Memory Required for Fine-tuning(bs=1) | 40GB                                                                                                                                  |
-| Prompt Max  Length                        | 226 Tokens                                                                                                                            |
-| Video Length                              | 6 seconds                                                                                                                             | 
-| Frames Per Second                         | 8 frames                                                                                                                              | 
-| Resolution                                | 720 * 480                                                                                                                             |
-| Quantized Inference                       | Not Supported                                                                                                                         |          
-| Multi-card Inference                      | Not Supported                                                                                                                         |                             
-| Download Link                             | 🤗 [CogVideoX-2B](https://huggingface.co/THUDM/CogVideoX-2B)                                                                          |
+| Model Name                                | CogVideoX-2B                                                                                                                                                                                        | 
+|-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Prompt Language                           | English                                                                                                                                                                                             | 
+| GPU Memory Required for Inference (FP16)  | 18GB if using [SAT](https://github.com/THUDM/SwissArmyTransformer); 36GB if using diffusers (will be optimized before the PR is merged)                                                             | 
+| GPU Memory Required for Fine-tuning(bs=1) | 40GB                                                                                                                                                                                                |
+| Prompt Max  Length                        | 226 Tokens                                                                                                                                                                                          |
+| Video Length                              | 6 seconds                                                                                                                                                                                           | 
+| Frames Per Second                         | 8 frames                                                                                                                                                                                            | 
+| Resolution                                | 720 * 480                                                                                                                                                                                           |
+| Quantized Inference                       | Not Supported                                                                                                                                                                                       |          
+| Multi-card Inference                      | Not Supported                                                                                                                                                                                       |                             
+| Download Link (HF diffusers Model)        | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
+| Download Link (SAT Model)                 | [SAT](./sat/README.md)                                                                                                                                                                              |
 
 ## Project Structure
 
@@ -120,7 +121,7 @@ We welcome your contributions. You can click [here](resources/contribute.md) for
 
 The code in this repository is released under the [Apache 2.0 License](LICENSE).
 
-The model weights and implementation code are released under the [CogVideoX LICENSE](Model_License).
+The model weights and implementation code are released under the [CogVideoX LICENSE](MODEL_LICENSE).
 
 ## Citation
 
