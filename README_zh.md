@@ -23,7 +23,7 @@
 
 - 🔥 **News**: ``2024/8/6``: 我们开源 **3D Causal VAE**，用于 **CogVideoX-2B**，可以几乎无损地重构视频。
 - 🔥 **News**: ``2024/8/6``: 我们开源 CogVideoX 系列视频生成模型的第一个模型, **CogVideoX-2B**。
-- 🌱 **Source**: ```2022.5.19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `cogvideo-old` 分支中看到），这是一个基于 Transformer 的文本生成视频模型，您可以访问 [论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
+- 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是一个基于 Transformer 的文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
 **性能更强，参数量更大的模型正在到来的路上～，欢迎关注**
 
 ## CogVideoX-2B 视频作品
