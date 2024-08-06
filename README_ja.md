@@ -1,5 +1,6 @@
 # CogVideo && CogVideoX
 
+[Read this in English.](./README_zh)
 [中文阅读](./README_zh.md)
 
 <div align="center">
