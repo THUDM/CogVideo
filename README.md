@@ -1,4 +1,4 @@
-# CogVideoX
+# CogVideo && CogVideoX
 
 [中文阅读](./README_zh.md)
 
@@ -15,7 +15,7 @@
     👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> 
 </p>
 <p align="center">
-📍 Visit <a href="https://chatglm.cn/video">清影</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
+📍 Visit <a href="https://chatglm.cn/video?fr=osm_cogvideox">清影</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
 </p>
 
 ## Update and News
@@ -24,7 +24,7 @@
   the video almost losslessly.
 - 🔥 **News**: ``2024/8/6``: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
   generation models.
-- 🌱 **Source**: ```2022/5/19```: We have open-sourced CogVideo (now you can see in `CogVideo` branch)，a Transformer based text-to-video model, and you can check [ICLR'23 CogVideo Paper](https://arxiv.org/abs/2205.15868) for technical details.
+- 🌱 **Source**: ```2022/5/19```: We have open-sourced CogVideo (now you can see in `CogVideo` branch)，the **first** open-sourced pretrained text-to-video model, and you can check [ICLR'23 CogVideo Paper](https://arxiv.org/abs/2205.15868) for technical details.
 
 **More powerful models with larger parameter sizes are on the way~ Stay tuned!**
 
@@ -53,7 +53,7 @@
 ## Model Introduction
 
 CogVideoX is an open-source version of the video generation model, which is homologous
-to [清影](https://chatglm.cn/video).
+to [清影](https://chatglm.cn/video?fr=osm_cogvideox).
 
 The table below shows the list of video generation models we currently provide,
 along with related basic information:
@@ -79,13 +79,10 @@ of the **CogVideoX** open-source model.
 
 ### Inference
 
-+ [cli_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of
-  common parameters.
-+ [cli_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory,
-  but it will be optimized in the future.
-+ [convert_demo](inference/converter_demo.py): How to convert user input into a format suitable for CogVideoX.
-+ [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model
-  to generate videos.
++ [cli_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
++ [cli_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory, but it will be optimized in the future.
++ [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as GPT, Gemini, etc.
++ [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model to generate videos.
 
 <div style="text-align: center;">
     <img src="resources/web_demo.png" style="width: 100%; height: auto;" />
@@ -101,7 +98,7 @@ of the **CogVideoX** open-source model.
 
 This folder contains some tools for model conversion / caption generation, etc.
 
-+ [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
++ [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights. 
 + [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
 
 ## Project Plan
@@ -124,8 +121,37 @@ The code in this repository is released under the [Apache 2.0 License](LICENSE).
 
 The model weights and implementation code are released under the [CogVideoX LICENSE](MODEL_LICENSE).
 
+## CogVideo(ICLR'23)
+The official repo for the paper: [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) is on the [CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)
+
+**CogVideo is able to generate relatively high-frame-rate videos.**
+A 4-second clip of 32 frames is shown below. 
+
+![High-frame-rate sample](https://raw.githubusercontent.com/THUDM/CogVideo/CogVideo/assets/appendix-sample-highframerate.png)
+
+![Intro images](https://raw.githubusercontent.com/THUDM/CogVideo/CogVideo/assets/intro-image.png)
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/2fa19651-e925-4a2a-b8d6-b3f216d490ba" width="80%" controls autoplay></video>
+</div>
+
+
+The demo for CogVideo is at [https://models.aminer.cn/cogvideo](https://models.aminer.cn/cogvideo/), where you can get hands-on practice on text-to-video generation. *The original input is in Chinese.*
+
+
 ## Citation
 
-🌟 If you find our work helpful, please leave us a star. 🌟
+🌟 If you find our work helpful, please leave us a star and cite our paper.
 
-The paper on Arxiv is coming soon!
+```
+@article{yang2024cogvideox,
+      title={CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer}, 
+      author={Zhuoyi Yang and Jiayan Teng and Wendi Zheng and Ming Ding and Shiyu Huang and JiaZheng Xu and Yuanming Yang and Xiaohan Zhang and Xiaotao Gu and Guanyu Feng and Da Yin and Wenyi Hong and Weihan Wang and Yean Cheng and Yuxuan Zhang and Ting Liu and Bin Xu and Yuxiao Dong and Jie Tang},
+      year={2024},
+}
+@article{hong2022cogvideo,
+  title={CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers},
+  author={Hong, Wenyi and Ding, Ming and Zheng, Wendi and Liu, Xinghan and Tang, Jie},
+  journal={arXiv preprint arXiv:2205.15868},
+  year={2022}
+}
+```

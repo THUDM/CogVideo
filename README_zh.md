@@ -1,4 +1,4 @@
-# CogVideoX
+# CogVideo && CogVideoX
 
 [Read this in English.](./README_zh)
 
@@ -16,14 +16,14 @@
     👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> 
 </p>
 <p align="center">
-📍 前往<a href="https://chatglm.cn/video"> 清影</a> 和 <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9"> API平台</a> 体验更大规模的商业版视频生成模型。
+📍 前往<a href="https://chatglm.cn/video?fr=osm_cogvideox"> 清影</a> 和 <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9"> API平台</a> 体验更大规模的商业版视频生成模型。
 </p>
 
 ## 项目更新
 
 - 🔥 **News**: ``2024/8/6``: 我们开源 **3D Causal VAE**，用于 **CogVideoX-2B**，可以几乎无损地重构视频。
 - 🔥 **News**: ``2024/8/6``: 我们开源 CogVideoX 系列视频生成模型的第一个模型, **CogVideoX-2B**。
-- 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是一个基于 Transformer 的文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
+- 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是首个开源的基于 Transformer 的大型文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
 **性能更强，参数量更大的模型正在到来的路上～，欢迎关注**
 
 ## CogVideoX-2B 视频作品
@@ -50,7 +50,7 @@
 
 ## 模型介绍
 
-CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生成模型。
+CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源版本视频生成模型。
 
 下表战展示目前我们提供的视频生成模型列表，以及相关基础信息:
 
@@ -76,7 +76,7 @@ CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生�
 
 + [cli_demo](inference/cli_demo.py): 更详细的推理代码讲解，常见参数的意义，在这里都会提及。
 + [cli_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码，目前需要71GB显存，将来会优化。
-+ [convert_demo](inference/converter_demo.py): 如何将用户的输入转换成适合 CogVideoX的长输入。
++ [convert_demo](inference/convert_demo.py): 如何将用户的输入转换成适合 CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM4，也可以替换为GPT、Gemini等任意大语言模型。
 + [web_demo](inference/web_demo.py): 一个简单的streamlit网页应用，展示如何使用 CogVideoX-2B 模型生成视频。
 
 <div style="text-align: center;">
@@ -114,8 +114,36 @@ CogVideoX是 [清影](https://chatglm.cn/video) 同源的开源版本视频生�
 
 本模型权重和模型实现代码根据 [CogVideoX LICENSE](MODEL_LICENSE) 许可证发布。
 
+## CogVideo(ICLR'23) 
+ [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) 的官方repo位于[CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)。
+
+**CogVideo可以生成高帧率视频，下面展示了一个32帧的4秒视频。**
+
+![High-frame-rate sample](https://raw.githubusercontent.com/THUDM/CogVideo/CogVideo/assets/appendix-sample-highframerate.png)
+
+![Intro images](https://raw.githubusercontent.com/THUDM/CogVideo/CogVideo/assets/intro-image.png)
+
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="80%" controls autoplay></video>
+</div>
+
+CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.aminer.cn/cogvideo/)。您可以在这里体验文本到视频生成。*原始输入为中文。*
+
 ## 引用
 
-🌟 如果您发现我们的工作有所帮助，欢迎留下宝贵的stars 🌟
+🌟 如果您发现我们的工作有所帮助，欢迎引用我们的文章，留下宝贵的stars 
 
-Arxiv即将到来，敬请期待。
+```
+@article{yang2024cogvideox,
+      title={CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer}, 
+      author={Zhuoyi Yang and Jiayan Teng and Wendi Zheng and Ming Ding and Shiyu Huang and JiaZheng Xu and Yuanming Yang and Xiaohan Zhang and Xiaotao Gu and Guanyu Feng and Da Yin and Wenyi Hong and Weihan Wang and Yean Cheng and Yuxuan Zhang and Ting Liu and Bin Xu and Yuxiao Dong and Jie Tang},
+      year={2024},
+}
+@article{hong2022cogvideo,
+  title={CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers},
+  author={Hong, Wenyi and Ding, Ming and Zheng, Wendi and Liu, Xinghan and Tang, Jie},
+  journal={arXiv preprint arXiv:2205.15868},
+  year={2022}
+}
+```
