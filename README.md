@@ -82,6 +82,12 @@ of the **CogVideoX** open-source model.
 + [cli_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
 + [cli_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory, but it will be optimized in the future.
 + [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as GPT, Gemini, etc.
++ [gradio_demo](gradio_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B model to generate videos.
+
+<div style="text-align: center;">
+    <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
+</div>
+
 + [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model to generate videos.
 
 <div style="text-align: center;">
