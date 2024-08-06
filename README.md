@@ -100,7 +100,7 @@ of the **CogVideoX** open-source model.
 This folder contains some tools for model conversion / caption generation, etc.
 
 + [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
-+ [caption_demo](tools/caption_demo.py): Caption tool, a model that understands videos and outputs them in text.
++ [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
 
 ## Project Plan
 
