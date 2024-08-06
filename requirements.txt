@@ -7,3 +7,4 @@ imageio-ffmpeg>=0.5.1
 openai>=1.38.0
 transformers>=4.43.3
 accelerate>=0.33.0
+pillow==9.5.0
