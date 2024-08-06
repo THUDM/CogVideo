@@ -9,7 +9,6 @@ import torch
 from diffusers import CogVideoXPipeline
 from datetime import datetime, timedelta
 from openai import OpenAI
-import spaces
 import imageio
 import moviepy.editor as mp
 from typing import List, Union
@@ -88,7 +87,6 @@ def convert_prompt(prompt: str, retry_times: int = 3) -> str:
     return prompt
 
 
-@spaces.GPU(duration=240)
 def infer(
         prompt: str,
         num_inference_steps: int,
