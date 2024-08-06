@@ -72,6 +72,16 @@ along with related basic information:
 | Download Link (HF diffusers Model)        | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
 | Download Link (SAT Model)                 | [SAT](./sat/README.md)                                                                                                                                                                              |
 
+## Installation
+
+Install from source code:
+
+```
+git clone https://github.com/THUDM/CogVideo.git
+cd CogVideo
+pip install -r requirements.txt
+```
+
 ## Project Structure
 
 This open-source repository will guide developers to quickly get started with the basic usage and fine-tuning examples
