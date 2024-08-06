@@ -26,27 +26,12 @@
 - 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是首个开源的基于 Transformer 的大型文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
 **性能更强，参数量更大的模型正在到来的路上～，欢迎关注**
 
-## Quick Start
-
-### SAT
-
-Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
-		(18 GB for inference, 40GB for lora finetune)
-
-### Diffusers
-
-```
-pip install -r requirements.txt
-```
-
-Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
-		(36GB for inference, smaller memory and fine-tuned code are under development)
 
 ## 快速开始
 
 ### SAT
 
-查看sat文件夹下的[sat_demo](sat/README.md)：包含了 SAT 权重的推理代码和微调代码，推荐基于 CogVideoX 模型结构进行改进，创新的研究者使用改代码以更好的进行快速的堆叠和开发。
+查看sat文件夹下的[sat_demo](sat/README.md)：包含了 SAT 权重的推理代码和微调代码，推荐基于此代码进行 CogVideoX 模型结构的改进，研究者使用该代码可以更好的进行快速的迭代和开发。
 		(18 GB 推理, 40GB lora微调)
 
 ### Diffusers
@@ -105,8 +90,8 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 
 ### inference
 
-+ [cli_demo](inference/cli_demo.py): 更详细的推理代码讲解，常见参数的意义，在这里都会提及。
-+ [cli_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码，目前需要71GB显存，将来会优化。
++ [diffusers_demo](inference/cli_demo.py): 更详细的推理代码讲解，常见参数的意义，在这里都会提及。
++ [diffusers_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码，目前需要71GB显存，将来会优化。
 + [convert_demo](inference/convert_demo.py): 如何将用户的输入转换成适合 CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM4，也可以替换为GPT、Gemini等任意大语言模型。
 + [gradio_demo](gradio_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B 模型生成视频。
 
