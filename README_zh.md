@@ -134,7 +134,7 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 
 本仓库代码使用 [Apache 2.0 协议](LICENSE) 发布。
 
-本模型权重和模型实现代码根据 [CogVideoX LICENSE](MODEL_LICENSE) 许可证发布。
+本模型权重和模型实现代码根据 [CogVideoX LICENSE](./Model_License) 许可证发布。
 
 ## CogVideo(ICLR'23) 
  [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) 的官方repo位于[CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)。

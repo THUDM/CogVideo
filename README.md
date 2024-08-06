@@ -139,7 +139,7 @@ We welcome your contributions. You can click [here](resources/contribute.md) for
 
 The code in this repository is released under the [Apache 2.0 License](LICENSE).
 
-The model weights and implementation code are released under the [CogVideoX LICENSE](MODEL_LICENSE).
+The model weights and implementation code are released under the [CogVideoX LICENSE](./Model_License).
 
 ## CogVideo(ICLR'23)
 The official repo for the paper: [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) is on the [CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)
