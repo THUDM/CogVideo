@@ -1,6 +1,7 @@
 # CogVideo && CogVideoX
 
 [中文阅读](./README_zh.md)
+[日本語で読む](./README_ja.md)
 
 <div align="center">
 <img src=resources/logo.svg width="50%"/>
