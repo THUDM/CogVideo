@@ -1,7 +1,6 @@
 # SAT CogVideoX-2B
 
-This folder contains the inference code using [SAT](https://github.com/THUDM/SwissArmyTransformer) weights and the
-fine-tuning code for SAT weights.
+This folder contains the inference code using [SAT](https://github.com/THUDM/SwissArmyTransformer) weights and the fine-tuning code for SAT weights.
 
 This code is the framework used by the team to train the model. It has few comments and requires careful study.
 
@@ -100,6 +99,14 @@ bash inference.sh
 
 ## Fine-Tuning the Model
 
+### Preparing the Environment
+
+```
+git clone https://github.com/THUDM/SwissArmyTransformer.git
+cd SwissArmyTransformer
+pip install -e .
+```
+
 ### Preparing the Dataset
 
 The dataset format should be as follows:
@@ -145,6 +152,8 @@ the `configs/cogvideox_2b_sft.yaml` (for full fine-tuning) as follows.
   valid_data: [ "your val data path" ] # Training and validation sets can be the same
   split: 1,0,0 # Ratio of training, validation, and test sets
   num_workers: 8 # Number of worker threads for data loading
+  force_train: True # Allow missing keys when loading ckpt (refer to T5 and VAE which are loaded independently)
+  only_log_video_latents: True # Avoid using VAE decoder when eval to save memory
 ```
 
 If you wish to use Lora fine-tuning, you also need to modify:

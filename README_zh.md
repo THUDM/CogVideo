@@ -26,6 +26,37 @@
 - 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是首个开源的基于 Transformer 的大型文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
 **性能更强，参数量更大的模型正在到来的路上～，欢迎关注**
 
+## Quick Start
+
+### SAT
+
+Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
+		(18 GB for inference, 40GB for lora finetune)
+
+### Diffusers
+
+```
+pip install -r requirements.txt
+```
+
+Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
+		(36GB for inference, smaller memory and fine-tuned code are under development)
+
+## 快速开始
+
+### SAT
+
+查看sat文件夹下的[sat_demo](sat/README.md)：包含了 SAT 权重的推理代码和微调代码，推荐基于 CogVideoX 模型结构进行改进，创新的研究者使用改代码以更好的进行快速的堆叠和开发。
+		(18 GB 推理, 40GB lora微调)
+
+### Diffusers
+
+```
+pip install -r requirements.txt
+```
+
+查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。（36GB 推理，显存优化以及微调代码正在开发）
+
 ## CogVideoX-2B 视频作品
 
 <div align="center">
