@@ -178,18 +178,18 @@ def sampling_main(args, model_cls):
                     shape=(T, C, H // F, W // F),
                 )
                 samples_z = samples_z.permute(0, 2, 1, 3, 4).contiguous()
-                
+
                 # Unload the model from GPU to save GPU memory
-                model.to('cpu')
+                model.to("cpu")
                 torch.cuda.empty_cache()
                 first_stage_model = model.first_stage_model
                 first_stage_model = first_stage_model.to(device)
 
                 latent = 1.0 / model.scale_factor * samples_z
-                
+
                 # Decode latent serial to save GPU memory
                 recons = []
-                loop_num = (T-1)//2
+                loop_num = (T - 1) // 2
                 for i in range(loop_num):
                     if i == 0:
                         start_frame, end_frame = 0, 3
@@ -200,7 +200,9 @@ def sampling_main(args, model_cls):
                     else:
                         clear_fake_cp_cache = False
                     with torch.no_grad():
-                        recon = first_stage_model.decode(latent[:, :, start_frame:end_frame].contiguous(), clear_fake_cp_cache=clear_fake_cp_cache)
+                        recon = first_stage_model.decode(
+                            latent[:, :, start_frame:end_frame].contiguous(), clear_fake_cp_cache=clear_fake_cp_cache
+                        )
 
                     recons.append(recon)
 
@@ -208,10 +210,11 @@ def sampling_main(args, model_cls):
                 samples_x = recon.permute(0, 2, 1, 3, 4).contiguous()
                 samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0).cpu()
 
-                save_path = os.path.join(args.output_dir, str(cnt) + '_' + text.replace(' ', '_').replace('/', '')[:120], str(index))
+                save_path = os.path.join(
+                    args.output_dir, str(cnt) + "_" + text.replace(" ", "_").replace("/", "")[:120], str(index)
+                )
                 if mpu.get_model_parallel_rank() == 0:
                     save_video_as_grid_and_mp4(samples, save_path, fps=args.sampling_fps)
-
 
 
 if __name__ == "__main__":

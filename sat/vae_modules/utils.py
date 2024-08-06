@@ -14,17 +14,19 @@ import torch.distributed
 _CONTEXT_PARALLEL_GROUP = None
 _CONTEXT_PARALLEL_SIZE = None
 
+
 def is_context_parallel_initialized():
     if _CONTEXT_PARALLEL_GROUP is None:
         return False
     else:
         return True
-    
+
+
 def initialize_context_parallel(context_parallel_size):
     global _CONTEXT_PARALLEL_GROUP
     global _CONTEXT_PARALLEL_SIZE
 
-    assert _CONTEXT_PARALLEL_GROUP is None, 'context parallel group is already initialized'
+    assert _CONTEXT_PARALLEL_GROUP is None, "context parallel group is already initialized"
     _CONTEXT_PARALLEL_SIZE = context_parallel_size
 
     rank = torch.distributed.get_rank()
@@ -36,31 +38,36 @@ def initialize_context_parallel(context_parallel_size):
         if rank in ranks:
             _CONTEXT_PARALLEL_GROUP = group
             break
-    
+
+
 def get_context_parallel_group():
-    assert _CONTEXT_PARALLEL_GROUP is not None, 'context parallel group is not initialized'
+    assert _CONTEXT_PARALLEL_GROUP is not None, "context parallel group is not initialized"
 
     return _CONTEXT_PARALLEL_GROUP
 
+
 def get_context_parallel_world_size():
-    assert _CONTEXT_PARALLEL_SIZE is not None, 'context parallel size is not initialized'
+    assert _CONTEXT_PARALLEL_SIZE is not None, "context parallel size is not initialized"
 
     return _CONTEXT_PARALLEL_SIZE
 
+
 def get_context_parallel_rank():
-    assert _CONTEXT_PARALLEL_SIZE is not None, 'context parallel size is not initialized'
+    assert _CONTEXT_PARALLEL_SIZE is not None, "context parallel size is not initialized"
 
     rank = torch.distributed.get_rank()
     cp_rank = rank % _CONTEXT_PARALLEL_SIZE
     return cp_rank
 
+
 def get_context_parallel_group_rank():
-    assert _CONTEXT_PARALLEL_SIZE is not None, 'context parallel size is not initialized'
+    assert _CONTEXT_PARALLEL_SIZE is not None, "context parallel size is not initialized"
 
     rank = torch.distributed.get_rank()
     cp_group_rank = rank // _CONTEXT_PARALLEL_SIZE
 
     return cp_group_rank
+
 
 class SafeConv3d(torch.nn.Conv3d):
     def forward(self, input):
@@ -68,9 +75,12 @@ class SafeConv3d(torch.nn.Conv3d):
         if memory_count > 2:
             kernel_size = self.kernel_size[0]
             part_num = int(memory_count / 2) + 1
-            input_chunks = torch.chunk(input, part_num, dim=2) # NCTHW
+            input_chunks = torch.chunk(input, part_num, dim=2)  # NCTHW
             if kernel_size > 1:
-                input_chunks = [input_chunks[0]] + [torch.cat((input_chunks[i-1][:, :, -kernel_size+1:], input_chunks[i]), dim=2) for i in range(1, len(input_chunks))]
+                input_chunks = [input_chunks[0]] + [
+                    torch.cat((input_chunks[i - 1][:, :, -kernel_size + 1 :], input_chunks[i]), dim=2)
+                    for i in range(1, len(input_chunks))
+                ]
 
             output_chunks = []
             for input_chunk in input_chunks:
@@ -149,9 +159,7 @@ def log_txt_as_img(wh, xc, size=10):
             text_seq = xc[bi][0]
         else:
             text_seq = xc[bi]
-        lines = "\n".join(
-            text_seq[start : start + nc] for start in range(0, len(text_seq), nc)
-        )
+        lines = "\n".join(text_seq[start : start + nc] for start in range(0, len(text_seq), nc))
 
         try:
             draw.text((0, 0), lines, fill="black", font=font)
@@ -263,9 +271,7 @@ def append_dims(x, target_dims):
     """Appends dimensions to the end of a tensor until it has target_dims dimensions."""
     dims_to_append = target_dims - x.ndim
     if dims_to_append < 0:
-        raise ValueError(
-            f"input has {x.ndim} dims but target_dims is {target_dims}, which is less"
-        )
+        raise ValueError(f"input has {x.ndim} dims but target_dims is {target_dims}, which is less")
     return x[(...,) + (None,) * dims_to_append]
 
 
@@ -360,7 +366,8 @@ def checkpoint(func, inputs, params, flag):
         return CheckpointFunction.apply(func, len(inputs), *args)
     else:
         return func(*inputs)
-    
+
+
 class CheckpointFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, run_function, length, *args):
@@ -395,4 +402,3 @@ class CheckpointFunction(torch.autograd.Function):
         del ctx.input_params
         del output_tensors
         return (None, None) + input_grads
-    
