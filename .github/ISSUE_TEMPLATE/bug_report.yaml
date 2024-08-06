@@ -1,0 +1,51 @@
+name: "\U0001F41B Bug Report"
+description: Submit a bug report to help us improve CogVideoX / 提交一个 Bug 问题报告来帮助我们改进 CogVideoX 开源模型
+body:
+  - type: textarea
+    id: system-info
+    attributes:
+      label: System Info / 系統信息
+      description: Your operating environment / 您的运行环境信息
+      placeholder: Includes Cuda version, Diffusers version, Python version, operating system, hardware information (if you suspect a hardware problem)... / 包括Cuda版本，Diffusers，Python版本，操作系统，硬件信息(如果您怀疑是硬件方面的问题)...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: information-scripts-examples
+    attributes:
+      label: Information / 问题信息
+      description: 'The problem arises when using: / 问题出现在'
+      options:
+        - label: "The official example scripts / 官方的示例脚本"
+        - label: "My own modified scripts / 我自己修改的脚本和任务"
+
+  - type: textarea
+    id: reproduction
+    validations:
+      required: true
+    attributes:
+      label: Reproduction / 复现过程
+      description: |
+        Please provide a code example that reproduces the problem you encountered, preferably with a minimal reproduction unit.
+        If you have code snippets, error messages, stack traces, please provide them here as well.
+        Please format your code correctly using code tags. See https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks#syntax-highlighting
+        Do not use screenshots, as they are difficult to read and (more importantly) do not allow others to copy and paste your code.
+        
+        请提供能重现您遇到的问题的代码示例,最好是最小复现单元。
+        如果您有代码片段、错误信息、堆栈跟踪，也请在此提供。
+        请使用代码标签正确格式化您的代码。请参见 https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks#syntax-highlighting
+        请勿使用截图，因为截图难以阅读，而且（更重要的是）不允许他人复制粘贴您的代码。
+      placeholder: |
+        Steps to reproduce the behavior/复现Bug的步骤:
+          
+          1.
+          2.
+          3.
+
+  - type: textarea
+    id: expected-behavior
+    validations:
+      required: true
+    attributes:
+      label: Expected behavior / 期待表现
+      description: "A clear and concise description of what you would expect to happen. /简单描述您期望发生的事情。"

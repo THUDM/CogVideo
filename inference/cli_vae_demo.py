@@ -36,16 +36,18 @@ def vae_demo(model_path, video_path, dtype, device):
     model = AutoencoderKLCogVideoX.from_pretrained(model_path, torch_dtype=dtype).to(device)
 
     # Load video frames
-    video_reader = imageio.get_reader(video_path, 'ffmpeg')
+    video_reader = imageio.get_reader(video_path, "ffmpeg")
     frames = []
     for frame in video_reader:
         frames.append(frame)
     video_reader.close()
 
     # Transform frames to Tensor
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-    ])
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+        ]
+    )
     frames_tensor = torch.stack([transform(frame) for frame in frames]).to(device)
 
     # Add batch dimension and reshape to [1, 3, 49, 480, 720]
@@ -84,9 +86,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Convert a CogVideoX model to Diffusers")
     parser.add_argument("--model_path", type=str, required=True, help="The path to the CogVideoX model")
     parser.add_argument("--video_path", type=str, required=True, help="The path to the video file")
-    parser.add_argument(
-        "--output_path", type=str, default="./", help="The path to save the output video"
-    )
+    parser.add_argument("--output_path", type=str, default="./", help="The path to save the output video")
     parser.add_argument(
         "--dtype", type=str, default="float16", help="The data type for computation (e.g., 'float16' or 'float32')"
     )
