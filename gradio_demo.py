@@ -17,7 +17,7 @@ import PIL
 
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
-pipe = CogVideoXPipeline.from_pretrained("/share/home/zyx/Models/cogvideox-hf-0805", torch_dtype=dtype).to(device)
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-2b", torch_dtype=dtype).to(device)
 
 sys_prompt = """You are part of a team of bots that creates videos. You work with an assistant bot that will draw anything you say in square brackets.
 
