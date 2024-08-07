@@ -65,7 +65,7 @@
 pip install -r requirements.txt
 ```
 
-查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。
+查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。（24GB 推理，微调代码正在开发）
 
 ## CogVideoX-2B 视频作品
 

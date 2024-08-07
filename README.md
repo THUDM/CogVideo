@@ -73,6 +73,7 @@ pip install -r requirements.txt
 
 Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the
 significance of common parameters.
+(24GB for inference,fine-tuned code are under development)
 
 ## CogVideoX-2B Gallery
 
