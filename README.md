@@ -20,11 +20,11 @@
 
 ## Update and News
 
-- 🔥 **News**: `2024/8/7`: CogVideoX has been integrated into `diffusers` version 0.30.0. Inference can now be performed
+- 🔥 **News**: ```2024/8/7```: CogVideoX has been integrated into `diffusers` version 0.30.0. Inference can now be performed
   on a single 3090 GPU. For more details, please refer to the [code](inference/cli_demo.py).
-- 🔥 **News**: ``2024/8/6``: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct
+- 🔥 **News**: ```2024/8/6```: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct
   the video almost losslessly.
-- 🔥 **News**: ``2024/8/6``: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
+- 🔥 **News**: ```2024/8/6```: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
   generation models.
 - 🌱 **Source**: ```2022/5/19```: We have open-sourced **CogVideo** (now you can see in `CogVideo` branch)，the **first**
   open-sourced pretrained text-to-video model, and you can
