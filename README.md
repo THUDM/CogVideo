@@ -20,6 +20,8 @@
 
 ## Update and News
 
+- 🔥 **News**: `2024/8/7`: CogVideoX has been integrated into `diffusers` version 0.30.0. Inference can now be performed
+  on a single 3090 GPU. For more details, please refer to the [code](inference/cli_demo.py).
 - 🔥 **News**: ``2024/8/6``: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct
   the video almost losslessly.
 - 🔥 **News**: ``2024/8/6``: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
@@ -106,14 +108,14 @@ along with related basic information:
 | Model Name                                | CogVideoX-2B                                                                                                                                                                                        | 
 |-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Prompt Language                           | English                                                                                                                                                                                             | 
-| GPU Memory Required for Inference (FP16)  | 18GB if using [SAT](https://github.com/THUDM/SwissArmyTransformer); 36GB if using diffusers (will be optimized before the PR is merged)                                                             | 
+| Single GPU  Inference (FP16)              | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                                                                                      | 
+| Multi GPUs Inference (FP16)               | 20GB minimum per GPU using diffusers                                                                                                                                                                |
 | GPU Memory Required for Fine-tuning(bs=1) | 40GB                                                                                                                                                                                                |
 | Prompt Max  Length                        | 226 Tokens                                                                                                                                                                                          |
 | Video Length                              | 6 seconds                                                                                                                                                                                           | 
 | Frames Per Second                         | 8 frames                                                                                                                                                                                            | 
 | Resolution                                | 720 * 480                                                                                                                                                                                           |
 | Quantized Inference                       | Not Supported                                                                                                                                                                                       |          
-| Multi-card Inference                      | Not Supported                                                                                                                                                                                       |                             
 | Download Link (HF diffusers Model)        | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
 | Download Link (SAT Model)                 | [SAT](./sat/README.md)                                                                                                                                                                              |
 
@@ -132,14 +134,16 @@ of the **CogVideoX** open-source model.
   CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training
   distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as
   GPT, Gemini, etc.
-+ [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B model to generate
++ [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B
+  model to generate
   videos.
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
 
-+ [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model
++ [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the
+  CogVideoX-2B model
   to generate videos.
 
 <div style="text-align: center;">
