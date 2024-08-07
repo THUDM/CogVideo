@@ -99,6 +99,14 @@ bash inference.sh
 
 ## 微调模型
 
+### 准备环境
+
+```
+git clone https://github.com/THUDM/SwissArmyTransformer.git
+cd SwissArmyTransformer
+pip install -e .
+```
+
 ### 准备数据集
 
 数据集格式应该如下：
@@ -143,6 +151,8 @@ Encoder 使用。
   valid_data: [ "your val data path" ] # 训练集和验证集可以相同
   split: 1,0,0 # 训练集，验证集，测试集比例
   num_workers: 8 # 数据加载器的工作线程数
+  force_train: True # 在加载checkpoint时允许missing keys (T5 和 VAE 单独加载)
+  only_log_video_latents: True # 避免VAE decode带来的显存开销
 ```
 
 如果你希望使用 Lora 微调，你还需要修改：

@@ -24,9 +24,25 @@
   the video almost losslessly.
 - 🔥 **News**: ``2024/8/6``: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
   generation models.
-- 🌱 **Source**: ```2022/5/19```: We have open-sourced CogVideo (now you can see in `CogVideo` branch)，the **first** open-sourced pretrained text-to-video model, and you can check [ICLR'23 CogVideo Paper](https://arxiv.org/abs/2205.15868) for technical details.
+- 🌱 **Source**: ```2022/5/19```: We have open-sourced **CogVideo** (now you can see in `CogVideo` branch)，the **first** open-sourced pretrained text-to-video model, and you can check [ICLR'23 CogVideo Paper](https://arxiv.org/abs/2205.15868) for technical details.
 
 **More powerful models with larger parameter sizes are on the way~ Stay tuned!**
+
+## Quick Start
+
+### SAT
+
+Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
+		(18 GB for inference, 40GB for lora finetune)
+
+### Diffusers
+
+```
+pip install -r requirements.txt
+```
+
+Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
+		(36GB for inference, smaller memory and fine-tuned code are under development)
 
 ## CogVideoX-2B Gallery
 
@@ -79,9 +95,15 @@ of the **CogVideoX** open-source model.
 
 ### Inference
 
-+ [cli_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
-+ [cli_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory, but it will be optimized in the future.
++ [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
++ [diffusers_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory, but it will be optimized in the future.
 + [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as GPT, Gemini, etc.
++ [gradio_demo](gradio_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B model to generate videos.
+
+<div style="text-align: center;">
+    <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
+</div>
+
 + [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model to generate videos.
 
 <div style="text-align: center;">
@@ -90,9 +112,7 @@ of the **CogVideoX** open-source model.
 
 ### sat
 
-+ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is
-  recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform
-  rapid stacking and development.
++ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
 
 ### Tools
 
