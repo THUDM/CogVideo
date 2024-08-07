@@ -20,20 +20,50 @@
 
 ## Update and News
 
-- 🔥 **News**: ``2024/8/6``: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct
+- 🔥 **News**: ```2024/8/7```: CogVideoX has been integrated into `diffusers` version 0.30.0. Inference can now be performed
+  on a single 3090 GPU. For more details, please refer to the [code](inference/cli_demo.py).
+- 🔥 **News**: ```2024/8/6```: We have also open-sourced **3D Causal VAE** used in **CogVideoX-2B**, which can reconstruct
   the video almost losslessly.
-- 🔥 **News**: ``2024/8/6``: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
+- 🔥 **News**: ```2024/8/6```: We have open-sourced **CogVideoX-2B**，the first model in the CogVideoX series of video
   generation models.
-- 🌱 **Source**: ```2022/5/19```: We have open-sourced **CogVideo** (now you can see in `CogVideo` branch)，the **first** open-sourced pretrained text-to-video model, and you can check [ICLR'23 CogVideo Paper](https://arxiv.org/abs/2205.15868) for technical details.
+- 🌱 **Source**: ```2022/5/19```: We have open-sourced **CogVideo** (now you can see in `CogVideo` branch)，the **first**
+  open-sourced pretrained text-to-video model, and you can
+  check [ICLR'23 CogVideo Paper](https://arxiv.org/abs/2205.15868) for technical details.
 
 **More powerful models with larger parameter sizes are on the way~ Stay tuned!**
 
+## Table of Contents
+
+Jump to a specific section:
+
+- [Quick Start](#Quick-Start)
+    - [SAT](#sat)
+    - [Diffusers](#Diffusers)
+- [CogVideoX-2B Video Works](#cogvideox-2b-gallery)
+- [Introduction to the CogVideoX Model](#Model-Introduction)
+- [Full Project Structure](#project-structure)
+    - [Inference](#inference)
+    - [SAT](#sat)
+    - [Tools](#tools)
+- [Introduction to CogVideo(ICLR'23) Model](#cogvideoiclr23)
+- [Citations](#Citation)
+- [Open Source Project Plan](#Open-Source-Project-Plan)
+- [Model License](#Model-License)
+
 ## Quick Start
+
+### Prompt Optimization
+
+Before running the model, please refer to [this guide](inference/convert_demo.py) to see how we use the GLM-4 model to
+optimize the prompt. This is crucial because the model is trained with long prompts, and a good prompt directly affects
+the quality of the generated video.
 
 ### SAT
 
-Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
-		(18 GB for inference, 40GB for lora finetune)
+Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is
+recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform
+rapid stacking and development.
+(18 GB for inference, 40GB for lora finetune)
 
 ### Diffusers
 
@@ -41,8 +71,9 @@ Follow instructions in [sat_demo](sat/README.md): Contains the inference code an
 pip install -r requirements.txt
 ```
 
-Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
-		(36GB for inference, smaller memory and fine-tuned code are under development)
+Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the
+significance of common parameters.
+(24GB for inference,fine-tuned code are under development)
 
 ## CogVideoX-2B Gallery
 
@@ -77,14 +108,14 @@ along with related basic information:
 | Model Name                                | CogVideoX-2B                                                                                                                                                                                        | 
 |-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Prompt Language                           | English                                                                                                                                                                                             | 
-| GPU Memory Required for Inference (FP16)  | 18GB if using [SAT](https://github.com/THUDM/SwissArmyTransformer); 36GB if using diffusers (will be optimized before the PR is merged)                                                             | 
+| Single GPU  Inference (FP16)              | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                                                                                      | 
+| Multi GPUs Inference (FP16)               | 20GB minimum per GPU using diffusers                                                                                                                                                                |
 | GPU Memory Required for Fine-tuning(bs=1) | 40GB                                                                                                                                                                                                |
 | Prompt Max  Length                        | 226 Tokens                                                                                                                                                                                          |
 | Video Length                              | 6 seconds                                                                                                                                                                                           | 
 | Frames Per Second                         | 8 frames                                                                                                                                                                                            | 
 | Resolution                                | 720 * 480                                                                                                                                                                                           |
 | Quantized Inference                       | Not Supported                                                                                                                                                                                       |          
-| Multi-card Inference                      | Not Supported                                                                                                                                                                                       |                             
 | Download Link (HF diffusers Model)        | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
 | Download Link (SAT Model)                 | [SAT](./sat/README.md)                                                                                                                                                                              |
 
@@ -95,16 +126,25 @@ of the **CogVideoX** open-source model.
 
 ### Inference
 
-+ [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the significance of common parameters.
-+ [diffusers_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of memory, but it will be optimized in the future.
-+ [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as GPT, Gemini, etc.
-+ [gradio_demo](gradio_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B model to generate videos.
++ [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the
+  significance of common parameters.
++ [diffusers_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of
+  memory, but it will be optimized in the future.
++ [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because
+  CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training
+  distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as
+  GPT, Gemini, etc.
++ [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B
+  model to generate
+  videos.
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
 
-+ [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model to generate videos.
++ [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the
+  CogVideoX-2B model
+  to generate videos.
 
 <div style="text-align: center;">
     <img src="resources/web_demo.png" style="width: 100%; height: auto;" />
@@ -112,40 +152,25 @@ of the **CogVideoX** open-source model.
 
 ### sat
 
-+ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
++ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to
+  improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking
+  and development.
 
 ### Tools
 
 This folder contains some tools for model conversion / caption generation, etc.
 
-+ [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights. 
++ [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
 + [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
 
-## Project Plan
-
-- [x] Open source CogVideoX model
-    - [x] Open source 3D Causal VAE used in CogVideoX.
-    - [x] CogVideoX model inference example (CLI / Web Demo)
-    - [x] CogVideoX online experience demo (Huggingface Space)
-    - [x] CogVideoX open source model API interface example (Huggingface)
-    - [x] CogVideoX model fine-tuning example (SAT)
-    - [ ] CogVideoX model fine-tuning example (Huggingface / SAT)
-    - [ ] Open source CogVideoX-Pro (adapted for CogVideoX-2B suite)
-    - [x] Release CogVideoX technical report
-
-We welcome your contributions. You can click [here](resources/contribute.md) for more information.
-
-## Model License
-
-The code in this repository is released under the [Apache 2.0 License](LICENSE).
-
-The model weights and implementation code are released under the [CogVideoX LICENSE](MODEL_LICENSE).
-
 ## CogVideo(ICLR'23)
-The official repo for the paper: [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) is on the [CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)
+
+The official repo for the
+paper: [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868)
+is on the [CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)
 
 **CogVideo is able to generate relatively high-frame-rate videos.**
-A 4-second clip of 32 frames is shown below. 
+A 4-second clip of 32 frames is shown below.
 
 ![High-frame-rate sample](https://raw.githubusercontent.com/THUDM/CogVideo/CogVideo/assets/appendix-sample-highframerate.png)
 
@@ -155,8 +180,8 @@ A 4-second clip of 32 frames is shown below.
 </div>
 
 
-The demo for CogVideo is at [https://models.aminer.cn/cogvideo](https://models.aminer.cn/cogvideo/), where you can get hands-on practice on text-to-video generation. *The original input is in Chinese.*
-
+The demo for CogVideo is at [https://models.aminer.cn/cogvideo](https://models.aminer.cn/cogvideo/), where you can get
+hands-on practice on text-to-video generation. *The original input is in Chinese.*
 
 ## Citation
 
@@ -175,3 +200,23 @@ The demo for CogVideo is at [https://models.aminer.cn/cogvideo](https://models.a
   year={2022}
 }
 ```
+
+## Open Source Project Plan
+
+- [x] Open source CogVideoX model
+    - [x] Open source 3D Causal VAE used in CogVideoX.
+    - [x] CogVideoX model inference example (CLI / Web Demo)
+    - [x] CogVideoX online experience demo (Huggingface Space)
+    - [x] CogVideoX open source model API interface example (Huggingface)
+    - [x] CogVideoX model fine-tuning example (SAT)
+    - [ ] CogVideoX model fine-tuning example (Huggingface / SAT)
+    - [ ] Open source CogVideoX-Pro (adapted for CogVideoX-2B suite)
+    - [x] Release CogVideoX technical report
+
+We welcome your contributions. You can click [here](resources/contribute.md) for more information.
+
+## Model License
+
+The code in this repository is released under the [Apache 2.0 License](LICENSE).
+
+The model weights and implementation code are released under the [CogVideoX LICENSE](MODEL_LICENSE).

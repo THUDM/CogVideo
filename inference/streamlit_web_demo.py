@@ -39,7 +39,9 @@ def load_model(model_path: str, dtype: torch.dtype, device: str) -> CogVideoXPip
     Returns:
     - CogVideoXPipeline: Loaded model pipeline.
     """
-    return CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype).to(device)
+    pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype)
+    pipe.enable_model_cpu_offload()
+    return pipe
 
 
 # Define a function to generate video based on the provided prompt and model path
@@ -76,7 +78,7 @@ def generate_video(
         device=device,
         dtype=dtype,
     )
-
+    pipe.enable_model_cpu_offload()
     # Generate video
     video = pipe(
         num_inference_steps=num_inference_steps,
