@@ -26,6 +26,23 @@
 - 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是首个开源的基于 Transformer 的大型文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
 **性能更强，参数量更大的模型正在到来的路上～，欢迎关注**
 
+## 目录
+
+跳转到指定部分：
+
+- [快速开始](#快速开始)
+  - [SAT](#sat) 
+  - [Diffusers](#Diffusers)
+- [CogVideoX-2B 视频作品](#cogvideox-2b-视频作品)
+- [CogVideoX模型介绍](#模型介绍)
+- [完整项目代码结构](#完整项目代码结构)
+  - [Inference](#inference)
+  - [SAT](#sat)
+  - [Tools](#tools)
+- [开源项目规划](#开源项目规划)
+- [模型协议](#模型协议)
+- [CogVideo(ICLR'23)模型介绍](#cogvideoiclr23)
+- [引用](#引用)
 
 ## 快速开始
 
@@ -84,7 +101,7 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 | 下载地址 (Diffusers 模型) | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)  [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)      |
 | 下载地址 (SAT 模型)       | [SAT](./sat/README_zh.md)                                                                                                            |
 
-## 项目结构
+## 完整项目代码结构
 
 本开源仓库将带领开发者快速上手 **CogVideoX** 开源模型的基础调用方式、微调示例。
 
@@ -117,24 +134,6 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 + [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): 将 SAT 模型权重转换为 Huggingface 模型权重。
 + [caption_demo](tools/caption/README_zh.md):  Caption 工具，对视频理解并用文字输出的模型。
 
-## 项目规划
-
-- [x] CogVideoX 模型开源
-    - [x] CogVideoX 模型推理示例 (CLI / Web Demo)
-    - [x] CogVideoX 在线体验示例 (Huggingface Space)
-    - [x] CogVideoX 开源模型API接口示例 (Huggingface)
-    - [x] CogVideoX 模型微调示例 (SAT)
-    - [ ] CogVideoX 模型微调示例 (Huggingface / SAT)
-    - [ ] CogVideoX-Pro 开源(适配 CogVideoX-2B 套件)
-    - [ ] CogVideoX 技术报告公开
-
-我们欢迎您的贡献，您可以点击[这里](resources/contribute_zh.md)查看更多信息。
-
-## 模型协议
-
-本仓库代码使用 [Apache 2.0 协议](LICENSE) 发布。
-
-本模型权重和模型实现代码根据 [CogVideoX LICENSE](MODEL_LICENSE) 许可证发布。
 
 ## CogVideo(ICLR'23) 
  [CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers](https://arxiv.org/abs/2205.15868) 的官方repo位于[CogVideo branch](https://github.com/THUDM/CogVideo/tree/CogVideo)。
@@ -169,3 +168,22 @@ CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.amine
   year={2022}
 }
 ```
+
+## 开源项目规划
+
+- [x] CogVideoX 模型开源
+    - [x] CogVideoX 模型推理示例 (CLI / Web Demo)
+    - [x] CogVideoX 在线体验示例 (Huggingface Space)
+    - [x] CogVideoX 开源模型API接口示例 (Huggingface)
+    - [x] CogVideoX 模型微调示例 (SAT)
+    - [ ] CogVideoX 模型微调示例 (Huggingface / SAT)
+    - [ ] CogVideoX-Pro 开源(适配 CogVideoX-2B 套件)
+    - [X] CogVideoX 技术报告公开
+
+我们欢迎您的贡献，您可以点击[这里](resources/contribute_zh.md)查看更多信息。
+
+## 模型协议
+
+本仓库代码使用 [Apache 2.0 协议](LICENSE) 发布。
+
+本模型权重和模型实现代码根据 [CogVideoX LICENSE](MODEL_LICENSE) 许可证发布。
