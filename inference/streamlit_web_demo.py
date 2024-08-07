@@ -76,7 +76,7 @@ def generate_video(
         device=device,
         dtype=dtype,
     )
-
+    pipe.enable_model_cpu_offload()
     # Generate video
     video = pipe(
         num_inference_steps=num_inference_steps,

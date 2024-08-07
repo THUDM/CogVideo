@@ -132,14 +132,14 @@ of the **CogVideoX** open-source model.
   CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training
   distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as
   GPT, Gemini, etc.
-+ [gradio_demo](gradio_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B model to generate
++ [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B model to generate
   videos.
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
 
-+ [web_demo](inference/web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model
++ [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the CogVideoX-2B model
   to generate videos.
 
 <div style="text-align: center;">

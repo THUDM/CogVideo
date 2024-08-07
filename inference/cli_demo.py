@@ -47,20 +47,6 @@ def generate_video(
     device: str = "cuda",
     dtype: torch.dtype = torch.float16,
 ):
-    """
-    Generates a video based on the given prompt and saves it to the specified path.
-
-    Parameters:
-    - prompt (str): The description of the video to be generated.
-    - model_path (str): The path of the pre-trained model to be used.
-    - output_path (str): The path where the generated video will be saved.
-    - num_inference_steps (int): Number of steps for the inference process. More steps can result in better quality.
-    - guidance_scale (float): The scale for classifier-free guidance. Higher values can lead to better alignment with the prompt.
-    - num_videos_per_prompt (int): Number of videos to generate per prompt.
-    - device (str): The device to use for computation (e.g., "cuda" or "cpu").
-    - dtype (torch.dtype): The data type for computation (default is torch.float16).
-    """
-
     # Load the pre-trained CogVideoX pipeline with the specified precision (float16) and move it to the specified device
     pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype).to(device)
 
@@ -74,7 +60,8 @@ def generate_video(
         device=device,  # Device to use for computation
         dtype=dtype,  # Data type for computation
     )
-
+    # Must enable model CPU offload to avoid OOM issue on GPU with 24GB memory
+    pipe.enable_model_cpu_offload()
     # Generate the video frames using the pipeline
     video = pipe(
         num_inference_steps=num_inference_steps,  # Number of inference steps
@@ -82,10 +69,8 @@ def generate_video(
         prompt_embeds=prompt_embeds,  # Encoded prompt embeddings
         negative_prompt_embeds=torch.zeros_like(prompt_embeds),  # Not Supported negative prompt
     ).frames[0]
-
     # Export the generated frames to a video file. fps must be 8
     export_to_video_imageio(video, output_path, fps=8)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate a video from a text prompt using CogVideoX")

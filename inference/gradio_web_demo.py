@@ -104,7 +104,7 @@ def infer(
         device=device,
         dtype=dtype,
     )
-
+    pipe.enable_model_cpu_offload()
     video = pipe(
         num_inference_steps=num_inference_steps,
         guidance_scale=guidance_scale,
