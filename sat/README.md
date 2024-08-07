@@ -51,6 +51,19 @@ mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 By following the above approach, you will obtain a safetensor format T5 file. Ensure that there are no errors when
 loading it into Deepspeed in Finetune.
 
+```
+├── added_tokens.json
+├── config.json
+├── model-00001-of-00002.safetensors
+├── model-00002-of-00002.safetensors
+├── model.safetensors.index.json
+├── special_tokens_map.json
+├── spiece.model
+└── tokenizer_config.json
+
+0 directories, 8 files
+```
+
 3. Modify the file `configs/cogvideox_2b_infer.yaml`.
 
 ```yaml

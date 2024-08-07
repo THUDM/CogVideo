@@ -47,7 +47,18 @@ mkdir t5-v1_1-xxl
 mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 ```
 通过上述方案，你将会得到一个 safetensor 格式的T5文件，确保在 Deepspeed微调过程中读入的时候不会报错。
+```
+├── added_tokens.json
+├── config.json
+├── model-00001-of-00002.safetensors
+├── model-00002-of-00002.safetensors
+├── model.safetensors.index.json
+├── special_tokens_map.json
+├── spiece.model
+└── tokenizer_config.json
 
+0 directories, 8 files
+```
 3. 修改`configs/cogvideox_2b_infer.yaml`中的文件。
 
 ```yaml
