@@ -80,7 +80,7 @@ def generate_video(
 
     # Generate the video frames using the pipeline
     video = pipe(
-        num_inference_steps=5,  # Number of inference steps
+        num_inference_steps=num_inference_steps,  # Number of inference steps
         guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
         prompt_embeds=prompt_embeds,  # Encoded prompt embeddings
         negative_prompt_embeds=torch.zeros_like(prompt_embeds),  # Not Supported negative prompt
