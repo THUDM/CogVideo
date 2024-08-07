@@ -32,7 +32,7 @@
 
 ### SAT
 
-Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
+Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to make improvements based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking and development.
 		(18 GB for inference, 40GB for lora finetune)
 
 ### Diffusers
