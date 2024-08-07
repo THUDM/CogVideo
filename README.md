@@ -50,6 +50,12 @@ Jump to a specific section:
 
 ## Quick Start
 
+### Prompt Optimization
+
+Before running the model, please refer to [this guide](inference/convert_demo.py) to see how we use the GLM-4 model to
+optimize the prompt. This is crucial because the model is trained with long prompts, and a good prompt directly affects
+the quality of the generated video.
+
 ### SAT
 
 Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is

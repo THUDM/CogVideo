@@ -46,6 +46,11 @@
 
 ## 快速开始
 
+### 提示词优化
+
+在开始运行模型之前，请参考[这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4大模型对模型进行优化的，这很重要，
+由于模型是在长提示词下训练的，一额好的直接影响了视频生成的质量。
+
 ### SAT
 
 查看sat文件夹下的[sat_demo](sat/README.md)：包含了 SAT 权重的推理代码和微调代码，推荐基于此代码进行 CogVideoX 模型结构的改进，研究者使用该代码可以更好的进行快速的迭代和开发。
@@ -58,6 +63,7 @@ pip install -r requirements.txt
 ```
 
 查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。（36GB 推理，显存优化以及微调代码正在开发）
+
 
 ## CogVideoX-2B 视频作品
 

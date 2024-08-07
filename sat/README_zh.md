@@ -41,12 +41,12 @@ unzip transformer.zip
 
 接着，克隆 T5 模型，该模型不用做训练和微调，但是必须使用。
 
-```shell
-git lfs install 
-git clone https://huggingface.co/google/t5-v1_1-xxl.git
 ```
-
-**我们不需要使用tf_model.h5**文件。该文件可以删除。
+git clone https://huggingface.co/THUDM/CogVideoX-2b.git
+mkdir t5-v1_1-xxl
+mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
+```
+通过上述方案，你将会得到一个 safetensor 格式的T5文件，确保在 Deepspeed微调过程中读入的时候不会报错。
 
 3. 修改`configs/cogvideox_2b_infer.yaml`中的文件。
 
@@ -100,6 +100,8 @@ bash inference.sh
 ## 微调模型
 
 ### 准备环境
+
+请注意，目前，SAT需要从源码安装，才能正常微调, 我们将会在未来的稳定版本解决这个问题。
 
 ```
 git clone https://github.com/THUDM/SwissArmyTransformer.git

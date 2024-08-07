@@ -1,6 +1,7 @@
 # SAT CogVideoX-2B
 
-This folder contains the inference code using [SAT](https://github.com/THUDM/SwissArmyTransformer) weights and the fine-tuning code for SAT weights.
+This folder contains the inference code using [SAT](https://github.com/THUDM/SwissArmyTransformer) weights and the
+fine-tuning code for SAT weights.
 
 This code is the framework used by the team to train the model. It has few comments and requires careful study.
 
@@ -41,12 +42,14 @@ Then unzip, the model structure should look like this:
 
 Next, clone the T5 model, which is not used for training and fine-tuning, but must be used.
 
-```shell
-git lfs install 
-git clone https://huggingface.co/google/t5-v1_1-xxl.git
+```
+git clone https://huggingface.co/THUDM/CogVideoX-2b.git
+mkdir t5-v1_1-xxl
+mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 ```
 
-**We don't need the tf_model.h5** file. This file can be deleted.
+By following the above approach, you will obtain a safetensor format T5 file. Ensure that there are no errors when
+loading it into Deepspeed in Finetune.
 
 3. Modify the file `configs/cogvideox_2b_infer.yaml`.
 
@@ -101,6 +104,9 @@ bash inference.sh
 
 ### Preparing the Environment
 
+Please note that currently, SAT needs to be installed from the source code for proper fine-tuning. We will address this
+issue in future stable releases.
+
 ```
 git clone https://github.com/THUDM/SwissArmyTransformer.git
 cd SwissArmyTransformer
@@ -130,7 +136,8 @@ For style fine-tuning, please prepare at least 50 videos and labels with similar
 
 ### Modifying the Configuration File
 
-We support both `Lora` and `full-parameter fine-tuning` methods. Please note that both fine-tuning methods only apply to the `transformer` part. The `VAE part` is not modified. `T5` is only used as an Encoder.
+We support both `Lora` and `full-parameter fine-tuning` methods. Please note that both fine-tuning methods only apply to
+the `transformer` part. The `VAE part` is not modified. `T5` is only used as an Encoder.
 
 the `configs/cogvideox_2b_sft.yaml` (for full fine-tuning) as follows.
 
