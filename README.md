@@ -68,6 +68,8 @@ rapid stacking and development.
 ### Diffusers
 
 ```
+git clone https://github.com/THUDM/CogVideo.git
+cd CogVideo
 pip install -r requirements.txt
 ```
 
