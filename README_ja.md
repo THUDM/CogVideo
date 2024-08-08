@@ -21,18 +21,41 @@
 
 ## 更新とニュース
 
-- 🔥 **ニュース**: ``2024/8/6``: **CogVideoX-2B** で使用される **3D Causal VAE** もオープンソース化しました。これにより、ビデオをほぼ無損失で再構築できます。
-- 🔥 **ニュース**: ``2024/8/6``: **CogVideoX-2B**、CogVideoXシリーズのビデオ生成モデルの最初のモデルをオープンソース化しました。
+- 🔥 **ニュース**: ```2024/8/7```: CogVideoX は `diffusers` バージョン 0.30.0 に統合されました。単一の 3090 GPU で推論を実行できます。詳細については [コード](inference/cli_demo.py) を参照してください。
+- 🔥 **ニュース**: ```2024/8/6```: **CogVideoX-2B** で使用される **3D Causal VAE** もオープンソース化しました。これにより、ビデオをほぼ無損失で再構築できます。
+- 🔥 **ニュース**: ```2024/8/6```: **CogVideoX-2B**、CogVideoXシリーズのビデオ生成モデルの最初のモデルをオープンソース化しました。
 - 🌱 **ソース**: ```2022/5/19```: **CogVideo** (現在 `CogVideo` ブランチで確認できます) をオープンソース化しました。これは、最初のオープンソースの事前学習済みテキストからビデオ生成モデルであり、技術的な詳細については [ICLR'23 CogVideo 論文](https://arxiv.org/abs/2205.15868) をご覧ください。
 
 **より強力なモデルが、より大きなパラメータサイズで登場予定です。お楽しみに！**
 
+## 目次
+
+特定のセクションにジャンプ：
+
+- [クイックスタート](#クイックスタート)
+    - [SAT](#sat)
+    - [Diffusers](#Diffusers)
+- [CogVideoX-2B ギャラリー](#CogVideoX-2B-ギャラリー)
+- [モデル紹介](#モデル紹介)
+- [プロジェクト構造](#プロジェクト構造)
+    - [推論](#推論)
+    - [sat](#sat)
+    - [ツール](#ツール)
+- [プロジェクト計画](#プロジェクト計画)
+- [モデルライセンス](#モデルライセンス)
+- [CogVideo(ICLR'23)モデル紹介](#CogVideoICLR23)
+- [引用](#引用)
+
 ## クイックスタート
+
+### プロンプトの最適化
+
+モデルを実行する前に、[このガイド](inference/convert_demo.py) を参照して、GLM-4 モデルを使用してプロンプトを最適化する方法を確認してください。これは重要です。モデルは長いプロンプトでトレーニングされているため、良いプロンプトは生成されるビデオの品質に直接影響します。
 
 ### SAT
 
 [sat_demo](sat/README.md) の指示に従ってください: SATウェイトの推論コードと微調整コードが含まれています。CogVideoXモデル構造に基づいて改善することをお勧めします。革新的な研究者は、このコードを使用して迅速なスタッキングと開発を行うことができます。
-		(推論には18GB、lora微調整には40GBが必要です)
+(推論には18GB、lora微調整には40GBが必要です)
 
 ### Diffusers
 
@@ -41,7 +64,7 @@ pip install -r requirements.txt
 ```
 
 次に [diffusers_demo](inference/cli_demo.py) を参照してください: 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
-		(推論には36GBが必要で、より小さなメモリと微調整コードは開発中です)
+(推論には24GBが必要で、微調整コードは開発中です)
 
 ## CogVideoX-2B ギャラリー
 
@@ -74,14 +97,14 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
 | モデル名                                | CogVideoX-2B                                                                                                                                                                                        | 
 |-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | プロンプト言語                           | 英語                                                                                                                                                                                             | 
-| 推論に必要なGPUメモリ (FP16)  | [SAT](https://github.com/THUDM/SwissArmyTransformer) を使用する場合は18GB; diffusersを使用する場合は36GB (PRがマージされる前に最適化されます)                                                             | 
+| 単一GPU推論 (FP16)              | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                                                                                      | 
+| 複数GPU推論 (FP16)               | 20GB minimum per GPU using diffusers                                                                                                                                                                |
 | 微調整に必要なGPUメモリ(bs=1) | 40GB                                                                                                                                                                                                |
 | プロンプトの最大長                        | 226 トークン                                                                                                                                                                                          |
 | ビデオの長さ                              | 6秒                                                                                                                                                                                           | 
 | フレームレート                         | 8フレーム                                                                                                                                                                                            | 
 | 解像度                                | 720 * 480                                                                                                                                                                                           |
 | 量子化推論                       | サポートされていません                                                                                                                                                                                       |          
-| マルチカード推論                      | サポートされていません                                                                                                                                                                                       |                             
 | ダウンロードリンク (HF diffusers モデル)        | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
 | ダウンロードリンク (SAT モデル)                 | [SAT](./sat/README.md)                                                                                                                                                                              |
 
@@ -94,13 +117,13 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
 + [diffusers_demo](inference/cli_demo.py): 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
 + [diffusers_vae_demo](inference/cli_vae_demo.py): VAE推論コードの実行には現在71GBのメモリが必要ですが、将来的には最適化される予定です。
 + [convert_demo](inference/convert_demo.py): ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
-+ [gradio_demo](gradio_demo.py): CogVideoX-2Bモデルを使用してビデオを生成する方法を示すシンプルなgradio Web UI。
++ [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2Bモデルを使用してビデオを生成する方法を示すシンプルなgradio Web UI。
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
 
-+ [web_demo](inference/web_demo.py): CogVideoX-2Bモデルを使用してビデオを生成する方法を示すシンプルなstreamlit Webアプリケーション。
++ [streamlit_web_demo](inference/streamlit_web_demo.py): CogVideoX-2Bモデルを使用してビデオを生成する方法を示すシンプルなstreamlit Webアプリケーション。
 
 <div style="text-align: center;">
     <img src="resources/web_demo.png" style="width: 100%; height: auto;" />
