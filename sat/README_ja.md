@@ -1,6 +1,6 @@
 # SAT CogVideoX-2B
 
-このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer) ウェイトを使用した推論コードと、SAT ウェイトの微調整コードが含まれています。
+このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer) ウェイトを使用した推論コードと、SAT ウェイトのファインチューニングコードが含まれています。
 
 このコードは、チームがモデルをトレーニングするために使用したフレームワークです。コメントが少なく、注意深く研究する必要があります。
 
@@ -39,16 +39,30 @@ unzip transformer.zip
     └── 3d-vae.pt
 ```
 
-次に、T5 モデルをクローンします。これはトレーニングや微調整には使用されませんが、必ず使用する必要があります。
+次に、T5 モデルをクローンします。これはトレーニングやファインチューニングには使用されませんが、使用する必要があります。
 
-```shell
-git lfs install 
-git clone https://huggingface.co/google/t5-v1_1-xxl.git
+```
+git clone https://huggingface.co/THUDM/CogVideoX-2b.git
+mkdir t5-v1_1-xxl
+mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 ```
 
-**tf_model.h5** ファイルは不要です。このファイルは削除できます。
+上記の方法に従うことで、safetensor 形式の T5 ファイルを取得できます。これにより、Deepspeed でのファインチューニング中にエラーが発生しないようにします。
 
-3. `configs/cogvideox_2b_infer.yaml` ファイルを修正します。
+```
+├── added_tokens.json
+├── config.json
+├── model-00001-of-00002.safetensors
+├── model-00002-of-00002.safetensors
+├── model.safetensors.index.json
+├── special_tokens_map.json
+├── spiece.model
+└── tokenizer_config.json
+
+0 directories, 8 files
+```
+
+3. `configs/cogvideox_2b_infer.yaml` ファイルを変更します。
 
 ```yaml
 load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformer モデルパス
@@ -72,8 +86,8 @@ first_stage_config:
     ckpt_path: "{your_CogVideoX-2b-sat_path}/vae/3d-vae.pt" ## VAE モデルパス
 ```
 
-+ 複数のプロンプトを保存するために txt を使用する場合は、`configs/test.txt` を参照して修正してください。1行に1つのプロンプトを記述します。プロンプトの書き方がわからない場合は、最初に [このコード](../inference/convert_demo.py) を使用して LLM によるリファインメントを呼び出すことができます。
-+ コマンドラインを入力として使用する場合は、次のように修正します。
++ 複数のプロンプトを保存するために txt を使用する場合は、`configs/test.txt` を参照して変更してください。1行に1つのプロンプトを記述します。プロンプトの書き方がわからない場合は、最初に [このコード](../inference/convert_demo.py) を使用して LLM によるリファインメントを呼び出すことができます。
++ コマンドラインを入力として使用する場合は、次のように変更します。
 
 ```yaml
 input_type: cli
@@ -81,7 +95,7 @@ input_type: cli
 
 これにより、コマンドラインからプロンプトを入力できます。
 
-出力ビデオのディレクトリを変更したい場合は、次のように修正できます：
+出力ビデオのディレクトリを変更したい場合は、次のように変更できます：
 
 ```yaml
 output_dir: outputs/
@@ -89,15 +103,17 @@ output_dir: outputs/
 
 デフォルトでは `.outputs/` フォルダに保存されます。
 
-4. 推論コードを実行して推論を開始します
+4. 推論コードを実行して推論を開始します。
 
 ```shell
 bash inference.sh
 ```
 
-## モデルの微調整
+## モデルのファインチューニング
 
 ### 環境の準備
+
+現在、SAT はソースコードからインストールする必要があり、正常にファインチューニングを行うためにはこれが必要です。この問題は将来の安定版で解決される予定です。
 
 ```
 git clone https://github.com/THUDM/SwissArmyTransformer.git
@@ -107,7 +123,7 @@ pip install -e .
 
 ### データセットの準備
 
-データセットの形式は次のようにする必要があります：
+データセットの形式は次のようになります：
 
 ```
 .
@@ -123,16 +139,16 @@ pip install -e .
 
 各 txt ファイルは対応するビデオファイルと同じ名前であり、そのビデオのラベルを含んでいます。各ビデオはラベルと一対一で対応する必要があります。通常、1つのビデオに複数のラベルを持たせることはありません。
 
-スタイル微調整の場合、少なくとも50本のスタイルが似たビデオとラベルを準備して、フィッティングを容易にしてください。
+スタイルファインチューニングの場合、少なくとも50本のスタイルが似たビデオとラベルを準備し、フィッティングを容易にします。
 
-### 設定ファイルの修正
+### 設定ファイルの変更
 
-`Lora` と 全パラメータ微調整の2つの方法をサポートしています。両方の微調整方法は `transformer` 部分にのみ適用されることに注意してください。`VAE` 部分は変更されません。`T5` はエンコーダーとしてのみ使用されます。
+`Lora` と 全パラメータファインチューニングの2つの方法をサポートしています。これらのファインチューニング方法は `transformer` 部分にのみ適用されます。`VAE` 部分は変更されません。`T5` はエンコーダーとしてのみ使用されます。
 
-`configs/cogvideox_2b_sft.yaml` (全パラメータ微調整用) を次のように修正します。
+`configs/cogvideox_2b_sft.yaml` (全量ファインチューニング用) を次のように変更します。
 
 ```yaml
-  # checkpoint_activations: True ## グラデーションチェックポイントの使用 (設定ファイル内の2つのcheckpoint_activationsを両方ともTrueに設定する必要があります)
+  # checkpoint_activations: True ## using gradient checkpointing (設定ファイル内の2つのcheckpoint_activationsを両方Trueに設定する必要があります)
   model_parallel_size: 1 # モデル並列サイズ
   experiment_name: lora-disney  # 実験名 (変更しないでください)
   mode: finetune # モード (変更しないでください)
@@ -141,7 +157,7 @@ pip install -e .
   train_iters: 1000 # トレーニングイテレーション数
   eval_iters: 1 # 評価イテレーション数
   eval_interval: 100 # 評価間隔
-  eval_batch_size: 1 # 評価用バッチサイズ
+  eval_batch_size: 1 # 評価のバッチサイズ
   save: ckpts # モデル保存パス
   save_interval: 100 # モデル保存間隔
   log_interval: 20 # ログ出力間隔
@@ -149,29 +165,29 @@ pip install -e .
   valid_data: [ "your val data path" ] # トレーニングセットと検証セットは同じでもかまいません
   split: 1,0,0 # トレーニングセット、検証セット、テストセットの比率
   num_workers: 8 # データローダーのワーカースレッド数
-  force_train: True # ckptをロードする際にmissing keysを許可するかどうか (T5 と VAE は個別にロードされます)
-  only_log_video_latents: True # メモリを節約するために評価時にVAEデコーダーを使用しない
+  force_train: True # ckpt をロードする際に missing keys を許可するかどうか (T5 と VAE は独立してロードされます)
+  only_log_video_latents: True # VAE デコーダーを使用しないようにしてメモリを節約します
 ```
 
-Lora 微調整を使用する場合は、次のように修正する必要があります：
+Lora ファインチューニングを使用する場合は、次のように変更する必要があります：
 
 ```yaml
 model:
   scale_factor: 1.15258426
   disable_first_stage_autocast: true
-  not_trainable_prefixes: [ 'all' ] ## コメントを解除
+  not_trainable_prefixes: [ 'all' ] ## コメント解除
   log_keys:
     - txt'
 
-  lora_config: ## コメントを解除
+  lora_config: ## コメント解除
     target: sat.model.finetune.lora2.LoraMixin
     params:
       r: 256
 ```
 
-### 微調整と検証
+### ファインチューニングと検証
 
-1. 推論コードを実行して微調整を開始します。
+1. 推論コードを実行してファインチューニングを開始します。
 
 ```shell
 bash finetune.sh
@@ -179,10 +195,10 @@ bash finetune.sh
 
 ### Huggingface Diffusers サポートのウェイトに変換
 
-SAT ウェイト形式は Huggingface のウェイト形式とは異なり、変換が必要です。次を実行してください：
+SAT ウェイト形式は Huggingface のウェイト形式と異なり、変換が必要です。次のコマンドを実行してください：
 
 ```shell
 python ../tools/convert_weight_sat2hf.py
 ```
 
-**注意**：この内容は LORA 微調整モデルではまだテストされていません。
+**注意**：この内容は LORA ファインチューニングモデルではまだテストされていません。
