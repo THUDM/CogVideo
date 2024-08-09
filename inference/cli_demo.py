@@ -22,7 +22,7 @@ from diffusers import CogVideoXPipeline
 
 
 def export_to_video_imageio(
-        video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
+    video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
 ) -> str:
     """
     Export the video frames to a video file using imageio lib to Avoid "green screen" issue (for example CogVideoX)
@@ -38,14 +38,14 @@ def export_to_video_imageio(
 
 
 def generate_video(
-        prompt: str,
-        model_path: str,
-        output_path: str = "./output.mp4",
-        num_inference_steps: int = 50,
-        guidance_scale: float = 6.0,
-        num_videos_per_prompt: int = 1,
-        device: str = "cuda",
-        dtype: torch.dtype = torch.float16,
+    prompt: str,
+    model_path: str,
+    output_path: str = "./output.mp4",
+    num_inference_steps: int = 50,
+    guidance_scale: float = 6.0,
+    num_videos_per_prompt: int = 1,
+    device: str = "cuda",
+    dtype: torch.dtype = torch.float16,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.

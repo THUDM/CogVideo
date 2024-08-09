@@ -1,6 +1,7 @@
 # SAT CogVideoX-2B
 
-このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer) ウェイトを使用した推論コードと、SAT ウェイトのファインチューニングコードが含まれています。
+このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer) ウェイトを使用した推論コードと、SAT
+ウェイトのファインチューニングコードが含まれています。
 
 このコードは、チームがモデルをトレーニングするために使用したフレームワークです。コメントが少なく、注意深く研究する必要があります。
 
@@ -86,7 +87,9 @@ first_stage_config:
     ckpt_path: "{your_CogVideoX-2b-sat_path}/vae/3d-vae.pt" ## VAE モデルパス
 ```
 
-+ 複数のプロンプトを保存するために txt を使用する場合は、`configs/test.txt` を参照して変更してください。1行に1つのプロンプトを記述します。プロンプトの書き方がわからない場合は、最初に [このコード](../inference/convert_demo.py) を使用して LLM によるリファインメントを呼び出すことができます。
++ 複数のプロンプトを保存するために txt を使用する場合は、`configs/test.txt`
+  を参照して変更してください。1行に1つのプロンプトを記述します。プロンプトの書き方がわからない場合は、最初に [このコード](../inference/convert_demo.py)
+  を使用して LLM によるリファインメントを呼び出すことができます。
 + コマンドラインを入力として使用する場合は、次のように変更します。
 
 ```yaml
@@ -113,7 +116,8 @@ bash inference.sh
 
 ### 環境の準備
 
-現在、SAT はソースコードからインストールする必要があり、正常にファインチューニングを行うためにはこれが必要です。この問題は将来の安定版で解決される予定です。
+ご注意ください、現在、SATを正常にファインチューニングするためには、ソースコードからインストールする必要があります。
+これは、まだpipパッケージバージョンにリリースされていない最新の機能を使用する必要があるためです。この問題は、今後の安定版で解決する予定です。
 
 ```
 git clone https://github.com/THUDM/SwissArmyTransformer.git
@@ -143,7 +147,9 @@ pip install -e .
 
 ### 設定ファイルの変更
 
-`Lora` と 全パラメータファインチューニングの2つの方法をサポートしています。これらのファインチューニング方法は `transformer` 部分にのみ適用されます。`VAE` 部分は変更されません。`T5` はエンコーダーとしてのみ使用されます。
+`Lora` と
+全パラメータファインチューニングの2つの方法をサポートしています。これらのファインチューニング方法は `transformer`
+部分にのみ適用されます。`VAE` 部分は変更されません。`T5` はエンコーダーとしてのみ使用されます。
 
 `configs/cogvideox_2b_sft.yaml` (全量ファインチューニング用) を次のように変更します。
 
@@ -190,7 +196,8 @@ model:
 1. 推論コードを実行してファインチューニングを開始します。
 
 ```shell
-bash finetune.sh
+bash finetune_single_gpu.sh # Single GPU
+bash finetune_multi_gpus.sh # Multi GPUs
 ```
 
 ### Huggingface Diffusers サポートのウェイトに変換
