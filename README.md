@@ -75,6 +75,8 @@ rapid stacking and development.
 **Please make sure your Python version is between 3.10 and 3.12, inclusive of both 3.10 and 3.12.**
 
 ```
+git clone https://github.com/THUDM/CogVideo.git
+cd CogVideo
 pip install -r requirements.txt
 ```
 
