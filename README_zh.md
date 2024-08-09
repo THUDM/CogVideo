@@ -22,7 +22,8 @@
 
 ## 项目更新
 
-- 🔥 **News**: ```2024/8/7```: CogVideoX 已经合并入 `diffusers` 0.30.0版本，单张3090可以推理，详情请见[代码](inference/cli_demo.py)。
+- 🔥 **News**: ```2024/8/7```: CogVideoX 已经合并入 `diffusers`
+  0.30.0版本，单张3090可以推理，详情请见[代码](inference/cli_demo.py)。
 - 🔥 **News**: ```2024/8/6```: 我们开源 **3D Causal VAE**，用于 **CogVideoX-2B**，可以几乎无损地重构视频。
 - 🔥 **News**: ```2024/8/6```: 我们开源 CogVideoX 系列视频生成模型的第一个模型, **CogVideoX-2B**。
 - 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是首个开源的基于
@@ -51,8 +52,8 @@
 
 ### 提示词优化
 
-在开始运行模型之前，请参考[这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4大模型对模型进行优化的，这很重要，
-由于模型是在长提示词下训练的，一额好的直接影响了视频生成的质量。
+在开始运行模型之前，请参考[这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4(或者同级别的其他产品，例如GPT-4)大模型对模型进行优化的，这很重要，
+由于模型是在长提示词下训练的，一个好的提示词直接影响了视频生成的质量。
 
 ### SAT
 
@@ -96,19 +97,25 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 
 下表展示目前我们提供的视频生成模型列表，以及相关基础信息:
 
-| 模型名                 | CogVideoX-2B                                                                                                                  | 
-|---------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| 提示词语言               | English                                                                                                                       | 
-| 单GPU推理 (FP-16) 显存消耗 | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                         | 
-| 多GPU推理 (FP-16) 显存消耗 | 20GB minimum per GPU using diffusers                                                                                          |                                                                                                            
-| 微调显存消耗 (bs=1)       | 42GB                                                                                                                          |
-| 提示词长度上限             | 226 Tokens                                                                                                                    |
-| 视频长度                | 6 seconds                                                                                                                     | 
-| 帧率（每秒）              | 8 frames                                                                                                                      | 
-| 视频分辨率               | 720 * 480                                                                                                                     |
-| 量化推理                | 不支持                                                                                                                           |          
+| 模型名                 | CogVideoX-2B                                                                                                                    | 
+|---------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| 提示词语言               | English                                                                                                                         | 
+| 单GPU推理 (FP-16) 显存消耗 | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                  | 
+| 多GPU推理 (FP-16) 显存消耗 | 20GB minimum per GPU using diffusers                                                                                            |                                                                                                            
+| 微调显存消耗 (bs=1)       | 42GB                                                                                                                            |
+| 提示词长度上限             | 226 Tokens                                                                                                                      |
+| 视频长度                | 6 seconds                                                                                                                       | 
+| 帧率（每秒）              | 8 frames                                                                                                                        | 
+| 视频分辨率               | 720 * 480                                                                                                                       |
+| 量化推理                | 不支持                                                                                                                             |          
 | 下载地址 (Diffusers 模型) | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)  [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b) |
-| 下载地址 (SAT 模型)       | [SAT](./sat/README_zh.md)                                                                                                     |
+| 下载地址 (SAT 模型)       | [SAT](./sat/README_zh.md)                                                                                                       |
+
+## 友情链接
+
+我们非常欢迎来自社区的贡献，并积极的贡献开源社区。以下作品已经对CogVideoX进行了适配，欢迎大家使用:
+
++ [Xorbits Inference](https://github.com/xorbitsai/inference): 性能强大且功能全面的分布式推理框架，轻松一键部署你自己的模型或内置的前沿开源模型。
 
 ## 完整项目代码结构
 
