@@ -1,6 +1,7 @@
 # CogVideo && CogVideoX
 
 [Read this in English.](./README_zh)
+[日本語で読む](./README_ja.md)
 
 
 <div align="center">
