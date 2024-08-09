@@ -425,7 +425,7 @@ class SFTDataset(Dataset):
                     self.videos_list.append(tensor_frms)
 
                     # caption
-                    caption_path = os.path.join(root, filename.replace("videos", "labels").replace(".mp4", ".txt"))
+                    caption_path = os.path.join(root, filename.replace(".mp4", ".txt")).replace("videos", "labels")
                     if os.path.exists(caption_path):
                         caption = open(caption_path, "r").read().splitlines()[0]
                     else:

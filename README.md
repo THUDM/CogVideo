@@ -60,12 +60,16 @@ the quality of the generated video.
 
 ### SAT
 
+**Please make sure your Python version is between 3.10 and 3.12, inclusive of both 3.10 and 3.12.**
+
 Follow instructions in [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is
 recommended to improve based on the CogVideoX model structure. Innovative researchers use this code to better perform
 rapid stacking and development.
 (18 GB for inference, 40GB for lora finetune)
 
 ### Diffusers
+
+**Please make sure your Python version is between 3.10 and 3.12, inclusive of both 3.10 and 3.12.**
 
 ```
 pip install -r requirements.txt

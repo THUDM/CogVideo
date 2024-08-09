@@ -117,8 +117,12 @@ bash inference.sh
 
 ### Preparing the Environment
 
-Please note that currently, SAT needs to be installed from the source code for proper fine-tuning. We will address this
-issue in future stable releases.
+Please note that currently, SAT needs to be installed from the source code for proper fine-tuning.
+
+You need to get the code from the source to support the fine-tuning functionality, as these features have not yet been
+released in the Pip package.
+
+We will address this issue in future stable releases.
 
 ```
 git clone https://github.com/THUDM/SwissArmyTransformer.git
@@ -197,7 +201,8 @@ model:
 1. Run the inference code to start fine-tuning.
 
 ```shell
-bash finetune.sh
+bash finetune_single_gpu.sh # Single GPU
+bash finetune_multi_gpus.sh # Multi GPUs
 ```
 
 ### Converting to Huggingface Diffusers Supported Weights

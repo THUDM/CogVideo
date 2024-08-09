@@ -112,7 +112,9 @@ bash inference.sh
 
 ### 准备环境
 
-请注意，目前，SAT需要从源码安装，才能正常微调, 我们将会在未来的稳定版本解决这个问题。
+请注意，目前，SAT需要从源码安装，才能正常微调。
+这是因为你需要使用还没发型到pip包版本的最新代码所支持的功能。
+我们将会在未来的稳定版本解决这个问题。
 
 ```
 git clone https://github.com/THUDM/SwissArmyTransformer.git
@@ -189,7 +191,8 @@ model:
 1. 运行推理代码,即可开始微调。
 
 ```shell
-bash finetune.sh
+bash finetune_single_gpu.sh # Single GPU
+bash finetune_multi_gpus.sh # Multi GPUs
 ```
 
 ### 转换到 Huggingface Diffusers 库支持的权重
