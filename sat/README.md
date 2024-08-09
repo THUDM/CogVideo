@@ -78,7 +78,7 @@ conditioner_config:
         ucg_rate: 0.1
         target: sgm.modules.encoders.modules.FrozenT5Embedder
         params:
-          model_dir: "google/t5-v1_1-xxl" ## T5 model path
+          model_dir: "{your_t5-v1_1-xxl_path}" ## T5 model path
           max_length: 226
 
 first_stage_config:

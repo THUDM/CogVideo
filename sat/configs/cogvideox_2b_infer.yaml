@@ -4,7 +4,7 @@ args:
   load: "CogVideoX-2b-sat/transformer"
   batch_size: 1
   input_type: txt
-  input_file: test.txt
+  input_file: "configs/test.txt"
   sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True
