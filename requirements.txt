@@ -1,4 +1,4 @@
-diffusers>=0.3.0
+diffusers>=0.30.0
 transformers>=4.43.4
 accelerate>=0.33.0
 sentencepiece==0.2.0 # T5
