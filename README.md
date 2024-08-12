@@ -151,8 +151,15 @@ of the **CogVideoX** open-source model.
   distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as
   GPT, Gemini, etc.
 + [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B
-  model to generate
-  videos.
+  model to generate videos. Same as Our Huggingface Space, you can use this script to launch a web demo.
+```shell
+cd inference
+# For Linux and Windows users (and macOS with Intel??)
+python gradio_web_demo.py # humans mode
+
+# For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
+PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
+```
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />

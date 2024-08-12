@@ -130,8 +130,17 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
 + [diffusers_vae_demo](inference/cli_vae_demo.py): VAE推論コードの実行には現在71GBのメモリが必要ですが、将来的には最適化される予定です。
 + [convert_demo](inference/convert_demo.py):
   ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
-+ [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2Bモデルを使用してビデオを生成する方法を示すシンプルなgradio
-  Web UI。
++ [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2B モデルを使用して動画を生成する方法を示す、シンプルな
+  Gradio Web UI デモです。私たちの Huggingface Space と同様に、このスクリプトを使用して Web デモを起動することができます。
+
+```shell
+cd inference
+# For Linux and Windows users (and macOS with Intel??)
+python gradio_web_demo.py # humans mode
+
+# For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
+PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
+```
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
