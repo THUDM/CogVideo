@@ -1,6 +1,7 @@
 # CogVideo && CogVideoX
 
 [Read this in English.](./README_zh)
+
 [日本語で読む](./README_ja.md)
 
 
@@ -11,7 +12,7 @@
 🤗 在 <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a> 体验视频生成模型
 </p>
 <p align="center">
-📚 查看 <a href="resources/CogVideoX.pdf" target="_blank">论文</a>
+📚 查看 <a href="https://arxiv.org/pdf/2408.06072" target="_blank">论文</a>
 </p>
 <p align="center">
     👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> 
@@ -22,6 +23,7 @@
 
 ## 项目更新
 
+- 🔥🔥 **News**: ```2024/8/12```: CogVideoX 论文已上传到arxiv，欢迎查看[论文](https://arxiv.org/abs/2408.06072)。
 - 🔥 **News**: ```2024/8/7```: CogVideoX 已经合并入 `diffusers`
   0.30.0版本，单张3090可以推理，详情请见[代码](inference/cli_demo.py)。
 - 🔥 **News**: ```2024/8/6```: 我们开源 **3D Causal VAE**，用于 **CogVideoX-2B**，可以几乎无损地重构视频。
@@ -52,7 +54,8 @@
 
 ### 提示词优化
 
-在开始运行模型之前，请参考[这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4(或者同级别的其他产品，例如GPT-4)大模型对模型进行优化的，这很重要，
+在开始运行模型之前，请参考[这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4(或者同级别的其他产品，例如GPT-4)
+大模型对模型进行优化的，这很重要，
 由于模型是在长提示词下训练的，一个好的提示词直接影响了视频生成的质量。
 
 ### SAT
@@ -128,7 +131,8 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 + [convert_demo](inference/convert_demo.py): 如何将用户的输入转换成适合
   CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM4，也可以替换为GPT、Gemini等任意大语言模型。
 + [gradio_web_demo](inference/gradio_web_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B 模型生成视频。
-与我们的 Huggingface Space 类似，你可以使用此脚本运行一个简单的网页应用，用于生成视频。
+  与我们的 Huggingface Space 类似，你可以使用此脚本运行一个简单的网页应用，用于生成视频。
+
 ```shell
 cd inference
 # For Linux and Windows users (and macOS with Intel??)
@@ -137,6 +141,7 @@ python gradio_web_demo.py # humans mode
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
 PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
 ```
+
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
