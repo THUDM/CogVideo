@@ -8,7 +8,7 @@ torchvision==0.19.0
 gradio==4.40.0 # For HF gradio demo
 pillow==9.5.0 # For HF gradio demo
 streamlit==1.37.0 # For streamlit web demo
-opencv-python==4.10 # For diffusers inference origin export video
 imageio==2.34.2 # For diffusers inference export video
 imageio-ffmpeg==0.5.1 # For diffusers inference export video
-openai==1.38.0 # For prompt refiner
+openai==1.40.6 # For prompt refiner
+moviepy==1.0.3 # For export video
