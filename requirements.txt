@@ -1,6 +1,6 @@
-diffusers>=0.30.0
-transformers>=4.43.4
-accelerate>=0.33.0
+diffusers==0.30.0
+transformers==4.44.0
+accelerate==0.33.0
 sentencepiece==0.2.0 # T5
 SwissArmyTransformer==0.4.11 # Inference
 torch==2.4.0 # Tested in 2.2 2.3 2.4 and 2.5
