@@ -1,6 +1,7 @@
 # CogVideo && CogVideoX
 
 [Read this in English.](./README_zh)
+
 [中文阅读](./README_zh.md)
 
 <div align="center">
@@ -21,6 +22,7 @@
 
 ## 更新とニュース
 
+- 🔥🔥 **ニュース**: ```2024/8/12```: CogVideoX 論文がarxivにアップロードされました。ぜひ[論文](https://arxiv.org/abs/2408.06072)をご覧ください。
 - 🔥 **ニュース**: ```2024/8/7```: CogVideoX は `diffusers` バージョン 0.30.0 に統合されました。単一の 3090 GPU
   で推論を実行できます。詳細については [コード](inference/cli_demo.py) を参照してください。
 - 🔥 **ニュース**: ```2024/8/6```: **CogVideoX-2B** で使用される **3D Causal VAE** もオープンソース化しました。これにより、ビデオをほぼ無損失で再構築できます。
@@ -225,3 +227,22 @@ CogVideoのデモは [https://models.aminer.cn/cogvideo](https://models.aminer.c
   year={2022}
 }
 ```
+
+## オープンソースプロジェクト計画
+
+- [x] CogVideoX モデルのオープンソース化
+    - [x] CogVideoX モデル推論サンプル (CLI / Web デモ)
+    - [x] CogVideoX オンライン体験サンプル (Huggingface Space)
+    - [x] CogVideoX オープンソースAPIインターフェースサンプル (Huggingface)
+    - [x] CogVideoX モデルの微調整サンプル (SAT)
+    - [ ] CogVideoX モデルの微調整サンプル (Huggingface / SAT)
+    - [ ] CogVideoX-Pro オープンソース化 (CogVideoX-2B スイートに対応)
+    - [X] CogVideoX 技術レポート公開
+
+私たちは皆さんの貢献を歓迎しています。詳しくは[こちら](resources/contribute_zh.md)をご覧ください。
+
+## モデルライセンス
+
+本リポジトリのコードは [Apache 2.0 ライセンス](LICENSE) の下で公開されています。
+
+本モデルのウェイトと実装コードは [CogVideoX LICENSE](MODEL_LICENSE) ライセンスに基づいて公開されています。

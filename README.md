@@ -1,6 +1,7 @@
 # CogVideo && CogVideoX
 
 [中文阅读](./README_zh.md)
+
 [日本語で読む](./README_ja.md)
 
 <div align="center">
@@ -21,6 +22,8 @@
 
 ## Update and News
 
+- 🔥🔥 **News**: ```2024/8/12```: The CogVideoX paper has been uploaded to arxiv. Feel free to check out
+  the [paper](https://arxiv.org/abs/2408.06072).
 - 🔥 **News**: ```2024/8/7```: CogVideoX has been integrated into `diffusers` version 0.30.0. Inference can now be
   performed
   on a single 3090 GPU. For more details, please refer to the [code](inference/cli_demo.py).
@@ -152,6 +155,7 @@ of the **CogVideoX** open-source model.
   GPT, Gemini, etc.
 + [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B
   model to generate videos. Same as Our Huggingface Space, you can use this script to launch a web demo.
+
 ```shell
 cd inference
 # For Linux and Windows users (and macOS with Intel??)

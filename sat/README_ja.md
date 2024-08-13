@@ -1,5 +1,9 @@
 # SAT CogVideoX-2B
 
+[Read this in English.](./README_zh)
+
+[中文阅读](./README_zh.md)
+
 このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer) ウェイトを使用した推論コードと、SAT
 ウェイトのファインチューニングコードが含まれています。
 

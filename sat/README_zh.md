@@ -1,5 +1,9 @@
 # SAT CogVideoX-2B
 
+[Read this in English.](./README_zh)
+
+[日本語で読む](./README_ja.md)
+
 本文件夹包含了使用 [SAT](https://github.com/THUDM/SwissArmyTransformer) 权重的推理代码，以及 SAT 权重的微调代码。
 
 该代码是团队训练模型时使用的框架。注释较少，需要认真研究。

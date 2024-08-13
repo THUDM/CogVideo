@@ -1,5 +1,10 @@
 # SAT CogVideoX-2B
 
+[中文阅读](./README_zh.md)
+
+[日本語で読む](./README_ja.md)
+
+
 This folder contains the inference code using [SAT](https://github.com/THUDM/SwissArmyTransformer) weights and the
 fine-tuning code for SAT weights.
 
