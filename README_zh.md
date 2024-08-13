@@ -11,7 +11,7 @@
 🤗 在 <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a> 体验视频生成模型
 </p>
 <p align="center">
-📚 查看 <a href="resources/CogVideoX.pdf" target="_blank">论文</a>
+📚 查看 <a href="https://arxiv.org/abs/2408.06072" target="_blank">论文</a>
 </p>
 <p align="center">
     👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> 
@@ -183,10 +183,14 @@ CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.amine
 🌟 如果您发现我们的工作有所帮助，欢迎引用我们的文章，留下宝贵的stars
 
 ```
-@article{yang2024cogvideox,
+@misc{yang2024cogvideoxtexttovideodiffusionmodels,
       title={CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer}, 
-      author={Zhuoyi Yang and Jiayan Teng and Wendi Zheng and Ming Ding and Shiyu Huang and JiaZheng Xu and Yuanming Yang and Xiaohan Zhang and Xiaotao Gu and Guanyu Feng and Da Yin and Wenyi Hong and Weihan Wang and Yean Cheng and Yuxuan Zhang and Ting Liu and Bin Xu and Yuxiao Dong and Jie Tang},
+      author={Zhuoyi Yang and Jiayan Teng and Wendi Zheng and Ming Ding and Shiyu Huang and Jiazheng Xu and Yuanming Yang and Wenyi Hong and Xiaohan Zhang and Guanyu Feng and Da Yin and Xiaotao Gu and Yuxuan Zhang and Weihan Wang and Yean Cheng and Ting Liu and Bin Xu and Yuxiao Dong and Jie Tang},
       year={2024},
+      eprint={2408.06072},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2408.06072}, 
 }
 @article{hong2022cogvideo,
   title={CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers},
