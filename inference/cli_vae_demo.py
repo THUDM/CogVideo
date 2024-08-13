@@ -133,5 +133,6 @@ if __name__ == "__main__":
     elif args.mode == "both":
         assert args.video_path, "Video path must be provided for encoding."
         encoded_output = encode_video(args.model_path, args.video_path, dtype, device)
+        torch.save(encoded_output, args.output_path + "/encoded.pt")
         decoded_output = decode_video(args.model_path, args.output_path + "/encoded.pt", dtype, device)
         save_video(decoded_output, args.output_path)
