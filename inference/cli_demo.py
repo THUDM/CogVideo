@@ -2,7 +2,7 @@
 This script demonstrates how to generate a video from a text prompt using CogVideoX with 🤗Huggingface Diffusers Pipeline.
 
 Note:
-    This script requires the `diffusers>=0.30.0` library to be installed.
+    This script requires the `diffusers>=0.31.0` library to be installed.
 
 Run the script:
     $ python cli_demo.py --prompt "A girl ridding a bike." --model_path THUDM/CogVideoX-2b
@@ -83,11 +83,14 @@ def generate_video(
     # pipe.vae.enable_tiling()
 
     # 4. Generate the video frames based on the prompt.
+    # `num_frames` is the Number of frames to generate.
+    # This is the default value for 6 seconds video and 8 fps,so 48 frames and will plus 1 frame for the first frame.
+    # for diffusers version `0.30.0`, this should be 48. and for `0.31.0` and after, this should be 49.
     video = pipe(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
         num_inference_steps=num_inference_steps,  # Number of inference steps
-        num_frames=48,  # Number of frames to generate
+        num_frames=49,
         guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
         generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
     ).frames[0]
