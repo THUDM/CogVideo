@@ -11,7 +11,7 @@
 🤗 Experience on <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a>
 </p>
 <p align="center">
-[Colab Demo](https://colab.research.google.com/drive/1bLC0PjE_PGD0vqqN4d_Z_p8C5qOs1ktg?usp=sharing) for CogVideoX-Colab! <a href="https://colab.research.google.com/drive/1bLC0PjE_PGD0vqqN4d_Z_p8C5qOs1ktg?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a>
+[Colab Demo] CogVideoX-Colab! <a href="https://colab.research.google.com/drive/1bLC0PjE_PGD0vqqN4d_Z_p8C5qOs1ktg?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a>
 </p>
 <p align="center">
 📚 Check here to view <a href="https://arxiv.org/abs/2408.06072" target="_blank">Paper</a>
