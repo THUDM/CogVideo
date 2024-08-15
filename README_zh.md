@@ -188,14 +188,11 @@ CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.amine
 🌟 如果您发现我们的工作有所帮助，欢迎引用我们的文章，留下宝贵的stars
 
 ```
-@misc{yang2024cogvideoxtexttovideodiffusionmodels,
-      title={CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer}, 
-      author={Zhuoyi Yang and Jiayan Teng and Wendi Zheng and Ming Ding and Shiyu Huang and Jiazheng Xu and Yuanming Yang and Wenyi Hong and Xiaohan Zhang and Guanyu Feng and Da Yin and Xiaotao Gu and Yuxuan Zhang and Weihan Wang and Yean Cheng and Ting Liu and Bin Xu and Yuxiao Dong and Jie Tang},
-      year={2024},
-      eprint={2408.06072},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2408.06072}, 
+@article{yang2024cogvideox,
+  title={CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer},
+  author={Yang, Zhuoyi and Teng, Jiayan and Zheng, Wendi and Ding, Ming and Huang, Shiyu and Xu, Jiazheng and Yang, Yuanming and Hong, Wenyi and Zhang, Xiaohan and Feng, Guanyu and others},
+  journal={arXiv preprint arXiv:2408.06072},
+  year={2024}
 }
 @article{hong2022cogvideo,
   title={CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers},
