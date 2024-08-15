@@ -90,7 +90,7 @@ def generate_video(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
         num_inference_steps=num_inference_steps,  # Number of inference steps
-        num_frames=49,
+        num_frames=48, # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
         guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
         generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
     ).frames[0]
