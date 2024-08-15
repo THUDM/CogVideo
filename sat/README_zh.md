@@ -114,18 +114,6 @@ bash inference.sh
 
 ## 微调模型
 
-### 准备环境
-
-请注意，目前，SAT需要从源码安装，才能正常微调。
-这是因为你需要使用还没发型到pip包版本的最新代码所支持的功能。
-我们将会在未来的稳定版本解决这个问题。
-
-```
-git clone https://github.com/THUDM/SwissArmyTransformer.git
-cd SwissArmyTransformer
-pip install -e .
-```
-
 ### 准备数据集
 
 数据集格式应该如下：

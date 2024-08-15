@@ -118,17 +118,6 @@ bash inference.sh
 
 ## モデルのファインチューニング
 
-### 環境の準備
-
-ご注意ください、現在、SATを正常にファインチューニングするためには、ソースコードからインストールする必要があります。
-これは、まだpipパッケージバージョンにリリースされていない最新の機能を使用する必要があるためです。この問題は、今後の安定版で解決する予定です。
-
-```
-git clone https://github.com/THUDM/SwissArmyTransformer.git
-cd SwissArmyTransformer
-pip install -e .
-```
-
 ### データセットの準備
 
 データセットの形式は次のようになります：
