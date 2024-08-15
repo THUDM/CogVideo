@@ -2,7 +2,8 @@
 This script demonstrates how to generate a video from a text prompt using CogVideoX with 🤗Huggingface Diffusers Pipeline.
 
 Note:
-    This script requires the `diffusers>=0.31.0` library to be installed.
+    This script requires the `diffusers>=0.30.0` library to be installed， after `diffusers 0.31.0` release,
+    need to update.
 
 Run the script:
     $ python cli_demo.py --prompt "A girl ridding a bike." --model_path THUDM/CogVideoX-2b
@@ -78,8 +79,7 @@ def generate_video(
     torch.cuda.reset_accumulated_memory_stats()
     torch.cuda.reset_peak_memory_stats()
 
-    # Using with diffusers branch `cogvideox-followup` to enable tiling. not support in `main` branch.
-    # This will cost ONLY 12GB GPU memory.
+    # Using with diffusers branch `main` to enable tiling. This will cost ONLY 12GB GPU memory.
     # pipe.vae.enable_tiling()
 
     # 4. Generate the video frames based on the prompt.
