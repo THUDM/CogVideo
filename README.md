@@ -22,7 +22,11 @@
 
 ## Update and News
 
-- 🔥🔥 **News**: ```2024/8/12```: The CogVideoX paper has been uploaded to arxiv. Feel free to check out
+- 🔥🔥 **News**: ```2024/8/15```: The `SwissArmyTransformer` dependency in CogVideoX has been upgraded to `0.4.12`. Fine-tuning
+  no longer requires installing `SwissArmyTransformer` from source. Additionally, the `Tied VAE` technique has been
+  applied in the implementation within the `diffusers` library. Please install `diffusers` and `accelerate` libraries
+  from source. Inference for CogVideoX now requires only 12GB of VRAM.
+- 🔥 **News**: ```2024/8/12```: The CogVideoX paper has been uploaded to arxiv. Feel free to check out
   the [paper](https://arxiv.org/abs/2408.06072).
 - 🔥 **News**: ```2024/8/7```: CogVideoX has been integrated into `diffusers` version 0.30.0. Inference can now be
   performed

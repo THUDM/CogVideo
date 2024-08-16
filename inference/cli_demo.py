@@ -2,14 +2,15 @@
 This script demonstrates how to generate a video from a text prompt using CogVideoX with 🤗Huggingface Diffusers Pipeline.
 
 Note:
-    This script requires the `diffusers>=0.30.0` library to be installed.
-    If the video exported using OpenCV appears “completely green” and cannot be viewed, lease switch to a different player to watch it. This is a normal phenomenon.
+    This script requires the `diffusers>=0.30.0` library to be installed， after `diffusers 0.31.0` release,
+    need to update.
 
 Run the script:
     $ python cli_demo.py --prompt "A girl ridding a bike." --model_path THUDM/CogVideoX-2b
 
 """
 
+import gc
 import argparse
 import tempfile
 from typing import Union, List
@@ -18,11 +19,10 @@ import PIL
 import imageio
 import numpy as np
 import torch
-from diffusers import CogVideoXPipeline
-
+from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler
 
 def export_to_video_imageio(
-    video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
+        video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
 ) -> str:
     """
     Export the video frames to a video file using imageio lib to Avoid "green screen" issue (for example CogVideoX)
@@ -38,14 +38,13 @@ def export_to_video_imageio(
 
 
 def generate_video(
-    prompt: str,
-    model_path: str,
-    output_path: str = "./output.mp4",
-    num_inference_steps: int = 50,
-    guidance_scale: float = 6.0,
-    num_videos_per_prompt: int = 1,
-    device: str = "cuda",
-    dtype: torch.dtype = torch.float16,
+        prompt: str,
+        model_path: str,
+        output_path: str = "./output.mp4",
+        num_inference_steps: int = 50,
+        guidance_scale: float = 6.0,
+        num_videos_per_prompt: int = 1,
+        dtype: torch.dtype = torch.float16,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -57,36 +56,46 @@ def generate_video(
     - num_inference_steps (int): Number of steps for the inference process. More steps can result in better quality.
     - guidance_scale (float): The scale for classifier-free guidance. Higher values can lead to better alignment with the prompt.
     - num_videos_per_prompt (int): Number of videos to generate per prompt.
-    - device (str): The device to use for computation (e.g., "cuda" or "cpu").
     - dtype (torch.dtype): The data type for computation (default is torch.float16).
+
     """
 
-    # Load the pre-trained CogVideoX pipeline with the specified precision (float16) and move it to the specified device
-    # add device_map="balanced" in the from_pretrained function and remove
-    # `pipe.enable_model_cpu_offload()` to enable Multi GPUs (2 or more and each one must have more than 20GB memory) inference.
+    # 1.  Load the pre-trained CogVideoX pipeline with the specified precision (float16).
+    # add device_map="balanced" in the from_pretrained function and remove the enable_model_cpu_offload()
+    # function to use Multi GPUs.
+
     pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype)
+
+    # 2. Set Scheduler.
+    # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
+    # We recommend using `CogVideoXDDIMScheduler` for better results.
+    pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+
+    # 3. Enable CPU offload for the model and reset the memory, enable tiling.
     pipe.enable_model_cpu_offload()
 
-    # Encode the prompt to get the prompt embeddings
-    prompt_embeds, _ = pipe.encode_prompt(
-        prompt=prompt,  # The textual description for video generation
-        negative_prompt=None,  # The negative prompt to guide the video generation
-        do_classifier_free_guidance=True,  # Whether to use classifier-free guidance
-        num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
-        max_sequence_length=226,  # Maximum length of the sequence, must be 226
-        device=device,  # Device to use for computation
-        dtype=dtype,  # Data type for computation
-    )
+    gc.collect()
+    torch.cuda.empty_cache()
+    torch.cuda.reset_accumulated_memory_stats()
+    torch.cuda.reset_peak_memory_stats()
 
-    # Generate the video frames using the pipeline
+    # Using with diffusers branch `main` to enable tiling. This will cost ONLY 12GB GPU memory.
+    # pipe.vae.enable_tiling()
+
+    # 4. Generate the video frames based on the prompt.
+    # `num_frames` is the Number of frames to generate.
+    # This is the default value for 6 seconds video and 8 fps,so 48 frames and will plus 1 frame for the first frame.
+    # for diffusers version `0.30.0`, this should be 48. and for `0.31.0` and after, this should be 49.
     video = pipe(
+        prompt=prompt,
+        num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
         num_inference_steps=num_inference_steps,  # Number of inference steps
+        num_frames=48, # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
         guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
-        prompt_embeds=prompt_embeds,  # Encoded prompt embeddings
-        negative_prompt_embeds=torch.zeros_like(prompt_embeds),  # Not Supported negative prompt
+        generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
     ).frames[0]
 
-    # Export the generated frames to a video file. fps must be 8
+    # 5. Export the generated frames to a video file. fps must be 8
     export_to_video_imageio(video, output_path, fps=8)
 
 
@@ -105,10 +114,6 @@ if __name__ == "__main__":
     parser.add_argument("--guidance_scale", type=float, default=6.0, help="The scale for classifier-free guidance")
     parser.add_argument("--num_videos_per_prompt", type=int, default=1, help="Number of videos to generate per prompt")
     parser.add_argument(
-        "--device", type=str, default="cuda", help="The device to use for computation (e.g., 'cuda' or 'cpu')"
-    )
-
-    parser.add_argument(
         "--dtype", type=str, default="float16", help="The data type for computation (e.g., 'float16' or 'float32')"
     )
 
@@ -125,6 +130,5 @@ if __name__ == "__main__":
         num_inference_steps=args.num_inference_steps,
         guidance_scale=args.guidance_scale,
         num_videos_per_prompt=args.num_videos_per_prompt,
-        device=args.device,
         dtype=dtype,
     )
