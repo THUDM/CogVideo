@@ -147,6 +147,8 @@ def delete_old_files():
         now = datetime.now()
         cutoff = now - timedelta(minutes=10)
         output_dir = "./output"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         for filename in os.listdir(output_dir):
             file_path = os.path.join(output_dir, filename)
             if os.path.isfile(file_path):
