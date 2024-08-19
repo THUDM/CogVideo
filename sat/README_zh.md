@@ -50,7 +50,9 @@ git clone https://huggingface.co/THUDM/CogVideoX-2b.git
 mkdir t5-v1_1-xxl
 mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 ```
+
 通过上述方案，你将会得到一个 safetensor 格式的T5文件，确保在 Deepspeed微调过程中读入的时候不会报错。
+
 ```
 ├── added_tokens.json
 ├── config.json
@@ -63,6 +65,7 @@ mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 
 0 directories, 8 files
 ```
+
 3. 修改`configs/cogvideox_2b_infer.yaml`中的文件。
 
 ```yaml
@@ -138,7 +141,7 @@ bash inference.sh
 
 我们支持 `Lora` 和 全参数微调两种方式。请注意，两种微调方式都仅仅对 `transformer` 部分进行微调。不改动 `VAE` 部分。`T5`仅作为
 Encoder 使用。
-部分。 请按照以下方式修改`configs/cogvideox_2b_sft.yaml`(全量微调) 中的文件。
+部分。 请按照以下方式修改`configs/sft.yaml`(全量微调) 中的文件。
 
 ```yaml
   # checkpoint_activations: True ## using gradient checkpointing (配置文件中的两个checkpoint_activations都需要设置为True)
@@ -160,9 +163,16 @@ Encoder 使用。
   num_workers: 8 # 数据加载器的工作线程数
   force_train: True # 在加载checkpoint时允许missing keys (T5 和 VAE 单独加载)
   only_log_video_latents: True # 避免VAE decode带来的显存开销
+  deepspeed:
+    bf16:
+      enabled: False # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
+    fp16:
+      enabled: True  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
 ```
 
-如果你希望使用 Lora 微调，你还需要修改：
+如果你希望使用 Lora 微调，你还需要修改`cogvideox_<模型参数>_lora` 文件：
+
+这里以 `CogVideoX-2B` 为参考:
 
 ```yaml
 model:
@@ -178,13 +188,44 @@ model:
       r: 256
 ```
 
+### 修改运行脚本
+
+编辑`finetune_single_gpu.sh` 或者 `finetune_multi_gpus.sh`，选择配置文件。下面是两个例子:
+
+1. 如果您想使用 `CogVideoX-2B` 模型并使用`Lora`方案，您需要修改`finetune_single_gpu.sh` 或者 `finetune_multi_gpus.sh`:
+
+```
+run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b_lora.yaml configs/sft.yaml --seed $RANDOM"
+```
+
+2. 如果您想使用 `CogVideoX-2B` 模型并使用`全量微调`方案，您需要修改`finetune_single_gpu.sh`
+   或者 `finetune_multi_gpus.sh`:
+
+```
+run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b.yaml configs/sft.yaml --seed $RANDOM"
+```
+
 ### 微调和验证
 
-1. 运行推理代码,即可开始微调。
+运行推理代码,即可开始微调。
 
 ```shell
 bash finetune_single_gpu.sh # Single GPU
 bash finetune_multi_gpus.sh # Multi GPUs
+```
+
+### 使用微调后的模型
+
+微调后的模型无法合并，这里展现了如何修改推理配置文件 `inference.sh`
+
+```
+run_cmd="$environs python sample_video.py --base configs/cogvideox_<模型参数>_lora.yaml configs/inference.yaml --seed 42"
+```
+
+然后，执行代码:
+
+```
+bash inference.sh 
 ```
 
 ### 转换到 Huggingface Diffusers 库支持的权重

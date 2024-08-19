@@ -1,6 +1,6 @@
-diffusers==0.30.0
+git+https://github.com/huggingface/diffusers.git@main#egg=diffusers
 transformers==4.44.0
-accelerate==0.33.0
+git+https://github.com/huggingface/accelerate.git@main#egg=accelerate
 sentencepiece==0.2.0 # T5
 SwissArmyTransformer==0.4.12 # Inference
 torch==2.4.0 # Tested in 2.2 2.3 2.4 and 2.5

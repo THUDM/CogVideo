@@ -14,7 +14,7 @@
 📚 <a href="https://arxiv.org/abs/2408.06072" target="_blank">論文</a> をチェック
 </p>
 <p align="center">
-    👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> に参加
+    👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> に参加
 </p>
 <p align="center">
 📍 <a href="https://chatglm.cn/video?fr=osm_cogvideox">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験
