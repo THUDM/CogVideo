@@ -22,7 +22,7 @@ import utils
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 MODEL_PATH = os.environ.get('MODEL_PATH', "THUDM/CogVideoX-2b")
-UP_SCALE_MODEL_CKPT = os.environ.get('UP_SCALE_MODEL_CKPT', "/media/gpt4-pdf-chatbot-langchain/ComfyUI/models/upscale_models/RealESRGAN_x4.pth")
+UP_SCALE_MODEL_CKPT = os.environ.get('UP_SCALE_MODEL_CKPT', "")
 pipe = CogVideoXPipeline.from_pretrained(MODEL_PATH, torch_dtype=torch.float16).to(
     device)
 pipe.enable_model_cpu_offload()
