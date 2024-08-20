@@ -40,14 +40,14 @@ Where:
 - `input_path` is the path to the input video
 - `prompt` is the description of the video content. The prompt used by this tool should be shorter, not exceeding 77
   words. You may need to simplify the prompt used for generating the CogVideoX video.
-- `up_scale` is the upsampling factor, which can be set to 2, 4, or 8
 - `target_fps` is the target frame rate for the video. Typically, 16 fps is already smooth, with 24 fps as the default
   value.
-- `noise_aug` controls the strength of noise augmentation, typically set to 250
-- `steps` indicates the number of optimization steps, usually set to 15. If you want faster model generation, you can
-  reduce this number, but the quality will significantly decrease.
-
-The code will automatically download the required models from Hugging Face during execution.
+- `up_scale` is recommend to be set to 2,3,4. The target resolution is limited to be around 2k and below.
+- `noise_aug` value depends on the input video quality. Lower quality needs higher noise levels, which corresponds to
+  stronger refinement. 250~300 is for very low-quality videos. good videos: <= 200.
+- `steps`  if you want fewer steps, please change solver_mode to "normal" first, then decline the number of steps. "
+  fast" solver_mode has fixed steps (15).
+  The code will automatically download the required models from Hugging Face during execution.
 
 Typical runtime logs are as follows:
 
