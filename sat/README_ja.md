@@ -140,57 +140,94 @@ bash inference.sh
 
 ### 設定ファイルの変更
 
-`Lora` と
-全パラメータファインチューニングの2つの方法をサポートしています。これらのファインチューニング方法は `transformer`
-部分にのみ適用されます。`VAE` 部分は変更されません。`T5` はエンコーダーとしてのみ使用されます。
+`Lora` とフルパラメータ微調整の2つの方法をサポートしています。両方の微調整方法は、`transformer` 部分のみを微調整し、`VAE`
+部分には変更を加えないことに注意してください。`T5` はエンコーダーとしてのみ使用されます。以下のように `configs/sft.yaml` (
+フルパラメータ微調整用) ファイルを変更してください。
 
-`configs/cogvideox_2b_sft.yaml` (全量ファインチューニング用) を次のように変更します。
-
-```yaml
-  # checkpoint_activations: True ## using gradient checkpointing (設定ファイル内の2つのcheckpoint_activationsを両方Trueに設定する必要があります)
+```
+  # checkpoint_activations: True ## 勾配チェックポイントを使用する場合 (設定ファイル内の2つの checkpoint_activations を True に設定する必要があります)
   model_parallel_size: 1 # モデル並列サイズ
   experiment_name: lora-disney  # 実験名 (変更しないでください)
   mode: finetune # モード (変更しないでください)
-  load: "{your_CogVideoX-2b-sat_path}/transformer" # Transformer モデルパス
-  no_load_rng: True # ランダムシードをロードするかどうか
+  load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformer モデルのパス
+  no_load_rng: True # 乱数シードを読み込むかどうか
   train_iters: 1000 # トレーニングイテレーション数
   eval_iters: 1 # 評価イテレーション数
-  eval_interval: 100 # 評価間隔
-  eval_batch_size: 1 # 評価のバッチサイズ
+  eval_interval: 100    # 評価間隔
+  eval_batch_size: 1  # 評価バッチサイズ
   save: ckpts # モデル保存パス
   save_interval: 100 # モデル保存間隔
   log_interval: 20 # ログ出力間隔
   train_data: [ "your train data path" ]
-  valid_data: [ "your val data path" ] # トレーニングセットと検証セットは同じでもかまいません
-  split: 1,0,0 # トレーニングセット、検証セット、テストセットの比率
+  valid_data: [ "your val data path" ] # トレーニングデータと評価データは同じでも構いません
+  split: 1,0,0 # トレーニングセット、評価セット、テストセットの割合
   num_workers: 8 # データローダーのワーカースレッド数
-  force_train: True # ckpt をロードする際に missing keys を許可するかどうか (T5 と VAE は独立してロードされます)
-  only_log_video_latents: True # VAE デコーダーを使用しないようにしてメモリを節約します
+  force_train: True # チェックポイントをロードするときに欠落したキーを許可 (T5 と VAE は別々にロードされます)
+  only_log_video_latents: True # VAE のデコードによるメモリオーバーヘッドを回避
+  deepspeed:
+    bf16:
+      enabled: False # CogVideoX-2B の場合は False に設定し、CogVideoX-5B の場合は True に設定
+    fp16:
+      enabled: True  # CogVideoX-2B の場合は True に設定し、CogVideoX-5B の場合は False に設定
 ```
 
-Lora ファインチューニングを使用する場合は、次のように変更する必要があります：
+Lora 微調整を使用したい場合は、`cogvideox_<model_parameters>_lora` ファイルも変更する必要があります。
 
-```yaml
+ここでは、`CogVideoX-2B` を参考にします。
+
+```
 model:
   scale_factor: 1.15258426
   disable_first_stage_autocast: true
-  not_trainable_prefixes: [ 'all' ] ## コメント解除
+  not_trainable_prefixes: [ 'all' ] ## コメントを解除
   log_keys:
     - txt'
 
-  lora_config: ## コメント解除
+  lora_config: ## コメントを解除
     target: sat.model.finetune.lora2.LoraMixin
     params:
       r: 256
 ```
 
-### ファインチューニングと検証
+### 実行スクリプトの変更
 
-1. 推論コードを実行してファインチューニングを開始します。
+設定ファイルを選択するために `finetune_single_gpu.sh` または `finetune_multi_gpus.sh` を編集します。以下に2つの例を示します。
 
-```shell
-bash finetune_single_gpu.sh # Single GPU
-bash finetune_multi_gpus.sh # Multi GPUs
+1. `CogVideoX-2B` モデルを使用し、`Lora` 手法を利用する場合は、`finetune_single_gpu.sh` または `finetune_multi_gpus.sh`
+   を変更する必要があります。
+
+```
+run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b_lora.yaml configs/sft.yaml --seed $RANDOM"
+```
+
+2. `CogVideoX-2B` モデルを使用し、`フルパラメータ微調整` 手法を利用する場合は、`finetune_single_gpu.sh`
+   または `finetune_multi_gpus.sh` を変更する必要があります。
+
+```
+run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b.yaml configs/sft.yaml --seed $RANDOM"
+```
+
+### 微調整と評価
+
+推論コードを実行して微調整を開始します。
+
+```
+bash finetune_single_gpu.sh # シングルGPU
+bash finetune_multi_gpus.sh # マルチGPU
+```
+
+### 微調整後のモデルの使用
+
+微調整されたモデルは統合できません。ここでは、推論設定ファイル `inference.sh` を変更する方法を示します。
+
+```
+run_cmd="$environs python sample_video.py --base configs/cogvideox_<model_parameters>_lora.yaml configs/inference.yaml --seed 42"
+```
+
+その後、次のコードを実行します。
+
+```
+bash inference.sh 
 ```
 
 ### Huggingface Diffusers サポートのウェイトに変換

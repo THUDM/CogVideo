@@ -14,15 +14,24 @@
 📚 <a href="https://arxiv.org/abs/2408.06072" target="_blank">論文</a> をチェック
 </p>
 <p align="center">
-    👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/Ewaabk6s" target="_blank">Discord</a> に参加
+    👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> に参加
 </p>
 <p align="center">
 📍 <a href="https://chatglm.cn/video?fr=osm_cogvideox">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験
 </p>
 
 ## 更新とニュース
-- 🔥🔥 **ニュース**: 2024/8/15: CogVideoX の依存関係である`SwissArmyTransformer`の依存が`0.4.12`にアップグレードされました。これにより、微調整の際に`SwissArmyTransformer`をソースコードからインストールする必要がなくなりました。同時に、`Tied VAE` 技術が `diffusers` ライブラリの実装に適用されました。`diffusers` と `accelerate` ライブラリをソースコードからインストールしてください。CogVdideoX の推論には 12GB の VRAM だけが必要です。
-- 🔥 **ニュース**: ```2024/8/12```: CogVideoX 論文がarxivにアップロードされました。ぜひ[論文](https://arxiv.org/abs/2408.06072)をご覧ください。
+
+- 🔥🔥 **ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
+  が生成したビデオの強化をサポートしました。より高い解像度とより高品質なビデオレンダリングを実現します。[チュートリアル](tools/venhancer/README_ja.md)
+  に従って、ぜひお試しください。
+- 🔥**ニュース**: 2024/8/15: CogVideoX の依存関係である`SwissArmyTransformer`の依存が`0.4.12`
+  にアップグレードされました。これにより、微調整の際に`SwissArmyTransformer`
+  をソースコードからインストールする必要がなくなりました。同時に、`Tied VAE` 技術が `diffusers`
+  ライブラリの実装に適用されました。`diffusers` と `accelerate` ライブラリをソースコードからインストールしてください。CogVdideoX
+  の推論には 12GB の VRAM だけが必要です。 推論コードの修正が必要です。[cli_demo](inference/cli_demo.py)をご確認ください。
+- 🔥 **ニュース**: ```2024/8/12```: CogVideoX
+  論文がarxivにアップロードされました。ぜひ[論文](https://arxiv.org/abs/2408.06072)をご覧ください。
 - 🔥 **ニュース**: ```2024/8/7```: CogVideoX は `diffusers` バージョン 0.30.0 に統合されました。単一の 3090 GPU
   で推論を実行できます。詳細については [コード](inference/cli_demo.py) を参照してください。
 - 🔥 **ニュース**: ```2024/8/6```: **CogVideoX-2B** で使用される **3D Causal VAE** もオープンソース化しました。これにより、ビデオをほぼ無損失で再構築できます。

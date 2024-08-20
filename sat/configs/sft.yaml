@@ -1,0 +1,65 @@
+args:
+  checkpoint_activations: True ## using gradient checkpointing
+  model_parallel_size: 1
+  experiment_name: lora-disney
+  mode: finetune
+  load: "cogvideox-2b-sat/transformer"
+  no_load_rng: True
+  train_iters: 1000 # Suggest more than 1000 For Lora and SFT For 500 is enough
+  eval_iters: 1
+  eval_interval: 100
+  eval_batch_size: 1
+  save: ckpts_2b_lora
+  save_interval: 500
+  log_interval: 20
+  train_data: [ "disney" ] # Train data path
+  valid_data: [ "disney" ] # Validation data path, can be the same as train_data(not recommended)
+  split: 1,0,0
+  num_workers: 8
+  force_train: True
+  only_log_video_latents: True
+
+data:
+  target: data_video.SFTDataset
+  params:
+    video_size: [ 480, 720 ]
+    fps: 8
+    max_num_frames: 49
+    skip_frms_num: 3.
+
+deepspeed:
+  # Minimun for 16 videos per batch for ALL GPUs, This setting is for 8 x A100 GPUs
+  train_micro_batch_size_per_gpu: 2
+  gradient_accumulation_steps: 1
+  steps_per_print: 50
+  gradient_clipping: 0.1
+  zero_optimization:
+    stage: 2
+    cpu_offload: false
+    contiguous_gradients: false
+    overlap_comm: true
+    reduce_scatter: true
+    reduce_bucket_size: 1000000000
+    allgather_bucket_size: 1000000000
+    load_from_fp32_weights: false
+  zero_allow_untested_optimizer: true
+  bf16:
+      enabled: False  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
+  fp16:
+      enabled: True  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
+  loss_scale: 0
+  loss_scale_window: 400
+  hysteresis: 2
+  min_loss_scale: 1
+
+  optimizer:
+    type: sat.ops.FusedEmaAdam
+    params:
+      lr: 0.001 # Between 1E-3 and 5E-4 For Lora and 1E-5 For SFT
+      betas: [ 0.9, 0.95 ]
+      eps: 1e-8
+      weight_decay: 1e-4
+  activation_checkpointing:
+    partition_activations: false
+    contiguous_memory_optimization: false
+  wall_clock_breakdown: false

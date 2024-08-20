@@ -4,7 +4,6 @@
 
 [日本語で読む](./README_ja.md)
 
-
 This folder contains the inference code using [SAT](https://github.com/THUDM/SwissArmyTransformer) weights and the
 fine-tuning code for SAT weights.
 
@@ -69,110 +68,49 @@ loading it into Deepspeed in Finetune.
 0 directories, 8 files
 ```
 
-3. Modify the file `configs/cogvideox_2b_infer.yaml`.
+Each text file shares the same name as its corresponding video, serving as the label for that video. Videos and labels
+should be matched one-to-one. Generally, a single video should not be associated with multiple labels.
 
-```yaml
-load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformer model path
+For style fine-tuning, please prepare at least 50 videos and labels with similar styles to ensure proper fitting.
 
-conditioner_config:
-  target: sgm.modules.GeneralConditioner
-  params:
-    emb_models:
-      - is_trainable: false
-        input_key: txt
-        ucg_rate: 0.1
-        target: sgm.modules.encoders.modules.FrozenT5Embedder
-        params:
-          model_dir: "google/t5-v1_1-xxl" ## T5 model path
-          max_length: 226
+### Modifying Configuration Files
 
-first_stage_config:
-  target: sgm.models.autoencoder.VideoAutoencoderInferenceWrapper
-  params:
-    cp_size: 1
-    ckpt_path: "{your_CogVideoX-2b-sat_path}/vae/3d-vae.pt" ## VAE model path
-```
-
-+ If using txt to save multiple prompts, please refer to `configs/test.txt` for modification. One prompt per line. If
-  you don't know how to write prompts, you can first use [this code](../inference/convert_demo.py) to call LLM for
-  refinement.
-+ If using the command line as input, modify
-
-```yaml
-input_type: cli
-```
-
-so that prompts can be entered from the command line.
-
-If you want to change the output video directory, you can modify:
-
-```yaml
-output_dir: outputs/
-```
-
-The default is saved in the `.outputs/` folder.
-
-4. Run the inference code to start inference
-
-```shell
-bash inference.sh
-```
-
-## Fine-Tuning the Model
-
-### Preparing the Dataset
-
-The dataset format should be as follows:
+We support two fine-tuning methods: `Lora` and full-parameter fine-tuning. Please note that both methods only fine-tune
+the `transformer` part and do not modify the `VAE` section. `T5` is used solely as an Encoder. Please modify
+the `configs/sft.yaml` (for full-parameter fine-tuning) file as follows:
 
 ```
-.
-├── labels
-│   ├── 1.txt
-│   ├── 2.txt
-│   ├── ...
-└── videos
-    ├── 1.mp4
-    ├── 2.mp4
-    ├── ...
-```
-
-Each txt file should have the same name as its corresponding video file and contain the labels for that video. Each
-video should have a one-to-one correspondence with a label. Typically, a video should not have multiple labels.
-
-For style fine-tuning, please prepare at least 50 videos and labels with similar styles to facilitate fitting.
-
-### Modifying the Configuration File
-
-We support both `Lora` and `full-parameter fine-tuning` methods. Please note that both fine-tuning methods only apply to
-the `transformer` part. The `VAE part` is not modified. `T5` is only used as an Encoder.
-
-the `configs/cogvideox_2b_sft.yaml` (for full fine-tuning) as follows.
-
-```yaml
-  # checkpoint_activations: True ## using gradient checkpointing (both checkpoint_activations in the configuration file need to be set to True)
+  # checkpoint_activations: True ## Using gradient checkpointing (Both checkpoint_activations in the config file need to be set to True)
   model_parallel_size: 1 # Model parallel size
-  experiment_name: lora-disney  # Experiment name (do not change)
-  mode: finetune # Mode (do not change)
-  load: "{your_CogVideoX-2b-sat_path}/transformer" # Transformer model path
-  no_load_rng: True # Whether to load the random seed
-  train_iters: 1000 # Number of training iterations
-  eval_iters: 1 # Number of evaluation iterations
-  eval_interval: 100 # Evaluation interval
-  eval_batch_size: 1 # Batch size for evaluation
+  experiment_name: lora-disney  # Experiment name (do not modify)
+  mode: finetune # Mode (do not modify)
+  load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformer model path
+  no_load_rng: True # Whether to load random seed
+  train_iters: 1000 # Training iterations
+  eval_iters: 1 # Evaluation iterations
+  eval_interval: 100    # Evaluation interval
+  eval_batch_size: 1  # Evaluation batch size
   save: ckpts # Model save path
   save_interval: 100 # Model save interval
   log_interval: 20 # Log output interval
   train_data: [ "your train data path" ]
-  valid_data: [ "your val data path" ] # Training and validation sets can be the same
-  split: 1,0,0 # Ratio of training, validation, and test sets
-  num_workers: 8 # Number of worker threads for data loading
-  force_train: True # Allow missing keys when loading ckpt (refer to T5 and VAE which are loaded independently)
-  only_log_video_latents: True # Avoid using VAE decoder when eval to save memory
+  valid_data: [ "your val data path" ] # Training and validation datasets can be the same
+  split: 1,0,0 # Training, validation, and test set ratio
+  num_workers: 8 # Number of worker threads for data loader
+  force_train: True # Allow missing keys when loading checkpoint (T5 and VAE are loaded separately)
+  only_log_video_latents: True # Avoid memory overhead caused by VAE decode
+  deepspeed:
+    bf16:
+      enabled: False # For CogVideoX-2B set to False and for CogVideoX-5B set to True
+    fp16:
+      enabled: True  # For CogVideoX-2B set to True and for CogVideoX-5B set to False
 ```
 
-If you wish to use Lora fine-tuning, you also need to modify:
+If you wish to use Lora fine-tuning, you also need to modify the `cogvideox_<model_parameters>_lora` file:
 
-```yaml
+Here, take `CogVideoX-2B` as a reference:
+
+```
 model:
   scale_factor: 1.15258426
   disable_first_stage_autocast: true
@@ -186,13 +124,45 @@ model:
       r: 256
 ```
 
-### Fine-Tuning and Validation
+### Modifying Run Scripts
 
-1. Run the inference code to start fine-tuning.
+Edit `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` to select the configuration file. Below are two examples:
 
-```shell
+1. If you want to use the `CogVideoX-2B` model and the `Lora` method, you need to modify `finetune_single_gpu.sh`
+   or `finetune_multi_gpus.sh`:
+
+```
+run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b_lora.yaml configs/sft.yaml --seed $RANDOM"
+```
+
+2. If you want to use the `CogVideoX-2B` model and the `full-parameter fine-tuning` method, you need to
+   modify `finetune_single_gpu.sh` or `finetune_multi_gpus.sh`:
+
+```
+run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b.yaml configs/sft.yaml --seed $RANDOM"
+```
+
+### Fine-Tuning and Evaluation
+
+Run the inference code to start fine-tuning.
+
+```
 bash finetune_single_gpu.sh # Single GPU
 bash finetune_multi_gpus.sh # Multi GPUs
+```
+
+### Using the Fine-Tuned Model
+
+The fine-tuned model cannot be merged; here is how to modify the inference configuration file `inference.sh`:
+
+```
+run_cmd="$environs python sample_video.py --base configs/cogvideox_<model_parameters>_lora.yaml configs/inference.yaml --seed 42"
+```
+
+Then, execute the code:
+
+```
+bash inference.sh 
 ```
 
 ### Converting to Huggingface Diffusers Supported Weights

@@ -1,16 +1,3 @@
-args:
-  latent_channels: 16
-  mode: inference
-  load: "CogVideoX-2b-sat/transformer"
-  batch_size: 1
-  input_type: txt
-  input_file: test.txt
-  sampling_num_frames: 13  # Must be 13, 11 or 9
-  sampling_fps: 8
-  fp16: True
-  output_dir: outputs/
-  force_inference: True
-
 model:
   scale_factor: 1.15258426
   disable_first_stage_autocast: true
@@ -50,6 +37,7 @@ model:
       num_attention_heads: 30
 
       transformer_args:
+        checkpoint_activations: True ## using gradient checkpointing
         vocab_size: 1
         max_sequence_length: 64
         layernorm_order: pre
@@ -87,14 +75,14 @@ model:
           ucg_rate: 0.1
           target: sgm.modules.encoders.modules.FrozenT5Embedder
           params:
-            model_dir: "google/t5-v1_1-xxl"
+            model_dir: "t5-v1_1-xxl"
             max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
       cp_size: 1
-      ckpt_path: "CogVideoX-2b-sat/vae/3d-vae.pt"
+      ckpt_path: "cogvideox-2b-sat/vae/3d-vae.pt"
       ignore_keys: [ 'loss' ]
 
       loss_config:
@@ -131,7 +119,7 @@ model:
           attn_resolutions: [ ]
           num_res_blocks: 3
           dropout: 0.0
-          gather_norm: false
+          gather_norm: False
 
   loss_fn_config:
     target: sgm.modules.diffusionmodules.loss.VideoDiffusionLoss
