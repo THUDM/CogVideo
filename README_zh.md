@@ -23,9 +23,12 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2024/8/15```: CogVideoX 依赖中`SwissArmyTransformer`依赖升级到`0.4.12`,
+- 🔥🔥**News**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) 已经支持对 CogVideoX
+  生成的视频进行增强，实现更高分辨率，更高质量的视频渲染。欢迎大家按照[教程](tools/venhancer/README_zh.md)体验使用。
+- 🔥**News**: ```2024/8/15```: CogVideoX 依赖中`SwissArmyTransformer`依赖升级到`0.4.12`,
   微调不再需要从源代码安装`SwissArmyTransformer`。同时，`Tied VAE` 技术已经被应用到 `diffusers`
-  库中的实现，请从源代码安装 `diffusers` 和 `accelerate` 库，推理 CogVdideoX 仅需 12GB显存。推理代码需要修改，请查看 [cli_demo](inference/cli_demo.py)
+  库中的实现，请从源代码安装 `diffusers` 和 `accelerate` 库，推理 CogVdideoX 仅需
+  12GB显存。推理代码需要修改，请查看 [cli_demo](inference/cli_demo.py)
 - 🔥 **News**: ```2024/8/12```: CogVideoX 论文已上传到arxiv，欢迎查看[论文](https://arxiv.org/abs/2408.06072)。
 - 🔥 **News**: ```2024/8/7```: CogVideoX 已经合并入 `diffusers`
   0.30.0版本，单张3090可以推理，详情请见[代码](inference/cli_demo.py)。

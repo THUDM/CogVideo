@@ -22,7 +22,10 @@
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: 2024/8/15: CogVideoX の依存関係である`SwissArmyTransformer`の依存が`0.4.12`
+- 🔥🔥 **ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
+  が生成したビデオの強化をサポートしました。より高い解像度とより高品質なビデオレンダリングを実現します。[チュートリアル](tools/venhancer/README_ja.md)
+  に従って、ぜひお試しください。
+- 🔥**ニュース**: 2024/8/15: CogVideoX の依存関係である`SwissArmyTransformer`の依存が`0.4.12`
   にアップグレードされました。これにより、微調整の際に`SwissArmyTransformer`
   をソースコードからインストールする必要がなくなりました。同時に、`Tied VAE` 技術が `diffusers`
   ライブラリの実装に適用されました。`diffusers` と `accelerate` ライブラリをソースコードからインストールしてください。CogVdideoX
