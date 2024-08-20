@@ -296,7 +296,7 @@ with gr.Blocks() as demo:
 
     def generate(prompt, num_inference_steps, guidance_scale, progress=gr.Progress(track_tqdm=True)):
         global UP_SCALE_MODEL
-        if not UP_SCALE_MODEL:
+        if not UP_SCALE_MODEL and len(str(UP_SCALE_MODEL_CKPT).strip()) > 0:
             # Load the upscale model with progress tracking
             UP_SCALE_MODEL = load_sd_upscale(UP_SCALE_MODEL_CKPT)
 
