@@ -233,6 +233,7 @@ model:
 ```
 
 ### 4. 修改`configs/inference.yaml`中的文件。
+
 ```yaml
 args:
   latent_channels: 16
