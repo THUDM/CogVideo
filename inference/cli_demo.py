@@ -10,42 +10,20 @@ Run the script:
 
 """
 
-import gc
 import argparse
-import tempfile
-from typing import Union, List
-
-import PIL
-import imageio
-import numpy as np
 import torch
 from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler
-
-
-def export_to_video_imageio(
-    video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
-) -> str:
-    """
-    Export the video frames to a video file using imageio lib to Avoid "green screen" issue (for example CogVideoX)
-    """
-    if output_video_path is None:
-        output_video_path = tempfile.NamedTemporaryFile(suffix=".mp4").name
-    if isinstance(video_frames[0], PIL.Image.Image):
-        video_frames = [np.array(frame) for frame in video_frames]
-    with imageio.get_writer(output_video_path, fps=fps) as writer:
-        for frame in video_frames:
-            writer.append_data(frame)
-    return output_video_path
+from diffusers.utils import export_to_video
 
 
 def generate_video(
-    prompt: str,
-    model_path: str,
-    output_path: str = "./output.mp4",
-    num_inference_steps: int = 50,
-    guidance_scale: float = 6.0,
-    num_videos_per_prompt: int = 1,
-    dtype: torch.dtype = torch.bloat16,
+        prompt: str,
+        model_path: str,
+        output_path: str = "./output.mp4",
+        num_inference_steps: int = 50,
+        guidance_scale: float = 6.0,
+        num_videos_per_prompt: int = 1,
+        dtype: torch.dtype = torch.bfloat16,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -72,20 +50,14 @@ def generate_video(
     # We recommend using `CogVideoXDDIMScheduler` for better results.
     pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
-    # 3. Enable CPU offload for the model and reset the memory, enable tiling.
+    # 3. Enable CPU offload for the model, enable tiling.
     pipe.enable_model_cpu_offload()
-
-    gc.collect()
-    torch.cuda.empty_cache()
-    torch.cuda.reset_accumulated_memory_stats()
-    torch.cuda.reset_peak_memory_stats()
-
     pipe.vae.enable_tiling()
 
     # 4. Generate the video frames based on the prompt.
     # `num_frames` is the Number of frames to generate.
     # This is the default value for 6 seconds video and 8 fps,so 48 frames and will plus 1 frame for the first frame.
-    # for diffusers version `0.30.0`, this should be 48. and for `0.31.0` and after, this should be 49.
+    # for diffusers `0.30.1` and after version, this should be 49.
     video = pipe(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
@@ -95,8 +67,8 @@ def generate_video(
         generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
     ).frames[0]
 
-    # 5. Export the generated frames to a video file. fps must be 8
-    export_to_video_imageio(video, output_path, fps=8)
+    # 5. Export the generated frames to a video file. fps must be 8 for original video.
+    export_to_video(video, output_path, fps=8)
 
 
 if __name__ == "__main__":
@@ -119,7 +91,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Convert dtype argument to torch.dtype, NOT suggest BF16.
+    # Convert dtype argument to torch.dtype.
+    # For CogVideoX-2B model, use torch.float16.
+    # For CogVideoX-5B model, use torch.bfloat16.
     dtype = torch.float16 if args.dtype == "float16" else torch.bfloat16
 
     # main function to generate video.
