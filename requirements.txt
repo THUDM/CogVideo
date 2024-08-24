@@ -12,3 +12,9 @@ imageio==2.34.2 # For diffusers inference export video
 imageio-ffmpeg==0.5.1 # For diffusers inference export video
 openai==1.40.6 # For prompt refiner
 moviepy==1.0.3 # For export video
+
+#
+safetensors>=0.4.2
+spandrel
+spaces
+tqdm
