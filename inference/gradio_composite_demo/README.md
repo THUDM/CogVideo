@@ -16,9 +16,13 @@
  
 
 MODEL_PATH=CogVideo模型路径;
+
 OPENAI_API_KEY= your_api_key;
+
 OPENAI_BASE_URL=https://open.bigmodel.cn/api/paas/v4;
+
 RIFE_MODEL_PATH= RIFE模型路径 train_log;
+
 UP_SCALE_MODEL_CKPT=UP_SCALE模型 model路径;
 
 
