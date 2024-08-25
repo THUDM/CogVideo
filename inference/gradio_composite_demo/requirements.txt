@@ -1,0 +1,5 @@
+safetensors>=0.4.4
+spandrel>=0.3.4
+tqdm>=4.66.5
+opencv-python>=4.10.0.84
+scikit-video>=1.1.11
