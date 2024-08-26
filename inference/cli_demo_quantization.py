@@ -58,7 +58,7 @@ def generate_video(
         text_encoder=text_encoder,
         transformer=transformer,
         vae=vae,
-        torch_dtype=torch.bfloat16,
+        torch_dtype=dtype,
     )
     pipe.enable_model_cpu_offload()
     pipe.vae.enable_tiling()

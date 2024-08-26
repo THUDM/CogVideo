@@ -1,4 +1,3 @@
-output/
 *__pycache__/
 samples*/
 runs/
@@ -7,3 +6,4 @@ master_ip
 logs/
 *.DS_Store
 .idea
+output*
