@@ -10,13 +10,13 @@
 
 ## 推理模型
 
-1. 确保你已经正确安装本文件夹中的要求的依赖
+### 1. 确保你已经正确安装本文件夹中的要求的依赖
 
 ```shell
 pip install -r requirements.txt
 ```
 
-2. 下载模型权重
+### 2. 下载模型权重
 
 首先，前往 SAT 镜像下载依赖。
 
@@ -43,10 +43,17 @@ unzip transformer.zip
     └── 3d-vae.pt
 ```
 
-接着，克隆 T5 模型，该模型不用做训练和微调，但是必须使用。
-
+由于模型的权重档案较大，建议使用`git lfs`。`git lfs`安装参见[这里](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)
+```shell
+git lfs install
 ```
-git clone https://huggingface.co/THUDM/CogVideoX-2b.git
+
+接着，克隆 T5 模型，该模型不用做训练和微调，但是必须使用。
+> 克隆模型的时候也可以使用[Modelscope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)上的模型文件位置。
+
+```shell
+git clone https://huggingface.co/THUDM/CogVideoX-2b.git #从huggingface下载模型
+# git clone https://www.modelscope.cn/ZhipuAI/CogVideoX-2b.git #从modelscope下载模型
 mkdir t5-v1_1-xxl
 mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 ```
@@ -66,29 +73,183 @@ mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 0 directories, 8 files
 ```
 
-3. 修改`configs/cogvideox_2b_infer.yaml`中的文件。
+### 3. 修改`configs/cogvideox_2b.yaml`中的文件。
 
 ```yaml
-load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformer 模型路径
+model:
+  scale_factor: 1.15258426
+  disable_first_stage_autocast: true
+  log_keys:
+    - txt
 
-conditioner_config:
-  target: sgm.modules.GeneralConditioner
-  params:
-    emb_models:
-      - is_trainable: false
-        input_key: txt
-        ucg_rate: 0.1
-        target: sgm.modules.encoders.modules.FrozenT5Embedder
+  denoiser_config:
+    target: sgm.modules.diffusionmodules.denoiser.DiscreteDenoiser
+    params:
+      num_idx: 1000
+      quantize_c_noise: False
+
+      weighting_config:
+        target: sgm.modules.diffusionmodules.denoiser_weighting.EpsWeighting
+      scaling_config:
+        target: sgm.modules.diffusionmodules.denoiser_scaling.VideoScaling
+      discretization_config:
+        target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
         params:
-          model_dir: "google/t5-v1_1-xxl" ## T5 模型路径
-          max_length: 226
+          shift_scale: 3.0
 
-first_stage_config:
-  target: sgm.models.autoencoder.VideoAutoencoderInferenceWrapper
-  params:
-    cp_size: 1
-    ckpt_path: "{your_CogVideoX-2b-sat_path}/vae/3d-vae.pt" ## VAE 模型路径
+  network_config:
+    target: dit_video_concat.DiffusionTransformer
+    params:
+      time_embed_dim: 512
+      elementwise_affine: True
+      num_frames: 49
+      time_compressed_rate: 4
+      latent_width: 90
+      latent_height: 60
+      num_layers: 30
+      patch_size: 2
+      in_channels: 16
+      out_channels: 16
+      hidden_size: 1920
+      adm_in_channels: 256
+      num_attention_heads: 30
 
+      transformer_args:
+        checkpoint_activations: True ## using gradient checkpointing
+        vocab_size: 1
+        max_sequence_length: 64
+        layernorm_order: pre
+        skip_init: false
+        model_parallel_size: 1
+        is_decoder: false
+
+      modules:
+        pos_embed_config:
+          target: dit_video_concat.Basic3DPositionEmbeddingMixin
+          params:
+            text_length: 226
+            height_interpolation: 1.875
+            width_interpolation: 1.875
+
+        patch_embed_config:
+          target: dit_video_concat.ImagePatchEmbeddingMixin
+          params:
+            text_hidden_size: 4096
+
+        adaln_layer_config:
+          target: dit_video_concat.AdaLNMixin
+          params:
+            qk_ln: True
+
+        final_layer_config:
+          target: dit_video_concat.FinalLayerMixin
+
+  conditioner_config:
+    target: sgm.modules.GeneralConditioner
+    params:
+      emb_models:
+        - is_trainable: false
+          input_key: txt
+          ucg_rate: 0.1
+          target: sgm.modules.encoders.modules.FrozenT5Embedder
+          params:
+            model_dir: "{absolute_path/to/your/t5-v1_1-xxl}/t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxl权重文件夹的绝对路径
+            max_length: 226
+
+  first_stage_config:
+    target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
+    params:
+      cp_size: 1
+      ckpt_path: "{absolute_path/to/your/t5-v1_1-xxl}/CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.pt文件夹的绝对路径
+      ignore_keys: [ 'loss' ]
+
+      loss_config:
+        target: torch.nn.Identity
+
+      regularizer_config:
+        target: vae_modules.regularizers.DiagonalGaussianRegularizer
+
+      encoder_config:
+        target: vae_modules.cp_enc_dec.ContextParallelEncoder3D
+        params:
+          double_z: true
+          z_channels: 16
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [ 1, 2, 2, 4 ]
+          attn_resolutions: [ ]
+          num_res_blocks: 3
+          dropout: 0.0
+          gather_norm: True
+
+      decoder_config:
+        target: vae_modules.cp_enc_dec.ContextParallelDecoder3D
+        params:
+          double_z: True
+          z_channels: 16
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [ 1, 2, 2, 4 ]
+          attn_resolutions: [ ]
+          num_res_blocks: 3
+          dropout: 0.0
+          gather_norm: False
+
+  loss_fn_config:
+    target: sgm.modules.diffusionmodules.loss.VideoDiffusionLoss
+    params:
+      offset_noise_level: 0
+      sigma_sampler_config:
+        target: sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling
+        params:
+          uniform_sampling: True
+          num_idx: 1000
+          discretization_config:
+            target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
+            params:
+              shift_scale: 3.0
+
+  sampler_config:
+    target: sgm.modules.diffusionmodules.sampling.VPSDEDPMPP2MSampler
+    params:
+      num_steps: 50
+      verbose: True
+
+      discretization_config:
+        target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
+        params:
+          shift_scale: 3.0
+
+      guider_config:
+        target: sgm.modules.diffusionmodules.guiders.DynamicCFG
+        params:
+          scale: 6
+          exp: 5
+          num_steps: 50
+```
+
+### 4. 修改`configs/inference.yaml`中的文件。
+
+```yaml
+args:
+  latent_channels: 16
+  mode: inference
+  load: "{absolute_path/to/your}/transformer" # CogVideoX-2b-sat/transformer文件夹的绝对路径
+  # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
+
+  batch_size: 1
+  input_type: txt #可以选择txt纯文字档作为输入，或者改成cli命令行作为输入
+  input_file: configs/test.txt #纯文字档，可以对此做编辑
+  sampling_num_frames: 13  # Must be 13, 11 or 9
+  sampling_fps: 8
+  fp16: True # For CogVideoX-2B
+#  bf16: True # For CogVideoX-5B
+  output_dir: outputs/
+  force_inference: True
 ```
 
 + 如果使用 txt 保存多个提示词，请参考`configs/test.txt`
@@ -109,7 +270,7 @@ output_dir: outputs/
 
 默认保存在`.outputs/`文件夹下。
 
-4. 运行推理代码,即可推理
+### 5. 运行推理代码, 即可推理
 
 ```shell
 bash inference.sh

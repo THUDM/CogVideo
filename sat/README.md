@@ -11,13 +11,13 @@ This code is the framework used by the team to train the model. It has few comme
 
 ## Inference Model
 
-1. Ensure that you have correctly installed the dependencies required by this folder.
+### 1. Ensure that you have correctly installed the dependencies required by this folder.
 
 ```shell
 pip install -r requirements.txt
 ```
 
-2. Download the model weights
+### 2. Download the model weights
 
 First, go to the SAT mirror to download the dependencies.
 
@@ -44,9 +44,12 @@ Then unzip, the model structure should look like this:
     └── 3d-vae.pt
 ```
 
-Next, clone the T5 model, which is not used for training and fine-tuning, but must be used.
+Due to large size of model weight file, using `git lfs` is recommended. Installation of `git lfs` can be found [here](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing) 
 
-```
+Next, clone the T5 model, which is not used for training and fine-tuning, but must be used.
+> T5 model is available on [Modelscope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b) as well.
+
+```shell
 git clone https://huggingface.co/THUDM/CogVideoX-2b.git
 mkdir t5-v1_1-xxl
 mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
@@ -66,6 +69,229 @@ loading it into Deepspeed in Finetune.
 └── tokenizer_config.json
 
 0 directories, 8 files
+```
+
+Here is the English translation of the provided text:
+
+### 3. Modify the file in `configs/cogvideox_2b.yaml`.
+
+```yaml
+model:
+  scale_factor: 1.15258426
+  disable_first_stage_autocast: true
+  log_keys:
+    - txt
+
+  denoiser_config:
+    target: sgm.modules.diffusionmodules.denoiser.DiscreteDenoiser
+    params:
+      num_idx: 1000
+      quantize_c_noise: False
+
+      weighting_config:
+        target: sgm.modules.diffusionmodules.denoiser_weighting.EpsWeighting
+      scaling_config:
+        target: sgm.modules.diffusionmodules.denoiser_scaling.VideoScaling
+      discretization_config:
+        target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
+        params:
+          shift_scale: 3.0
+
+  network_config:
+    target: dit_video_concat.DiffusionTransformer
+    params:
+      time_embed_dim: 512
+      elementwise_affine: True
+      num_frames: 49
+      time_compressed_rate: 4
+      latent_width: 90
+      latent_height: 60
+      num_layers: 30
+      patch_size: 2
+      in_channels: 16
+      out_channels: 16
+      hidden_size: 1920
+      adm_in_channels: 256
+      num_attention_heads: 30
+
+      transformer_args:
+        checkpoint_activations: True ## using gradient checkpointing
+        vocab_size: 1
+        max_sequence_length: 64
+        layernorm_order: pre
+        skip_init: false
+        model_parallel_size: 1
+        is_decoder: false
+
+      modules:
+        pos_embed_config:
+          target: dit_video_concat.Basic3DPositionEmbeddingMixin
+          params:
+            text_length: 226
+            height_interpolation: 1.875
+            width_interpolation: 1.875
+
+        patch_embed_config:
+          target: dit_video_concat.ImagePatchEmbeddingMixin
+          params:
+            text_hidden_size: 4096
+
+        adaln_layer_config:
+          target: dit_video_concat.AdaLNMixin
+          params:
+            qk_ln: True
+
+        final_layer_config:
+          target: dit_video_concat.FinalLayerMixin
+
+  conditioner_config:
+    target: sgm.modules.GeneralConditioner
+    params:
+      emb_models:
+        - is_trainable: false
+          input_key: txt
+          ucg_rate: 0.1
+          target: sgm.modules.encoders.modules.FrozenT5Embedder
+          params:
+            model_dir: "{absolute_path/to/your/t5-v1_1-xxl}/t5-v1_1-xxl" # Absolute path to the CogVideoX-2b/t5-v1_1-xxl weights folder
+            max_length: 226
+
+  first_stage_config:
+    target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
+    params:
+      cp_size: 1
+      ckpt_path: "{absolute_path/to/your/t5-v1_1-xxl}/CogVideoX-2b-sat/vae/3d-vae.pt" # Absolute path to the CogVideoX-2b-sat/vae/3d-vae.pt folder
+      ignore_keys: [ 'loss' ]
+
+      loss_config:
+        target: torch.nn.Identity
+
+      regularizer_config:
+        target: vae_modules.regularizers.DiagonalGaussianRegularizer
+
+      encoder_config:
+        target: vae_modules.cp_enc_dec.ContextParallelEncoder3D
+        params:
+          double_z: true
+          z_channels: 16
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [ 1, 2, 2, 4 ]
+          attn_resolutions: [ ]
+          num_res_blocks: 3
+          dropout: 0.0
+          gather_norm: True
+
+      decoder_config:
+        target: vae_modules.cp_enc_dec.ContextParallelDecoder3D
+        params:
+          double_z: True
+          z_channels: 16
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [ 1, 2, 2, 4 ]
+          attn_resolutions: [ ]
+          num_res_blocks: 3
+          dropout: 0.0
+          gather_norm: False
+
+  loss_fn_config:
+    target: sgm.modules.diffusionmodules.loss.VideoDiffusionLoss
+    params:
+      offset_noise_level: 0
+      sigma_sampler_config:
+        target: sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling
+        params:
+          uniform_sampling: True
+          num_idx: 1000
+          discretization_config:
+            target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
+            params:
+              shift_scale: 3.0
+
+  sampler_config:
+    target: sgm.modules.diffusionmodules.sampling.VPSDEDPMPP2MSampler
+    params:
+      num_steps: 50
+      verbose: True
+
+      discretization_config:
+        target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
+        params:
+          shift_scale: 3.0
+
+      guider_config:
+        target: sgm.modules.diffusionmodules.guiders.DynamicCFG
+        params:
+          scale: 6
+          exp: 5
+          num_steps: 50
+```
+
+### 4. Modify the file in `configs/inference.yaml`.
+
+```yaml
+args:
+  latent_channels: 16
+  mode: inference
+  load: "{absolute_path/to/your}/transformer" # Absolute path to the CogVideoX-2b-sat/transformer folder
+  # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
+
+  batch_size: 1
+  input_type: txt # You can choose txt for pure text input, or change to cli for command line input
+  input_file: configs/test.txt # Pure text file, which can be edited
+  sampling_num_frames: 13  # Must be 13, 11 or 9
+  sampling_fps: 8
+  fp16: True # For CogVideoX-2B
+#  bf16: True # For CogVideoX-5B
+  output_dir: outputs/ 
+  force_inference: True
+```
+
++ Modify `configs/test.txt` if multiple prompts is required, in which each line makes a prompt.  
++ For better prompt formatting, refer to [convert_demo.py](../inference/convert_demo.py), for which you should set the OPENAI_API_KEY as your environmental variable.
++ Modify `input_type` in `configs/inference.yaml` if use command line as prompt iuput.
+
+```yaml
+input_type: cli
+```
+
+This allows input from the command line as prompts.
+
+Change `output_dir` if you wish to modify the address of the output video
+
+```yaml
+output_dir: outputs/
+```
+
+It is saved by default in the `.outputs/` folder.
+
+### 5. Run the inference code to perform inference.
+
+```shell
+bash inference.sh
+```
+
+## Fine-tuning the Model
+
+### Preparing the Dataset
+
+The dataset format should be as follows:
+
+```
+.
+├── labels
+│   ├── 1.txt
+│   ├── 2.txt
+│   ├── ...
+└── videos
+    ├── 1.mp4
+    ├── 2.mp4
+    ├── ...
 ```
 
 Each text file shares the same name as its corresponding video, serving as the label for that video. Videos and labels
