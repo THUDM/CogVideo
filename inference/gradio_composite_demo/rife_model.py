@@ -79,17 +79,9 @@ def ssim_interpolation_rife(model, samples, exp=1, upscale_amount=1, output_devi
 
 
 def load_rife_model(model_path):
-    torch.set_grad_enabled(False)
-    if torch.cuda.is_available():
-        torch.backends.cudnn.enabled = True
-        torch.backends.cudnn.benchmark = True
-        torch.set_default_tensor_type(torch.cuda.FloatTensor)
-
     model = Model()
     model.load_model(model_path, -1)
     model.eval()
-    print("Loaded v3.x HD model.")
-
     return model
 
 

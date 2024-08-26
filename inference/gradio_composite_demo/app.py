@@ -6,7 +6,7 @@ import time
 
 import gradio as gr
 import torch
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler
+from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler,CogVideoXDPMScheduler
 from datetime import datetime, timedelta
 
 from diffusers.image_processor import VaeImageProcessor
@@ -22,7 +22,10 @@ hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", 
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
 pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
-pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+
+pipe.transformer.to(memory_format=torch.channels_last)
+pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)
@@ -99,7 +102,7 @@ def infer(
         num_inference_steps: int,
         guidance_scale: float,
         seed: int = -1,
-        progress=gr.Progress(track_tqdm=True),
+        #progress=gr.Progress(track_tqdm=True),
 ):
     if seed == -1:
         seed = random.randint(0, 2 ** 8 - 1)
@@ -108,9 +111,10 @@ def infer(
         num_videos_per_prompt=1,
         num_inference_steps=num_inference_steps,
         num_frames=49,
+        use_dynamic_cfg=True,
         output_type="pt",
         guidance_scale=guidance_scale,
-        generator=torch.Generator(device=device).manual_seed(seed),
+        generator=torch.Generator(device="cpu").manual_seed(seed),
     ).frames
 
     return (video_pt, seed)
@@ -169,7 +173,7 @@ with gr.Blocks() as demo:
                 enhance_button = gr.Button("✨ Enhance Prompt(Optional)")
 
             gr.Markdown(
-                "<span style='color:red; font-weight:bold;'>For the CogVideoX-5B model, 50 steps will take approximately 300 seconds.</span>"
+                "<span style='color:red; font-weight:bold;'>For the CogVideoX-5B model, 50 steps will take approximately 120 seconds.</span>"
             )
 
             with gr.Group():
@@ -195,55 +199,83 @@ with gr.Blocks() as demo:
                 seed_text = gr.Number(label="Seed Used for Video Generation", visible=False)
 
     gr.Markdown("""
-        <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
-            <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
-               🎥 Video Gallery 
-            </div>
-            <div style="text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
-                The following videos were generated purely by CogVideoX-5B without using super-resolution or frame interpolation techniques. 🌟 
-                <br>
-                <span style="color: pink;">seed=42, num_inference_steps=50 and guidance_scale=6.0.</span>
-            </div>
-            <tr>
-                <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
-                    <p>A detailed wooden toy ship with intricately carved masts and sails is seen gliding smoothly over a plush, blue carpet that mimics the waves of the sea. The ship's hull is painted a rich brown, with tiny windows. The carpet, soft and textured, provides a perfect backdrop, resembling an oceanic expanse. Surrounding the ship are various other toys and children's items, hinting at a playful environment. The scene captures the innocence and imagination of childhood, with the toy ship's journey symbolizing endless adventures in a whimsical, indoor setting.</p>
-                </td>
-                <td style="width: 25%; vertical-align: top;">
-                    <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="100%" controls autoplay loop></video>
-                </td>
-                <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
-                    <p>The camera follows behind a white vintage SUV with a black roof rack as it speeds up a steep dirt road surrounded by pine trees on a steep mountain slope, dust kicks up from its tires, the sunlight shines on the SUV as it speeds along the dirt road, casting a warm glow over the scene. The dirt road curves gently into the distance, with no other cars or vehicles in sight. The trees on either side of the road are redwoods, with patches of greenery scattered throughout. The car is seen from the rear following the curve with ease, making it seem as if it is on a rugged drive through the rugged terrain. The dirt road itself is surrounded by steep hills and mountains, with a clear blue sky above with wispy clouds.</p>
-                </td>
-                <td style="width: 25%; vertical-align: top;">
-                    <video src="https://github.com/user-attachments/assets/9de41efd-d4d1-4095-aeda-246dd834e91d" width="100%" controls autoplay loop></video>
-                </td>
-            </tr>
-            <tr>
-                <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
-                    <p>A street artist, clad in a worn-out denim jacket and a colorful bandana, stands before a vast concrete wall in the heart, holding a can of spray paint, spray-painting a colorful bird on a mottled wall.</p>
-                </td>
-                <td style="width: 25%; vertical-align: top;">
-                    <video src="https://github.com/user-attachments/assets/941d6661-6a8d-4a1b-b912-59606f0b2841" width="100%" controls autoplay loop></video>
-                </td>
-                <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
-                    <p>In the haunting backdrop of a war-torn city, where ruins and crumbled walls tell a story of devastation, a poignant close-up frames a young girl. Her face is smudged with ash, a silent testament to the chaos around her. Her eyes glistening with a mix of sorrow and resilience, capturing the raw emotion of a world that has lost its innocence to the ravages of conflict.</p>
-                </td>
-                <td style="width: 25%; vertical-align: top;">
-                    <video src="https://github.com/user-attachments/assets/938529c4-91ae-4f60-b96b-3c3947fa63cb" width="100%" controls autoplay loop></video>
-                </td>
-            </tr>
-        </table>
+    <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
+        <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
+            🎥 Video Gallery
+        </div>
+        <tr>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>A garden comes to life as a kaleidoscope of butterflies flutters amidst the blossoms, their delicate wings casting shadows on the petals below. In the background, a grand fountain cascades water with a gentle splendor, its rhythmic sound providing a soothing backdrop. Beneath the cool shade of a mature tree, a solitary wooden chair invites solitude and reflection, its smooth surface worn by the touch of countless visitors seeking a moment of tranquility in nature's embrace.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/cf5953ea-96d3-48fd-9907-c4708752c714" width="100%" controls autoplay loop></video>
+            </td>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>A small boy, head bowed and determination etched on his face, sprints through the torrential downpour as lightning crackles and thunder rumbles in the distance. The relentless rain pounds the ground, creating a chaotic dance of water droplets that mirror the dramatic sky's anger. In the far background, the silhouette of a cozy home beckons, a faint beacon of safety and warmth amidst the fierce weather. The scene is one of perseverance and the unyielding spirit of a child braving the elements.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/fe0a78e6-b669-4800-8cf0-b5f9b5145b52" width="100%" controls autoplay loop></video>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>A suited astronaut, with the red dust of Mars clinging to their boots, reaches out to shake hands with an alien being, their skin a shimmering blue, under the pink-tinged sky of the fourth planet. In the background, a sleek silver rocket, a beacon of human ingenuity, stands tall, its engines powered down, as the two representatives of different worlds exchange a historic greeting amidst the desolate beauty of the Martian landscape.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/c182f606-8f8c-421d-b414-8487070fcfcb" width="100%" controls autoplay loop></video>
+            </td>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>An elderly gentleman, with a serene expression, sits at the water's edge, a steaming cup of tea by his side. He is engrossed in his artwork, brush in hand, as he renders an oil painting on a canvas that's propped up against a small, weathered table. The sea breeze whispers through his silver hair, gently billowing his loose-fitting white shirt, while the salty air adds an intangible element to his masterpiece in progress. The scene is one of tranquility and inspiration, with the artist's canvas capturing the vibrant hues of the setting sun reflecting off the tranquil sea.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/7db2bbce-194d-434d-a605-350254b6c298" width="100%" controls autoplay loop></video>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>In a dimly lit bar, purplish light bathes the face of a mature man, his eyes blinking thoughtfully as he ponders in close-up, the background artfully blurred to focus on his introspective expression, the ambiance of the bar a mere suggestion of shadows and soft lighting.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/62b01046-8cab-44cc-bd45-4d965bb615ec" width="100%" controls autoplay loop></video>
+            </td>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>A golden retriever, sporting sleek black sunglasses, with its lengthy fur flowing in the breeze, sprints playfully across a rooftop terrace, recently refreshed by a light rain. The scene unfolds from a distance, the dog's energetic bounds growing larger as it approaches the camera, its tail wagging with unrestrained joy, while droplets of water glisten on the concrete behind it. The overcast sky provides a dramatic backdrop, emphasizing the vibrant golden coat of the canine as it dashes towards the viewer.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/d78e552a-4b3f-4b81-ac3f-3898079554f6" width="100%" controls autoplay loop></video>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>On a brilliant sunny day, the lakeshore is lined with an array of willow trees, their slender branches swaying gently in the soft breeze. The tranquil surface of the lake reflects the clear blue sky, while several elegant swans glide gracefully through the still water, leaving behind delicate ripples that disturb the mirror-like quality of the lake. The scene is one of serene beauty, with the willows' greenery providing a picturesque frame for the peaceful avian visitors.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/30894f12-c741-44a2-9e6e-ddcacc231e5b" width="100%" controls autoplay loop></video>
+            </td>
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
+                <p>A Chinese mother, draped in a soft, pastel-colored robe, gently rocks back and forth in a cozy rocking chair positioned in the tranquil setting of a nursery. The dimly lit bedroom is adorned with whimsical mobiles dangling from the ceiling, casting shadows that dance on the walls. Her baby, swaddled in a delicate, patterned blanket, rests against her chest, the child's earlier cries now replaced by contented coos as the mother's soothing voice lulls the little one to sleep. The scent of lavender fills the air, adding to the serene atmosphere, while a warm, orange glow from a nearby nightlight illuminates the scene with a gentle hue, capturing a moment of tender love and comfort.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/926575ca-7150-435b-a0ff-4900a963297b" width="100%" controls autoplay loop></video>
+            </td>
+        </tr>
+    </table>
         """)
 
 
-    def generate(prompt, seed_value, scale_status, rife_status, progress=gr.Progress(track_tqdm=True)):
+    def generate(prompt,
+                 seed_value,
+                 scale_status,
+                 rife_status, 
+                 progress=gr.Progress(track_tqdm=True)
+                ):
 
         latents, seed = infer(
             prompt,
             num_inference_steps=50,  # NOT Changed
-            guidance_scale=6,  # NOT Changed
+            guidance_scale=7.0,  # NOT Changed
             seed=seed_value,
-            progress=progress,
+            #progress=progress,
         )
         if scale_status:
             latents = utils.upscale_batch_and_concatenate(upscale_model, latents, device)
@@ -282,4 +314,4 @@ with gr.Blocks() as demo:
     enhance_button.click(enhance_prompt_func, inputs=[prompt], outputs=[prompt])
 
 if __name__ == "__main__":
-    demo.launch(server_port=7870)
+    demo.launch()
