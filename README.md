@@ -283,10 +283,10 @@ of the **CogVideoX** open-source model.
 ```shell
 cd inference
 # For Linux and Windows users
-python gradio_web_demo.py # humans mode
+python gradio_web_demo.py # human mode
 
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
-PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
+PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # human mode
 ```
 
 <div style="text-align: center;">
