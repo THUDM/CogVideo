@@ -369,12 +369,20 @@ class SFTDataset(Dataset):
         self.skip_frms_num = skip_frms_num
 
         self.video_paths = []
+        self.captions = []
 
         for root, dirnames, filenames in os.walk(data_dir):
             for filename in filenames:
                 if filename.endswith(".mp4"):
                     video_path = os.path.join(root, filename)
                     self.video_paths.append(video_path)
+
+                    caption_path = video_path.replace(".mp4", ".txt").replace("videos", "labels")
+                    if os.path.exists(caption_path):
+                        caption = open(caption_path, "r").read().splitlines()[0]
+                    else:
+                        caption = ""
+                    self.captions.append(caption)
 
     def __getitem__(self, index):
         
@@ -435,15 +443,9 @@ class SFTDataset(Dataset):
         tensor_frms = resize_for_rectangle_crop(tensor_frms, self.video_size, reshape_mode="center")
         tensor_frms = (tensor_frms - 127.5) / 127.5
 
-        caption_path = video_path.replace(".mp4", ".txt").replace("videos", "labels")
-        if os.path.exists(caption_path):
-            caption = open(caption_path, "r").read().splitlines()[0]
-        else:
-            caption = ""
-
         item = {
             "mp4": tensor_frms,
-            "txt": caption,
+            "txt": self.captions[index],
             "num_frames": num_frames,
             "fps": self.fps,
         }
