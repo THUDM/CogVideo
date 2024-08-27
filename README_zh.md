@@ -144,7 +144,7 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
   <tr>
     <th style="text-align: center;">模型名</th>
     <th style="text-align: center;">CogVideoX-2B</th>
-    <th style="text-align: center;">CogVideoX-5B (本仓库)</th>
+    <th style="text-align: center;">CogVideoX-5B</th>
   </tr>
   <tr>
     <td style="text-align: center;">模型介绍</td>

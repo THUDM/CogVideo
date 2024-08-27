@@ -161,7 +161,7 @@ CogVideoX is an open-source version of the video generation model originating fr
   <tr>
     <th style="text-align: center;">Model Name</th>
     <th style="text-align: center;">CogVideoX-2B</th>
-    <th style="text-align: center;">CogVideoX-5B (This Repository)</th>
+    <th style="text-align: center;">CogVideoX-5B</th>
   </tr>
   <tr>
     <td style="text-align: center;">Model Description</td>

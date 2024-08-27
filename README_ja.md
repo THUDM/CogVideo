@@ -146,7 +146,7 @@ CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオー�
   <tr>
     <th style="text-align: center;">モデル名</th>
     <th style="text-align: center;">CogVideoX-2B</th>
-    <th style="text-align: center;">CogVideoX-5B (本リポジトリ)</th>
+    <th style="text-align: center;">CogVideoX-5B</th>
   </tr>
   <tr>
     <td style="text-align: center;">モデル紹介</td>
