@@ -1,23 +1,21 @@
 import os
-import tempfile
 import threading
 import time
 
 import gradio as gr
-import numpy as np
 import torch
 from diffusers import CogVideoXPipeline
+from diffusers.utils import export_to_video
 from datetime import datetime, timedelta
 from openai import OpenAI
-import imageio
 import moviepy.editor as mp
-from typing import List, Union
-import PIL
 
-dtype = torch.bfloat16
+dtype = torch.float16
 device = "cuda" if torch.cuda.is_available() else "cpu"
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-2b", torch_dtype=dtype)
-pipe.enable_model_cpu_offload()
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-2b", torch_dtype=dtype).to(device)
+
+os.makedirs("./output", exist_ok=True)
+os.makedirs("./gradio_tmp", exist_ok=True)
 
 sys_prompt = """You are part of a team of bots that creates videos. You work with an assistant bot that will draw anything you say in square brackets.
 
@@ -31,25 +29,6 @@ Other times the user will not want modifications , but instead want a new image 
 
 Video descriptions must have the same num of words as examples below. Extra words will be ignored.
 """
-
-
-def export_to_video_imageio(
-    video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
-) -> str:
-    """
-    Export the video frames to a video file using imageio lib to Avoid "green screen" issue (for example CogVideoX)
-    """
-    if output_video_path is None:
-        output_video_path = tempfile.NamedTemporaryFile(suffix=".mp4").name
-
-    if isinstance(video_frames[0], PIL.Image.Image):
-        video_frames = [np.array(frame) for frame in video_frames]
-
-    with imageio.get_writer(output_video_path, fps=fps) as writer:
-        for frame in video_frames:
-            writer.append_data(frame)
-
-    return output_video_path
 
 
 def convert_prompt(prompt: str, retry_times: int = 3) -> str:
@@ -104,22 +83,12 @@ def convert_prompt(prompt: str, retry_times: int = 3) -> str:
 
 def infer(prompt: str, num_inference_steps: int, guidance_scale: float, progress=gr.Progress(track_tqdm=True)):
     torch.cuda.empty_cache()
-
-    prompt_embeds, _ = pipe.encode_prompt(
-        prompt=prompt,
-        negative_prompt=None,
-        do_classifier_free_guidance=True,
-        num_videos_per_prompt=1,
-        max_sequence_length=226,
-        device=device,
-        dtype=dtype,
-    )
-
     video = pipe(
+        prompt=prompt,
+        num_videos_per_prompt=1,
         num_inference_steps=num_inference_steps,
+        num_frames=49,
         guidance_scale=guidance_scale,
-        prompt_embeds=prompt_embeds,
-        negative_prompt_embeds=torch.zeros_like(prompt_embeds),
     ).frames[0]
 
     return video
@@ -129,7 +98,7 @@ def save_video(tensor):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     video_path = f"./output/{timestamp}.mp4"
     os.makedirs(os.path.dirname(video_path), exist_ok=True)
-    export_to_video_imageio(tensor[1:], video_path)
+    export_to_video(tensor, video_path)
     return video_path
 
 
@@ -146,14 +115,16 @@ def delete_old_files():
     while True:
         now = datetime.now()
         cutoff = now - timedelta(minutes=10)
-        output_dir = "./output"
-        for filename in os.listdir(output_dir):
-            file_path = os.path.join(output_dir, filename)
-            if os.path.isfile(file_path):
-                file_mtime = datetime.fromtimestamp(os.path.getmtime(file_path))
-                if file_mtime < cutoff:
-                    os.remove(file_path)
-        time.sleep(600)  # Sleep for 10 minutes
+        directories = ["./output", "./gradio_tmp"]
+
+        for directory in directories:
+            for filename in os.listdir(directory):
+                file_path = os.path.join(directory, filename)
+                if os.path.isfile(file_path):
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(file_path))
+                    if file_mtime < cutoff:
+                        os.remove(file_path)
+        time.sleep(600)
 
 
 threading.Thread(target=delete_old_files, daemon=True).start()
@@ -164,8 +135,9 @@ with gr.Blocks() as demo:
                CogVideoX-2B Huggingface Space🤗
            </div>
            <div style="text-align: center;">
-               <a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 Model Hub</a> |
-               <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> 
+               <a href="https://huggingface.co/THUDM/CogVideoX-2B">🤗 2B Model Hub</a> |
+               <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> |
+               <a href="https://arxiv.org/pdf/2408.06072">📜 arxiv </a>
            </div>
 
            <div style="text-align: center; font-size: 15px; font-weight: bold; color: red; margin-bottom: 20px;">
@@ -176,18 +148,17 @@ with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column():
             prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
+
             with gr.Row():
                 gr.Markdown(
-                    "✨Upon pressing the enhanced prompt button, we will use [GLM-4 Model](https://github.com/THUDM/GLM-4) to polish the prompt and overwrite the original one."
-                )
+                    "✨Upon pressing the enhanced prompt button, we will use [GLM-4 Model](https://github.com/THUDM/GLM-4) to polish the prompt and overwrite the original one.")
                 enhance_button = gr.Button("✨ Enhance Prompt(Optional)")
 
             with gr.Column():
-                gr.Markdown(
-                    "**Optional Parameters** (default values are recommended)<br>"
-                    "Turn Inference Steps larger if you want more detailed video, but it will be slower.<br>"
-                    "50 steps are recommended for most cases. will cause 120 seconds for inference.<br>"
-                )
+                gr.Markdown("**Optional Parameters** (default values are recommended)<br>"
+                            "Increasing the number of inference steps will produce more detailed videos, but it will slow down the process.<br>"
+                            "50 steps are recommended for most cases.<br>"
+                            "For the 5B model, 50 steps will take approximately 350 seconds.")
                 with gr.Row():
                     num_inference_steps = gr.Number(label="Inference Steps", value=50)
                     guidance_scale = gr.Number(label="Guidance Scale", value=6.0)
@@ -200,41 +171,43 @@ with gr.Blocks() as demo:
                 download_gif_button = gr.File(label="📥 Download GIF", visible=False)
 
     gr.Markdown("""
-        <table border="1" style="width: 100%; text-align: left; margin-top: 20px;">
-            <tr>
-                <th>Prompt</th>
-                <th>Video URL</th>
-                <th>Inference Steps</th>
-                <th>Guidance Scale</th>
-            </tr>
-            <tr>
-                <td>A detailed wooden toy ship with intricately carved masts and sails is seen gliding smoothly over a plush, blue carpet that mimics the waves of the sea. The ship's hull is painted a rich brown, with tiny windows. The carpet, soft and textured, provides a perfect backdrop, resembling an oceanic expanse. Surrounding the ship are various other toys and children's items, hinting at a playful environment. The scene captures the innocence and imagination of childhood, with the toy ship's journey symbolizing endless adventures in a whimsical, indoor setting.</td>
-                <td><a href="https://github.com/THUDM/CogVideo/raw/main/resources/videos/1.mp4">Video 1</a></td>
-                <td>50</td>
-                <td>6</td>
-            </tr>
-            <tr>
-                <td>The camera follows behind a white vintage SUV with a black roof rack as it speeds up a steep dirt road surrounded by pine trees on a steep mountain slope, dust kicks up from it’s tires, the sunlight shines on the SUV as it speeds along the dirt road, casting a warm glow over the scene. The dirt road curves gently into the distance, with no other cars or vehicles in sight. The trees on either side of the road are redwoods, with patches of greenery scattered throughout. The car is seen from the rear following the curve with ease, making it seem as if it is on a rugged drive through the rugged terrain. The dirt road itself is surrounded by steep hills and mountains, with a clear blue sky above with wispy clouds.</td>
-                <td><a href="https://github.com/THUDM/CogVideo/raw/main/resources/videos/2.mp4">Video 2</a></td>
-                <td>50</td>
-                <td>6</td>
-            </tr>
-            <tr>
-                <td>A street artist, clad in a worn-out denim jacket and a colorful bandana, stands before a vast concrete wall in the heart, holding a can of spray paint, spray-painting a colorful bird on a mottled wall.</td>
-                <td><a href="https://github.com/THUDM/CogVideo/raw/main/resources/videos/3.mp4">Video 3</a></td>
-                <td>50</td>
-                <td>6</td>
-            </tr>
-            <tr>
-                <td>In the haunting backdrop of a war-torn city, where ruins and crumbled walls tell a story of devastation, a poignant close-up frames a young girl. Her face is smudged with ash, a silent testament to the chaos around her. Her eyes glistening with a mix of sorrow and resilience, capturing the raw emotion of a world that has lost its innocence to the ravages of conflict.</td>
-                <td><a href="https://github.com/THUDM/CogVideo/raw/main/resources/videos/4.mp4">Video 4</a></td>
-                <td>50</td>
-                <td>6</td>
-            </tr>
-        </table>
+    <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
+         <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
+               Demo Videos with 50 Inference Steps and 6.0 Guidance Scale.
+         </div>
+        <tr>
+            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+                <p>A detailed wooden toy ship with intricately carved masts and sails is seen gliding smoothly over a plush, blue carpet that mimics the waves of the sea. The ship's hull is painted a rich brown, with tiny windows. The carpet, soft and textured, provides a perfect backdrop, resembling an oceanic expanse. Surrounding the ship are various other toys and children's items, hinting at a playful environment. The scene captures the innocence and imagination of childhood, with the toy ship's journey symbolizing endless adventures in a whimsical, indoor setting.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="100%" controls autoplay></video>
+            </td>
+            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+                <p>The camera follows behind a white vintage SUV with a black roof rack as it speeds up a steep dirt road surrounded by pine trees on a steep mountain slope, dust kicks up from its tires, the sunlight shines on the SUV as it speeds along the dirt road, casting a warm glow over the scene. The dirt road curves gently into the distance, with no other cars or vehicles in sight. The trees on either side of the road are redwoods, with patches of greenery scattered throughout. The car is seen from the rear following the curve with ease, making it seem as if it is on a rugged drive through the rugged terrain. The dirt road itself is surrounded by steep hills and mountains, with a clear blue sky above with wispy clouds.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/9de41efd-d4d1-4095-aeda-246dd834e91d" width="100%" controls autoplay></video>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+                <p>A street artist, clad in a worn-out denim jacket and a colorful bandana, stands before a vast concrete wall in the heart, holding a can of spray paint, spray-painting a colorful bird on a mottled wall.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/941d6661-6a8d-4a1b-b912-59606f0b2841" width="100%" controls autoplay></video>
+            </td>
+            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+                <p>In the haunting backdrop of a war-torn city, where ruins and crumbled walls tell a story of devastation, a poignant close-up frames a young girl. Her face is smudged with ash, a silent testament to the chaos around her. Her eyes glistening with a mix of sorrow and resilience, capturing the raw emotion of a world that has lost its innocence to the ravages of conflict.</p>
+            </td>
+            <td style="width: 25%; vertical-align: top;">
+                <video src="https://github.com/user-attachments/assets/938529c4-91ae-4f60-b96b-3c3947fa63cb" width="100%" controls autoplay></video>
+            </td>
+        </tr>
+    </table>
     """)
 
-    def generate(prompt, num_inference_steps, guidance_scale, progress=gr.Progress(track_tqdm=True)):
+
+    def generate(prompt, num_inference_steps, guidance_scale, model_choice, progress=gr.Progress(track_tqdm=True)):
         tensor = infer(prompt, num_inference_steps, guidance_scale, progress=progress)
         video_path = save_video(tensor)
         video_update = gr.update(visible=True, value=video_path)
@@ -243,16 +216,22 @@ with gr.Blocks() as demo:
 
         return video_path, video_update, gif_update
 
+
     def enhance_prompt_func(prompt):
         return convert_prompt(prompt, retry_times=1)
+
 
     generate_button.click(
         generate,
         inputs=[prompt, num_inference_steps, guidance_scale],
-        outputs=[video_output, download_video_button, download_gif_button],
+        outputs=[video_output, download_video_button, download_gif_button]
     )
 
-    enhance_button.click(enhance_prompt_func, inputs=[prompt], outputs=[prompt])
+    enhance_button.click(
+        enhance_prompt_func,
+        inputs=[prompt],
+        outputs=[prompt]
+    )
 
 if __name__ == "__main__":
-    demo.launch(server_name="127.0.0.1", server_port=7870, share=True)
+    demo.launch()

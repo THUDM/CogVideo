@@ -2,18 +2,25 @@
 This script demonstrates how to generate a video from a text prompt using CogVideoX with 🤗Huggingface Diffusers Pipeline.
 
 Note:
-    This script requires the `diffusers>=0.30.0` library to be installed， after `diffusers 0.31.0` release,
-    need to update.
+    This script requires the `diffusers>=0.30.1` and `torchao>=0.4.0` library to be installed.
 
 Run the script:
     $ python cli_demo.py --prompt "A girl ridding a bike." --model_path THUDM/CogVideoX-2b
 
+In this script, we have only provided the script for testing and inference in INT8 for the entire process
+(including T5 Encoder, CogVideoX Transformer, VAE).
+You can use other functionalities provided by torchao to convert to other precisions.
+Please note that INT4 is not supported.
 """
-
 import argparse
+
 import torch
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler
+from diffusers import AutoencoderKLCogVideoX, CogVideoXTransformer3DModel, CogVideoXPipeline
 from diffusers.utils import export_to_video
+from transformers import T5EncoderModel
+
+# Make sure to install torchao>=0.4.0
+from torchao.quantization import quantize_, int8_weight_only
 
 
 def generate_video(
@@ -39,35 +46,31 @@ def generate_video(
 
     """
 
-    # 1.  Load the pre-trained CogVideoX pipeline with the specified precision (bfloat16).
-    # add device_map="balanced" in the from_pretrained function and remove the enable_model_cpu_offload()
-    # function to use Multi GPUs.
-
-    pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype)
-
-    # 2. Set Scheduler.
-    # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
-    # We recommend using `CogVideoXDDIMScheduler` for better results.
-    pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
-
-    # 3. Enable CPU offload for the model, enable tiling.
+    text_encoder = T5EncoderModel.from_pretrained(model_path, subfolder="text_encoder", torch_dtype=dtype)
+    quantize_(text_encoder, int8_weight_only())
+    transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer",
+                                                              torch_dtype=dtype)
+    quantize_(transformer, int8_weight_only())
+    vae = AutoencoderKLCogVideoX.from_pretrained(model_path, subfolder="vae", torch_dtype=dtype)
+    quantize_(vae, int8_weight_only())
+    pipe = CogVideoXPipeline.from_pretrained(
+        model_path,
+        text_encoder=text_encoder,
+        transformer=transformer,
+        vae=vae,
+        torch_dtype=dtype,
+    )
     pipe.enable_model_cpu_offload()
     pipe.vae.enable_tiling()
-
-    # 4. Generate the video frames based on the prompt.
-    # `num_frames` is the Number of frames to generate.
-    # This is the default value for 6 seconds video and 8 fps,so 48 frames and will plus 1 frame for the first frame.
-    # for diffusers `0.30.1` and after version, this should be 49.
     video = pipe(
         prompt=prompt,
-        num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
-        num_inference_steps=num_inference_steps,  # Number of inference steps
-        num_frames=49,  # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
-        guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
-        generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
+        num_videos_per_prompt=num_videos_per_prompt,
+        num_inference_steps=num_inference_steps,
+        num_frames=49,
+        guidance_scale=guidance_scale,
+        generator=torch.Generator().manual_seed(42),
     ).frames[0]
 
-    # 5. Export the generated frames to a video file. fps must be 8 for original video.
     export_to_video(video, output_path, fps=8)
 
 
@@ -90,13 +93,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
-    # Convert dtype argument to torch.dtype.
-    # For CogVideoX-2B model, use torch.float16.
-    # For CogVideoX-5B model, use torch.bfloat16.
     dtype = torch.float16 if args.dtype == "float16" else torch.bfloat16
-
-    # main function to generate video.
     generate_video(
         prompt=args.prompt,
         model_path=args.model_path,

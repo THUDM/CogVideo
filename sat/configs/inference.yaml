@@ -1,7 +1,7 @@
 args:
   latent_channels: 16
   mode: inference
-  # load: "{your_CogVideoX-2b-sat_path}/transformer" # This is for Full model without lora adapter
+  load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
   # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
 
   batch_size: 1
