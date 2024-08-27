@@ -12,7 +12,7 @@
 在 <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> 或 <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a> 在线体验 CogVideoX-5B 模型
 </p>
 <p align="center">
-📚 查看 <a href="https://arxiv.org/abs/2408.06072" target="_blank">论文</a>
+📚 查看 <a href="https://arxiv.org/abs/2408.06072" target="_blank">论文</a> 和 <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">使用文档</a>
 </p>
 <p align="center">
     👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> 
@@ -237,7 +237,7 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 + [diffusers_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码。
 + [space demo](inference/gradio_composite_demo): Huggingface Space同款的 GUI 代码，植入了插帧，超分工具。
 + [convert_demo](inference/convert_demo.py): 如何将用户的输入转换成适合
-  CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM4，也可以替换为GPT、Gemini等任意大语言模型。
+  CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM-4，也可以替换为GPT、Gemini等任意大语言模型。
 + [gradio_web_demo](inference/gradio_web_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B 模型生成视频。 与我们的
   Huggingface Space 类似，你可以使用此脚本运行一个简单的网页应用，用于生成视频。
 

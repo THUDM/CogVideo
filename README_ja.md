@@ -11,7 +11,7 @@
 <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> または <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a> で CogVideoX-5B モデルをオンラインで体験してください
 </p>
 <p align="center">
-📚 <a href="https://arxiv.org/abs/2408.06072" target="_blank">論文</a> をチェック
+📚 <a href="https://arxiv.org/abs/2408.06072" target="_blank">論文</a>と<a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">使用ドキュメント</a>を表示します。
 </p>
 <p align="center">
     👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> に参加
@@ -253,7 +253,7 @@ CogVideoXは [清影](https://chatglm.cn/video?fr=osm_cogvideox) に由来する
 + [diffusers_vae_demo](inference/cli_vae_demo.py): VAE推論コードの実行には現在71GBのメモリが必要ですが、将来的には最適化される予定です。
 + [space demo](inference/gradio_composite_demo): Huggingface Spaceと同じGUIコードで、フレーム補間や超解像ツールが組み込まれています。
 + [convert_demo](inference/convert_demo.py):
-  ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
+  ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM-4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
 + [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2B モデルを使用して動画を生成する方法を示す、シンプルな
   Gradio Web UI デモです。私たちの Huggingface Space と同様に、このスクリプトを使用して Web デモを起動することができます。
 

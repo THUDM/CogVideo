@@ -11,7 +11,7 @@
 Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> or <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a>
 </p>
 <p align="center">
-📚 Check here to view <a href="https://arxiv.org/abs/2408.06072" target="_blank">Paper</a>
+📚 View the <a href="https://arxiv.org/abs/2408.06072" target="_blank">paper</a> and <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">user guide</a>
 </p>
 <p align="center">
     👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> 
@@ -100,6 +100,7 @@ significance of common parameters.
 ## Gallery
 
 ### CogVideoX-5B
+
 <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
   <tr>
       <td>
@@ -131,7 +132,8 @@ significance of common parameters.
   </tr>
 </table>
 
-### CogVideoX-2B 
+### CogVideoX-2B
+
 <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
   <tr>
       <td>
@@ -274,7 +276,7 @@ of the **CogVideoX** open-source model.
   interpolation and super-resolution tools integrated.
 + [convert_demo](inference/convert_demo.py): How to convert user input into long-form input suitable for CogVideoX.
   Since CogVideoX is trained on long texts, we need to transform the input text distribution to match the training data
-  using an LLM. The script defaults to using GLM4, but it can be replaced with GPT, Gemini, or any other large language
+  using an LLM. The script defaults to using GLM-4, but it can be replaced with GPT, Gemini, or any other large language
   model.
 + [gradio_web_demo](inference/gradio_web_demo.py): A simple Gradio web application demonstrating how to use the
   CogVideoX-2B model to generate videos. Similar to our Huggingface Space, you can use this script to run a simple web
