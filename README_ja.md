@@ -139,34 +139,34 @@ pip install -r requirements.txt
 
 ## モデル紹介
 
-CogVideoXは [清影](https://chatglm.cn/video?fr=osm_cogvideox) に由来するオープンソース版のビデオ生成モデルです。
-以下の表は、提供しているビデオ生成モデルに関する基本情報を示しています。
+CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオープンソース版動画生成モデルです。
+以下の表は、提供されている動画生成モデルに関する基本情報を示しています。
 
 <table style="border-collapse: collapse; width: 100%;">
   <tr>
     <th style="text-align: center;">モデル名</th>
     <th style="text-align: center;">CogVideoX-2B</th>
-    <th style="text-align: center;">CogVideoX-5B</th>
+    <th style="text-align: center;">CogVideoX-5B (本リポジトリ)</th>
   </tr>
   <tr>
     <td style="text-align: center;">モデル紹介</td>
-    <td style="text-align: center;">入門レベルのモデルで、互換性を重視しています。運用や二次開発のコストが低いです。</td>
-    <td style="text-align: center;">より高いビデオ生成品質と優れた視覚効果を提供する大型モデル。</td>
+    <td style="text-align: center;">入門モデルで、互換性を重視。運用および二次開発のコストが低い。</td>
+    <td style="text-align: center;">動画生成品質が高く、視覚効果がより優れた大型モデル。</td>
   </tr>
   <tr>
     <td style="text-align: center;">推論精度</td>
-    <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32, FP8(E4M3, E5M2), INT8, INT4はサポートされていません</td>
-    <td style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32, FP8(E4M3, E5M2), INT8, INT4はサポートされていません</td>
+    <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32, FP8*(E4M3, E5M2), INT8, INT4は非対応</td>
+    <td style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32, FP8*(E4M3, E5M2), INT8, INT4は非対応</td>
   </tr>
   <tr>
-    <td style="text-align: center;">単一GPUメモリ消費量<br></td>
+    <td style="text-align: center;">単一GPUのメモリ消費量</td>
     <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers</b></td>
     <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">マルチGPU推論メモリ消費量</td>
-    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
-    <td style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
+    <td style="text-align: center;">複数GPUの推論メモリ消費量</td>
+    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b></td>
+    <td style="text-align: center;"><b>BF16: 15GB* using diffusers</b></td>
   </tr>
   <tr>
     <td style="text-align: center;">推論速度<br>(Step = 50)</td>
@@ -179,59 +179,55 @@ CogVideoXは [清影](https://chatglm.cn/video?fr=osm_cogvideox) に由来する
     <td style="text-align: center;"><b>BF16</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">微調整メモリ消費量(各GPU)</td>
+    <td style="text-align: center;">微調整時のメモリ消費量 (1GPUあたり)</td>
     <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
-    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)<br></td>
+    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)</td>
   </tr>
   <tr>
     <td style="text-align: center;">プロンプト言語</td>
     <td colspan="2" style="text-align: center;">英語*</td>
   </tr>
   <tr>
-    <td style="text-align: center;">プロンプト長さ制限</td>
-    <td colspan="2" style="text-align: center;">226 トークン</td>
+    <td style="text-align: center;">プロンプトの長さ上限</td>
+    <td colspan="2" style="text-align: center;">226トークン</td>
   </tr>
   <tr>
-    <td style="text-align: center;">ビデオ長さ</td>
-    <td colspan="2" style="text-align: center;">6 秒</td>
+    <td style="text-align: center;">動画の長さ</td>
+    <td colspan="2" style="text-align: center;">6秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">フレームレート</td>
-    <td colspan="2" style="text-align: center;">8 フレーム/秒</td>
+    <td colspan="2" style="text-align: center;">8フレーム/秒</td>
   </tr>
   <tr>
-    <td style="text-align: center;">ビデオ解像度</td>
-    <td colspan="2" style="text-align: center;">720 * 480、他の解像度はサポートされていません（微調整を含む）</td>
+    <td style="text-align: center;">動画の解像度</td>
+    <td colspan="2" style="text-align: center;">720 * 480、他の解像度はサポートされていません（微調整も含む）</td>
   </tr>
-    <tr>
-    <td style="text-align: center;">位置エンコーディング</td>
+  <tr>
+    <td style="text-align: center;">位置エンコード</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed<br></td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
   </tr>
   <tr>
-    <td style="text-align: center;">ダウンロードリンク (Diffusers モデル)</td>
+    <td style="text-align: center;">ダウンロードリンク (Diffusers)</td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
   </tr>
   <tr>
-    <td style="text-align: center;">ダウンロードリンク (SAT モデル)</td>
+    <td style="text-align: center;">ダウンロードリンク (SAT)</td>
     <td colspan="2" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
   </tr>
 </table>
 
 **データ解説**
 
-+ diffusers ライブラリを使用してテストを行った際に、`enable_model_cpu_offload()` オプションと `pipe.vae.enable_tiling()`
-  最適化が有効になっていました。このセットアップは **NVIDIA A100 / H100** 以外のデバイスでの実際のメモリ/VRAM
-  使用量についてはテストされていません。通常、このアプローチは **NVIDIA Ampere アーキテクチャ**
-  以上のすべてのデバイスに適しています。これらの最適化を無効にすると、メモリ使用量が大幅に増加し、表に示されている値の約3倍になります。
-+ マルチGPU推論を行う際には、`enable_model_cpu_offload()` 最適化を無効にする必要があります。
-+ INT8 モデルを使用すると推論速度が低下しますが、これは、メモリの少ないGPUでも正常に推論できるようにし、ビデオ品質の損失を最小限に抑えるためです。推論速度は大幅に低下します。
-
-推論速度テストも上記のメモリ最適化を使用して実施されました。メモリ最適化を使用しない場合、推論速度は約10％向上します。量子化をサポートしているのは `diffusers`
-バージョンのモデルのみです。
-
-+ モデルは英語入力のみをサポートしており、他の言語は大規模な言語モデルを通じて英語に翻訳することで対応できます。
++ diffusersライブラリを使用したテストでは、`enable_model_cpu_offload()`オプションと`pipe.vae.enable_tiling()`最適化が有効になっています。この手法は、**NVIDIA A100 / H100**以外のデバイスでの実際のメモリ/メモリ消費量についてはテストされていません。通常、この手法はすべての**NVIDIA Ampereアーキテクチャ**以上のデバイスに適合します。最適化を無効にすると、メモリ消費量が倍増し、ピークメモリは表の3倍程度になります。
++ 複数GPUで推論する際は、`enable_model_cpu_offload()`最適化を無効にする必要があります。
++ INT8モデルを使用すると推論速度が低下します。これは、メモリが少ないGPUで正常に推論を行い、動画品質の損失を最小限に抑えるためです。そのため、推論速度が大幅に低下します。
++ 2Bモデルは`FP16`精度でトレーニングされ、5Bモデルは`BF16`精度でトレーニングされています。推奨される精度で推論を行うことをお勧めします。
++ `FP8`精度は`NVIDIA H100`以上のデバイスでのみ使用でき、`torch`、`torchao`、`diffusers`、`accelerate`のPythonパッケージをソースコードからインストールする必要があります。`CUDA 12.4`の使用を推奨します。
++ 推論速度のテストも上記のメモリ最適化手法を使用して行いました。メモリ最適化を行わない場合、推論速度が約10％向上します。量子化をサポートするのは`diffusers`バージョンのモデルのみです。
++ モデルは英語入力のみをサポートしており、他の言語は大モデルでのポストプロセスで英語に翻訳する必要があります。
 
 ## 友好的リンク
 

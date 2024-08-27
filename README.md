@@ -155,11 +155,13 @@ To view the corresponding prompt words for the gallery, please click [here](reso
 
 ## Model Introduction
 
-<table  style="border-collapse: collapse; width: 100%;">
+CogVideoX is an open-source version of the video generation model originating from [QingYing](https://chatglm.cn/video?fr=osm_cogvideo). The table below displays the list of video generation models we currently offer, along with their foundational information.
+
+<table style="border-collapse: collapse; width: 100%;">
   <tr>
     <th style="text-align: center;">Model Name</th>
     <th style="text-align: center;">CogVideoX-2B</th>
-    <th style="text-align: center;">CogVideoX-5B</th>
+    <th style="text-align: center;">CogVideoX-5B (This Repository)</th>
   </tr>
   <tr>
     <td style="text-align: center;">Model Description</td>
@@ -168,33 +170,33 @@ To view the corresponding prompt words for the gallery, please click [here](reso
   </tr>
   <tr>
     <td style="text-align: center;">Inference Precision</td>
-    <td style="text-align: center;"><b>FP16*(Recommended)</b>, BF16, FP32, FP8*(E4M3, E5M2), INT8, INT4 not supported</td>
-    <td style="text-align: center;"><b>BF16(Recommended)</b>, FP16, FP32, FP8*(E4M3, E5M2), INT8, INT4 not supported</td>
+    <td style="text-align: center;"><b>FP16* (Recommended)</b>, BF16, FP32, FP8*, INT8, no support for INT4</td>
+    <td style="text-align: center;"><b>BF16 (Recommended)</b>, FP16, FP32, FP8*, INT8, no support for INT4</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Single GPU Memory Consumption<br></td>
+    <td style="text-align: center;">Single GPU VRAM Consumption</td>
     <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers</b></td>
     <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">Multi-GPU Inference Memory Consumption</td>
-    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
-    <td style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
+    <td style="text-align: center;">Multi-GPU Inference VRAM Consumption</td>
+    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b></td>
+    <td style="text-align: center;"><b>BF16: 15GB* using diffusers</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">Inference Speed<br>(Step = 50)</td>
-    <td style="text-align: center;">FP16: ~90* s</td>
-    <td style="text-align: center;">BF16: ~180* s</td>
+    <td style="text-align: center;">Inference Speed<br>(Step = 50, FP/BF16)</td>
+    <td style="text-align: center;">Single A100: ~90 seconds<br>Single H100: ~45 seconds</td>
+    <td style="text-align: center;">Single A100: ~180 seconds<br>Single H100: ~90 seconds</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Fine-Tuning Precision</td>
+    <td style="text-align: center;">Fine-tuning Precision</td>
     <td style="text-align: center;"><b>FP16</b></td>
     <td style="text-align: center;"><b>BF16</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">Fine-Tuning Memory Consumption (per GPU)</td>
+    <td style="text-align: center;">Fine-tuning VRAM Consumption (per GPU)</td>
     <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
-    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)<br></td>
+    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)</td>
   </tr>
   <tr>
     <td style="text-align: center;">Prompt Language</td>
@@ -206,46 +208,42 @@ To view the corresponding prompt words for the gallery, please click [here](reso
   </tr>
   <tr>
     <td style="text-align: center;">Video Length</td>
-    <td colspan="2" style="text-align: center;">6 seconds</td>
+    <td colspan="2" style="text-align: center;">6 Seconds</td>
   </tr>
   <tr>
     <td style="text-align: center;">Frame Rate</td>
-    <td colspan="2" style="text-align: center;">8 frames per second</td>
+    <td colspan="2" style="text-align: center;">8 Frames per Second</td>
   </tr>
   <tr>
     <td style="text-align: center;">Video Resolution</td>
-    <td colspan="2" style="text-align: center;">720 * 480, other resolutions not supported (including fine-tuning)</td>
+    <td colspan="2" style="text-align: center;">720 x 480, no support for other resolutions (including fine-tuning)</td>
   </tr>
   <tr>
     <td style="text-align: center;">Positional Encoding</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed<br></td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Download Links (Diffusers Model)</td>
+    <td style="text-align: center;">Download Page (Diffusers)</td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
   </tr>
   <tr>
-    <td style="text-align: center;">Download Links (SAT Model)</td>
-    <td colspan="2" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
+    <td style="text-align: center;">Download Page (SAT)</td>
+    <td colspan="2" style="text-align: center;"><a href="./sat/README.md">SAT</a></td>
   </tr>
 </table>
 
 **Data Explanation**
 
-+ When testing with the diffusers library, the `enable_model_cpu_offload()` option and `pipe.vae.enable_tiling()`
-  optimization were enabled. This setup has not been tested for actual memory/VRAM usage on devices other than **NVIDIA
-  A100 / H100**. Generally, this approach should be compatible with all devices using the **NVIDIA Ampere architecture**
-  and above. If these optimizations are disabled, memory usage will increase significantly, with peak VRAM usage
-  approximately three times higher than the values shown in the table.
-+ When performing multi-GPU inference, the `enable_model_cpu_offload()` optimization must be disabled.
-+ Using the INT8 model will result in slower inference speeds. This is done to ensure that inference can be performed on
-  GPUs with lower memory without significant video quality loss, albeit with a notable reduction in speed.
-+ Inference speed tests were also conducted with the above memory optimizations. Without memory optimization, inference
-  speed increases by approximately 10%. Only the `diffusers` version of the model supports quantization.
-+ The model only supports English input; other languages can be translated into English when refined through large
-  language models.
+- When testing with the diffusers library, the `enable_model_cpu_offload()` option and `pipe.vae.enable_tiling()` optimization were enabled. This solution has not been tested for actual VRAM/memory usage on devices other than **NVIDIA A100/H100**. Generally, this solution can be adapted to all devices with **NVIDIA Ampere architecture** and above. If optimization is disabled, VRAM usage will increase significantly, with peak VRAM approximately 3 times the value in the table.
+- When performing multi-GPU inference, the `enable_model_cpu_offload()` optimization needs to be disabled.
+- Using an INT8 model will result in reduced inference speed. This is done to accommodate GPUs with lower VRAM, allowing inference to run properly with minimal video quality loss, though the inference speed will be significantly reduced.
+- The 2B model is trained using `FP16` precision, while the 5B model is trained using `BF16` precision. It is recommended to use the precision used in model training for inference.
+- `FP8` precision must be used on `NVIDIA H100` and above devices, requiring source installation of the `torch`, `torchao`, `diffusers`, and `accelerate` Python packages. `CUDA 12.4` is recommended.
+- Inference speed testing also used the aforementioned VRAM optimization scheme. Without VRAM optimization, inference speed increases by about 10%. Only models using `diffusers` support quantization.
+- The model only supports English input; other languages can be translated to English during large model refinements.
+
 
 ## Friendly Links
 

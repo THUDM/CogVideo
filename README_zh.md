@@ -206,6 +206,15 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
     <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed<br></td>
   </tr>
+  <tr>
+    <td style="text-align: center;">下载链接 (Diffusers)</td>
+    <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
+    <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">下载链接 (SAT)</td>
+    <td colspan="2" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
+  </tr>
 </table>
 
 **数据解释**
@@ -215,6 +224,8 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
   以上的设备。若关闭优化，显存占用会成倍增加，峰值显存约为表格的3倍。
 + 多GPU推理时，需要关闭 `enable_model_cpu_offload()` 优化。
 + 使用 INT8 模型会导致推理速度降低，此举是为了满足显存较低的显卡能正常推理并保持较少的视频质量损失，推理速度大幅降低。
++ 2B 模型采用 `FP16` 精度训练， 5B模型采用 `BF16` 精度训练。我们推荐使用模型训练的精度进行推理。
++ `FP8` 精度必须在`NVIDIA H100` 及以上的设备上使用，需要源代码安装`torch`,`torchao`,`diffusers`,`accelerate` python包，推荐使用 `CUDA 12.4`。
 + 推理速度测试同样采用了上述显存优化方案，不采用显存优化的情况下，推理速度提升约10%。 只有`diffusers`版本模型支持量化。
 + 模型仅支持英语输入，其他语言可以通过大模型润色时翻译为英语。
 
