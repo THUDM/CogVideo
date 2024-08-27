@@ -9,7 +9,7 @@
 <img src=resources/logo.svg width="50%"/>
 </div>
 <p align="center">
-🤗 在 <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a> 体验视频生成模型
+在 <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> 或 <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a> 在线体验 CogVideoX-5B 模型
 </p>
 <p align="center">
 📚 查看 <a href="https://arxiv.org/abs/2408.06072" target="_blank">论文</a>
@@ -23,7 +23,10 @@
 
 ## 项目更新
 
-- 🔥🔥**News**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) 已经支持对 CogVideoX
+- 🔥🔥 **News**: ```2024/8/27```:  我们开源 CogVideoX 系列更大的模型 **CogVideoX-5B**。同时 **CogVideoX-2B** 将修改为
+  **Apache 2.0 协议**。我们大幅度优化了模型的推理性能，推理门槛大幅降低，您可以在 `GTX 1080TI` 等早期显卡运行 **CogVideoX-2B**
+  ，在 `RTX 3060`等桌面端甜品卡运行 **CogVideoX-5B** 模型。
+- 🔥**News**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) 已经支持对 CogVideoX
   生成的视频进行增强，实现更高分辨率，更高质量的视频渲染。欢迎大家按照[教程](tools/venhancer/README_zh.md)体验使用。
 - 🔥**News**: ```2024/8/15```: CogVideoX 依赖中`SwissArmyTransformer`依赖升级到`0.4.12`,
   微调不再需要从源代码安装`SwissArmyTransformer`。同时，`Tied VAE` 技术已经被应用到 `diffusers`
@@ -60,15 +63,14 @@
 
 ### 提示词优化
 
-在开始运行模型之前，请参考[这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4(或者同级别的其他产品，例如GPT-4)
+在开始运行模型之前，请参考 [这里](inference/convert_demo.py) 查看我们是怎么使用GLM-4(或者同级别的其他产品，例如GPT-4)
 大模型对模型进行优化的，这很重要，
 由于模型是在长提示词下训练的，一个好的提示词直接影响了视频生成的质量。
 
 ### SAT
 
-查看sat文件夹下的[sat_demo](sat/README.md)：包含了 SAT 权重的推理代码和微调代码，推荐基于此代码进行 CogVideoX
+查看sat文件夹下的 [sat_demo](sat/README.md)：包含了 SAT 权重的推理代码和微调代码，推荐基于此代码进行 CogVideoX
 模型结构的改进，研究者使用该代码可以更好的进行快速的迭代和开发。
-(18 GB 推理, 40GB lora微调)
 
 ### Diffusers
 
@@ -76,49 +78,145 @@
 pip install -r requirements.txt
 ```
 
-查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。（24GB 推理，微调代码正在开发）
+查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。
 
-## CogVideoX-2B 视频作品
+## 视频作品
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="80%" controls autoplay></video>
-  <p>A detailed wooden toy ship with intricately carved masts and sails is seen gliding smoothly over a plush, blue carpet that mimics the waves of the sea. The ship's hull is painted a rich brown, with tiny windows. The carpet, soft and textured, provides a perfect backdrop, resembling an oceanic expanse. Surrounding the ship are various other toys and children's items, hinting at a playful environment. The scene captures the innocence and imagination of childhood, with the toy ship's journey symbolizing endless adventures in a whimsical, indoor setting.</p>
-</div>
+### CogVideoX-5B
+<table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
+  <tr>
+      <td>
+          <video src="https://github.com/user-attachments/assets/cf5953ea-96d3-48fd-9907-c4708752c714" width="100%" controls autoplay loop></video>
+      </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/fe0a78e6-b669-4800-8cf0-b5f9b5145b52" width="100%" controls autoplay loop></video>
+      </td>
+       <td>
+          <video src="https://github.com/user-attachments/assets/c182f606-8f8c-421d-b414-8487070fcfcb" width="100%" controls autoplay loop></video>
+     </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/7db2bbce-194d-434d-a605-350254b6c298" width="100%" controls autoplay loop></video>
+     </td>
+  </tr>
+  <tr>
+      <td>
+          <video src="https://github.com/user-attachments/assets/62b01046-8cab-44cc-bd45-4d965bb615ec" width="100%" controls autoplay loop></video>
+      </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/d78e552a-4b3f-4b81-ac3f-3898079554f6" width="100%" controls autoplay loop></video>
+      </td>
+       <td>
+          <video src="https://github.com/user-attachments/assets/30894f12-c741-44a2-9e6e-ddcacc231e5b" width="100%" controls autoplay loop></video>
+     </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/926575ca-7150-435b-a0ff-4900a963297b" width="100%" controls autoplay loop></video>
+     </td>
+  </tr>
+</table>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/9de41efd-d4d1-4095-aeda-246dd834e91d" width="80%" controls autoplay></video>
-  <p>The camera follows behind a white vintage SUV with a black roof rack as it speeds up a steep dirt road surrounded by pine trees on a steep mountain slope, dust kicks up from its tires, the sunlight shines on the SUV as it speeds along the dirt road, casting a warm glow over the scene. The dirt road curves gently into the distance, with no other cars or vehicles in sight. The trees on either side of the road are redwoods, with patches of greenery scattered throughout. The car is seen from the rear following the curve with ease, making it seem as if it is on a rugged drive through the rugged terrain. The dirt road itself is surrounded by steep hills and mountains, with a clear blue sky above with wispy clouds.</p>
-</div>
+### CogVideoX-2B 
+<table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
+  <tr>
+      <td>
+          <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="100%" controls autoplay loop></video>
+      </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/9de41efd-d4d1-4095-aeda-246dd834e91d" width="100%" controls autoplay loop></video>
+      </td>
+       <td>
+          <video src="https://github.com/user-attachments/assets/941d6661-6a8d-4a1b-b912-59606f0b2841" width="100%" controls autoplay loop></video>
+     </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/938529c4-91ae-4f60-b96b-3c3947fa63cb" width="100%" controls autoplay loop></video>
+     </td>
+  </tr>
+</table>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/941d6661-6a8d-4a1b-b912-59606f0b2841" width="80%" controls autoplay></video>
-  <p>A street artist, clad in a worn-out denim jacket and a colorful bandana, stands before a vast concrete wall in the heart, holding a can of spray paint, spray-painting a colorful bird on a mottled wall.</p>
-</div>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/938529c4-91ae-4f60-b96b-3c3947fa63cb" width="80%" controls autoplay></video>
-  <p>In the haunting backdrop of a war-torn city, where ruins and crumbled walls tell a story of devastation, a poignant close-up frames a young girl. Her face is smudged with ash, a silent testament to the chaos around her. Her eyes glistening with a mix of sorrow and resilience, capturing the raw emotion of a world that has lost its innocence to the ravages of conflict.</p>
-</div>
+查看画廊的对应提示词，请点击[这里](resources/galary_prompt.md)
 
 ## 模型介绍
 
 CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源版本视频生成模型。
+下表展示我们提供的视频生成模型相关基础信息:
 
-下表展示目前我们提供的视频生成模型列表，以及相关基础信息:
+<table  style="border-collapse: collapse; width: 100%;">
+  <tr>
+    <th style="text-align: center;">模型名</th>
+    <th style="text-align: center;">CogVideoX-2B</th>
+    <th style="text-align: center;">CogVideoX-5B (本仓库)</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">模型介绍</td>
+    <td style="text-align: center;">入门级模型，兼顾兼容性。运行，二次开发成本低。</td>
+    <td style="text-align: center;">视频生成质量更高，视觉效果更好的更大尺寸模型。</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">推理精度</td>
+    <td style="text-align: center;"><b>FP16*(推荐)</b>, BF16, FP32，FP8*(E4M3，E5M2)，INT8，不支持INT4</td>
+    <td style="text-align: center;"><b>BF16(推荐)</b>, FP16, FP32，FP8*(E4M3，E5M2)，INT8，不支持INT4</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">单GPU显存消耗<br></td>
+    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers</b></td>
+    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers</b></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">多GPU推理显存消耗</td>
+    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
+    <td style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">推理速度<br>(Step = 50)</td>
+    <td style="text-align: center;">FP16: ~90* s</td>
+    <td style="text-align: center;">BF16: ~180* s</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">微调精度</td>
+    <td style="text-align: center;"><b>FP16</b></td>
+    <td style="text-align: center;"><b>BF16</b></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">微调显存消耗(每卡)</td>
+    <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
+    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)<br></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">提示词语言</td>
+    <td colspan="2" style="text-align: center;">English*</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">提示词长度上限</td>
+    <td colspan="2" style="text-align: center;">226 Tokens</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">视频长度</td>
+    <td colspan="2" style="text-align: center;">6 秒</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">帧率</td>
+    <td colspan="2" style="text-align: center;">8 帧 / 秒 </td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">视频分辨率</td>
+    <td colspan="2" style="text-align: center;">720 * 480，不支持其他分辨率(含微调)</td>
+  </tr>
+    <tr>
+    <td style="text-align: center;">位置编码</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed<br></td>
+  </tr>
+</table>
 
-| 模型名                 | CogVideoX-2B                                                                                                                    | 
-|---------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| 提示词语言               | English                                                                                                                         | 
-| 单GPU推理 (FP-16) 显存消耗 | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                  | 
-| 多GPU推理 (FP-16) 显存消耗 | 20GB minimum per GPU using diffusers                                                                                            |                                                                                                            
-| 微调显存消耗 (bs=1)       | 42GB                                                                                                                            |
-| 提示词长度上限             | 226 Tokens                                                                                                                      |
-| 视频长度                | 6 seconds                                                                                                                       | 
-| 帧率（每秒）              | 8 frames                                                                                                                        | 
-| 视频分辨率               | 720 * 480                                                                                                                       |
-| 量化推理                | 不支持                                                                                                                             |          
-| 下载地址 (Diffusers 模型) | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)  [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b) |
-| 下载地址 (SAT 模型)       | [SAT](./sat/README_zh.md)                                                                                                       |
+**数据解释**
+
++ 使用 diffusers 库进行测试时，启用了 `enable_model_cpu_offload()` 选项 和 `pipe.vae.enable_tiling()` 优化，该方案未测试在非
+  **NVIDIA A100 / H100** 外的设备上的实际显存 / 内存占用。通常，该方案可以适配于所有 **NVIDIA 安培架构**
+  以上的设备。若关闭优化，显存占用会成倍增加，峰值显存约为表格的3倍。
++ 多GPU推理时，需要关闭 `enable_model_cpu_offload()` 优化。
++ 使用 INT8 模型会导致推理速度降低，此举是为了满足显存较低的显卡能正常推理并保持较少的视频质量损失，推理速度大幅降低。
++ 推理速度测试同样采用了上述显存优化方案，不采用显存优化的情况下，推理速度提升约10%。 只有`diffusers`版本模型支持量化。
++ 模型仅支持英语输入，其他语言可以通过大模型润色时翻译为英语。
 
 ## 友情链接
 
@@ -133,16 +231,19 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 
 ### inference
 
-+ [diffusers_demo](inference/cli_demo.py): 更详细的推理代码讲解，常见参数的意义，在这里都会提及。
-+ [diffusers_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码，目前需要71GB显存，将来会优化。
++ [cli_demo](inference/cli_demo.py): 更详细的推理代码讲解，常见参数的意义，在这里都会提及。
++ [cli_demo_quantization](inference/cli_demo_quantization.py):
+  量化模型推理代码，可以在显存较低的设备上运行，也可以基于此代码修改，以支持运行FP8等精度的CogVideoX模型。请注意，FP8 仅测试通过，且必须将 `torch-nightly`,`torchao`源代码安装，不建议在生产环境中使用。
++ [diffusers_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码。
++ [space demo](inference/gradio_composite_demo): Huggingface Space同款的 GUI 代码，植入了插帧，超分工具。
 + [convert_demo](inference/convert_demo.py): 如何将用户的输入转换成适合
   CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM4，也可以替换为GPT、Gemini等任意大语言模型。
-+ [gradio_web_demo](inference/gradio_web_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B 模型生成视频。
-  与我们的 Huggingface Space 类似，你可以使用此脚本运行一个简单的网页应用，用于生成视频。
++ [gradio_web_demo](inference/gradio_web_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B 模型生成视频。 与我们的
+  Huggingface Space 类似，你可以使用此脚本运行一个简单的网页应用，用于生成视频。
 
 ```shell
 cd inference
-# For Linux and Windows users (and macOS with Intel??)
+# For Linux and Windows users
 python gradio_web_demo.py # humans mode
 
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
@@ -216,9 +317,14 @@ CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.amine
     - [x] CogVideoX 在线体验示例 (Huggingface Space)
     - [x] CogVideoX 开源模型API接口示例 (Huggingface)
     - [x] CogVideoX 模型微调示例 (SAT)
-    - [ ] CogVideoX 模型微调示例 (Huggingface / SAT)
-    - [ ] CogVideoX-Pro 开源(适配 CogVideoX-2B 套件)
+    - [ ] CogVideoX 模型微调示例 (Huggingface Diffusers)
+    - [X] CogVideoX-5B 开源 (适配 CogVideoX-2B 套件)
     - [X] CogVideoX 技术报告公开
+    - [X] CogVideoX 技术讲解视频
+- [ ] CogVideoX 周边工具
+    - [X] 视频超分 / 插帧基础套件
+    - [ ] 推理框架适配
+    - [ ] ComfyUI 完整生态工具
 
 我们欢迎您的贡献，您可以点击[这里](resources/contribute_zh.md)查看更多信息。
 
@@ -226,4 +332,8 @@ CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.amine
 
 本仓库代码使用 [Apache 2.0 协议](LICENSE) 发布。
 
-本模型权重和模型实现代码根据 [CogVideoX LICENSE](MODEL_LICENSE) 许可证发布。
+CogVideoX-2B 模型 (包括其对应的Transformers模块，VAE模块) 根据 [Apache 2.0 协议](LICENSE) 许可证发布。
+
+CogVideoX-5B 模型 (Transformers 模块)
+根据 [CogVideoX LICENSE](https://huggingface.co/THUDM/CogVideoX-5b/blob/main/LICENSE)
+许可证发布。

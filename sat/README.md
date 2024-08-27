@@ -19,8 +19,9 @@ pip install -r requirements.txt
 
 ### 2. Download the model weights
 
-First, go to the SAT mirror to download the dependencies.
+### 2. Download model weights
 
+First, go to the SAT mirror to download the model weights. For the CogVideoX-2B model, please download as follows:
 ```shell
 mkdir CogVideoX-2b-sat
 cd CogVideoX-2b-sat
@@ -31,13 +32,21 @@ wget https://cloud.tsinghua.edu.cn/f/556a3e1329e74f1bac45/?dl=1
 mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
-
-Then unzip, the model structure should look like this:
+For the CogVideoX-5B model, please download as follows (VAE files are the same):
+```shell
+mkdir CogVideoX-5b-sat
+cd CogVideoX-5b-sat
+wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
+mv 'index.html?dl=1' vae.zip
+unzip vae.zip
+```
+Then, you need to go to [Tsinghua Cloud Disk](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list) to download our model and unzip it.
+After sorting, the complete model structure of the two models should be as follows:
 
 ```
 .
 ├── transformer
-│   ├── 1000
+│   ├── 1000 (or 1)
 │   │   └── mp_rank_00_model_states.pt
 │   └── latest
 └── vae
@@ -70,8 +79,6 @@ loading it into Deepspeed in Finetune.
 
 0 directories, 8 files
 ```
-
-Here is the English translation of the provided text:
 
 ### 3. Modify the file in `configs/cogvideox_2b.yaml`.
 
