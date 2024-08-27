@@ -12,18 +12,18 @@ Run the script:
 
 import argparse
 import torch
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler
+from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler, CogVideoXDPMScheduler
 from diffusers.utils import export_to_video
 
 
 def generate_video(
-        prompt: str,
-        model_path: str,
-        output_path: str = "./output.mp4",
-        num_inference_steps: int = 50,
-        guidance_scale: float = 6.0,
-        num_videos_per_prompt: int = 1,
-        dtype: torch.dtype = torch.bfloat16,
+    prompt: str,
+    model_path: str,
+    output_path: str = "./output.mp4",
+    num_inference_steps: int = 50,
+    guidance_scale: float = 6.0,
+    num_videos_per_prompt: int = 1,
+    dtype: torch.dtype = torch.bfloat16,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -47,10 +47,12 @@ def generate_video(
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
-    # We recommend using `CogVideoXDDIMScheduler` for better results.
-    pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+    # We recommend using `CogVideoXDDIMScheduler` for CogVideoX-2B and `CogVideoXDPMScheduler` for CogVideoX-5B.
+    # pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+    pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
     # 3. Enable CPU offload for the model, enable tiling.
+    # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
     pipe.enable_model_cpu_offload()
     pipe.vae.enable_tiling()
 
@@ -63,7 +65,8 @@ def generate_video(
         num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
         num_inference_steps=num_inference_steps,  # Number of inference steps
         num_frames=49,  # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
-        guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
+        use_dynamic_cfg=True,  ## This id used for DPM Sechduler, for DDIM scheduler, it should be False
+        guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance, can set to 7 for DPM scheduler
         generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
     ).frames[0]
 

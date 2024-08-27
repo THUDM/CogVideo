@@ -1,3 +1,11 @@
+"""
+THis is the main file for the gradio web demo. It uses the CogVideoX-5B model to generate videos gradio web demo.
+set environment variable OPENAI_API_KEY to use the OpenAI API to enhance the prompt.
+
+Usage:
+    OpenAI_API_KEY=your_openai_api_key OpenAI_BASE_URL=https://api.openai.com/v1 python inference/gradio_web_demo.py
+"""
+
 import math
 import os
 import random
@@ -6,7 +14,7 @@ import time
 
 import gradio as gr
 import torch
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler,CogVideoXDPMScheduler
+from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler, CogVideoXDPMScheduler
 from datetime import datetime, timedelta
 
 from diffusers.image_processor import VaeImageProcessor
@@ -98,14 +106,14 @@ def convert_prompt(prompt: str, retry_times: int = 3) -> str:
 
 
 def infer(
-        prompt: str,
-        num_inference_steps: int,
-        guidance_scale: float,
-        seed: int = -1,
-        #progress=gr.Progress(track_tqdm=True),
+    prompt: str,
+    num_inference_steps: int,
+    guidance_scale: float,
+    seed: int = -1,
+    progress=gr.Progress(track_tqdm=True),
 ):
     if seed == -1:
-        seed = random.randint(0, 2 ** 8 - 1)
+        seed = random.randint(0, 2**8 - 1)
     video_pt = pipe(
         prompt=prompt,
         num_videos_per_prompt=1,
@@ -171,10 +179,6 @@ with gr.Blocks() as demo:
                     "✨Upon pressing the enhanced prompt button, we will use [GLM-4 Model](https://github.com/THUDM/GLM-4) to polish the prompt and overwrite the original one."
                 )
                 enhance_button = gr.Button("✨ Enhance Prompt(Optional)")
-
-            gr.Markdown(
-                "<span style='color:red; font-weight:bold;'>For the CogVideoX-5B model, 50 steps will take approximately 120 seconds.</span>"
-            )
 
             with gr.Group():
                 with gr.Column():
@@ -262,20 +266,13 @@ with gr.Blocks() as demo:
     </table>
         """)
 
-
-    def generate(prompt,
-                 seed_value,
-                 scale_status,
-                 rife_status, 
-                 progress=gr.Progress(track_tqdm=True)
-                ):
-
+    def generate(prompt, seed_value, scale_status, rife_status, progress=gr.Progress(track_tqdm=True)):
         latents, seed = infer(
             prompt,
             num_inference_steps=50,  # NOT Changed
             guidance_scale=7.0,  # NOT Changed
             seed=seed_value,
-            #progress=progress,
+            # progress=progress,
         )
         if scale_status:
             latents = utils.upscale_batch_and_concatenate(upscale_model, latents, device)
@@ -300,10 +297,8 @@ with gr.Blocks() as demo:
 
         return video_path, video_update, gif_update, seed_update
 
-
     def enhance_prompt_func(prompt):
         return convert_prompt(prompt, retry_times=1)
-
 
     generate_button.click(
         generate,

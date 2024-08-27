@@ -1,3 +1,11 @@
+"""
+THis is the main file for the gradio web demo. It uses the CogVideoX-2B model to generate videos gradio web demo.
+set environment variable OPENAI_API_KEY to use the OpenAI API to enhance the prompt.
+
+Usage:
+    OpenAI_API_KEY=your_openai_api_key OpenAI_BASE_URL=https://api.openai.com/v1 python inference/gradio_web_demo.py
+"""
+
 import os
 import threading
 import time
@@ -151,14 +159,17 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 gr.Markdown(
-                    "✨Upon pressing the enhanced prompt button, we will use [GLM-4 Model](https://github.com/THUDM/GLM-4) to polish the prompt and overwrite the original one.")
+                    "✨Upon pressing the enhanced prompt button, we will use [GLM-4 Model](https://github.com/THUDM/GLM-4) to polish the prompt and overwrite the original one."
+                )
                 enhance_button = gr.Button("✨ Enhance Prompt(Optional)")
 
             with gr.Column():
-                gr.Markdown("**Optional Parameters** (default values are recommended)<br>"
-                            "Increasing the number of inference steps will produce more detailed videos, but it will slow down the process.<br>"
-                            "50 steps are recommended for most cases.<br>"
-                            "For the 5B model, 50 steps will take approximately 350 seconds.")
+                gr.Markdown(
+                    "**Optional Parameters** (default values are recommended)<br>"
+                    "Increasing the number of inference steps will produce more detailed videos, but it will slow down the process.<br>"
+                    "50 steps are recommended for most cases.<br>"
+                    "For the 5B model, 50 steps will take approximately 350 seconds."
+                )
                 with gr.Row():
                     num_inference_steps = gr.Number(label="Inference Steps", value=50)
                     guidance_scale = gr.Number(label="Guidance Scale", value=6.0)
@@ -206,7 +217,6 @@ with gr.Blocks() as demo:
     </table>
     """)
 
-
     def generate(prompt, num_inference_steps, guidance_scale, model_choice, progress=gr.Progress(track_tqdm=True)):
         tensor = infer(prompt, num_inference_steps, guidance_scale, progress=progress)
         video_path = save_video(tensor)
@@ -216,22 +226,16 @@ with gr.Blocks() as demo:
 
         return video_path, video_update, gif_update
 
-
     def enhance_prompt_func(prompt):
         return convert_prompt(prompt, retry_times=1)
-
 
     generate_button.click(
         generate,
         inputs=[prompt, num_inference_steps, guidance_scale],
-        outputs=[video_output, download_video_button, download_gif_button]
+        outputs=[video_output, download_video_button, download_gif_button],
     )
 
-    enhance_button.click(
-        enhance_prompt_func,
-        inputs=[prompt],
-        outputs=[prompt]
-    )
+    enhance_button.click(enhance_prompt_func, inputs=[prompt], outputs=[prompt])
 
 if __name__ == "__main__":
     demo.launch()

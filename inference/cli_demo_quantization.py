@@ -1,36 +1,56 @@
 """
-This script demonstrates how to generate a video from a text prompt using CogVideoX with 🤗Huggingface Diffusers Pipeline.
+This script demonstrates how to generate a video from a text prompt using CogVideoX with quantization.
 
 Note:
-    This script requires the `diffusers>=0.30.1` and `torchao>=0.4.0` library to be installed.
 
-Run the script:
-    $ python cli_demo.py --prompt "A girl ridding a bike." --model_path THUDM/CogVideoX-2b
+Must install the `torchao`，`torch`,`diffusers`,`accelerate` library FROM SOURCE to use the quantization feature.
+Only NVIDIA GPUs like H100 or higher are supported om FP-8 quantization.
 
-In this script, we have only provided the script for testing and inference in INT8 for the entire process
-(including T5 Encoder, CogVideoX Transformer, VAE).
-You can use other functionalities provided by torchao to convert to other precisions.
-Please note that INT4 is not supported.
+ALL quantization schemes must using with NVIDIA GPUs.
+
+# Run the script:
+
+python cli_demo_quantization.py --prompt "A girl riding a bike." --model_path THUDM/CogVideoX-2b --quantization_scheme fp8 --dtype float16
+python cli_demo_quantization.py --prompt "A girl riding a bike." --model_path THUDM/CogVideoX-5b --quantization_scheme fp8 --dtype bfloat16
+
 """
-import argparse
 
+import argparse
+import os
 import torch
-from diffusers import AutoencoderKLCogVideoX, CogVideoXTransformer3DModel, CogVideoXPipeline
+import torch._dynamo
+from diffusers import AutoencoderKLCogVideoX, CogVideoXTransformer3DModel, CogVideoXPipeline, CogVideoXDPMScheduler
 from diffusers.utils import export_to_video
 from transformers import T5EncoderModel
-
-# Make sure to install torchao>=0.4.0
 from torchao.quantization import quantize_, int8_weight_only
+from torchao.float8.inference import ActivationCasting, QuantConfig, quantize_to_float8
+
+os.environ["TORCH_LOGS"] = "+dynamo,output_code,graph_breaks,recompiles"
+torch._dynamo.config.suppress_errors = True
+torch.set_float32_matmul_precision("high")
+torch._inductor.config.conv_1x1_as_mm = True
+torch._inductor.config.coordinate_descent_tuning = True
+torch._inductor.config.epilogue_fusion = False
+torch._inductor.config.coordinate_descent_check_all_directions = True
+
+
+def quantize_model(part, quantization_scheme):
+    if quantization_scheme == "int8":
+        quantize_(part, int8_weight_only())
+    elif quantization_scheme == "fp8":
+        quantize_to_float8(part, QuantConfig(ActivationCasting.DYNAMIC))
+    return part
 
 
 def generate_video(
-        prompt: str,
-        model_path: str,
-        output_path: str = "./output.mp4",
-        num_inference_steps: int = 50,
-        guidance_scale: float = 6.0,
-        num_videos_per_prompt: int = 1,
-        dtype: torch.dtype = torch.bfloat16,
+    prompt: str,
+    model_path: str,
+    output_path: str = "./output.mp4",
+    num_inference_steps: int = 50,
+    guidance_scale: float = 6.0,
+    num_videos_per_prompt: int = 1,
+    quantization_scheme: str = "fp8",
+    dtype: torch.dtype = torch.bfloat16,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -42,24 +62,28 @@ def generate_video(
     - num_inference_steps (int): Number of steps for the inference process. More steps can result in better quality.
     - guidance_scale (float): The scale for classifier-free guidance. Higher values can lead to better alignment with the prompt.
     - num_videos_per_prompt (int): Number of videos to generate per prompt.
+    - quantization_scheme (str): The quantization scheme to use ('int8', 'fp8').
     - dtype (torch.dtype): The data type for computation (default is torch.bfloat16).
-
     """
 
     text_encoder = T5EncoderModel.from_pretrained(model_path, subfolder="text_encoder", torch_dtype=dtype)
-    quantize_(text_encoder, int8_weight_only())
-    transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer",
-                                                              torch_dtype=dtype)
-    quantize_(transformer, int8_weight_only())
+    text_encoder = quantize_model(part=text_encoder, quantization_scheme=quantization_scheme)
+    transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer", torch_dtype=dtype)
+    transformer = quantize_model(part=transformer, quantization_scheme=quantization_scheme)
     vae = AutoencoderKLCogVideoX.from_pretrained(model_path, subfolder="vae", torch_dtype=dtype)
-    quantize_(vae, int8_weight_only())
+    vae = quantize_model(part=vae, quantization_scheme=quantization_scheme)
     pipe = CogVideoXPipeline.from_pretrained(
         model_path,
         text_encoder=text_encoder,
         transformer=transformer,
         vae=vae,
         torch_dtype=dtype,
-    )
+    ).to("cuda")
+    pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+
+    # Using with compile will run faster. First time infer will cost ~30min to compile.
+    # pipe.transformer.to(memory_format=torch.channels_last)
+    # for FP8 should remove  pipe.enable_model_cpu_offload()
     pipe.enable_model_cpu_offload()
     pipe.vae.enable_tiling()
     video = pipe(
@@ -67,8 +91,9 @@ def generate_video(
         num_videos_per_prompt=num_videos_per_prompt,
         num_inference_steps=num_inference_steps,
         num_frames=49,
+        use_dynamic_cfg=True,  ## This id used for DPM Sechduler, for DDIM scheduler, it should be False
         guidance_scale=guidance_scale,
-        generator=torch.Generator().manual_seed(42),
+        generator=torch.Generator(device="cuda").manual_seed(42),
     ).frames[0]
 
     export_to_video(video, output_path, fps=8)
@@ -89,7 +114,14 @@ if __name__ == "__main__":
     parser.add_argument("--guidance_scale", type=float, default=6.0, help="The scale for classifier-free guidance")
     parser.add_argument("--num_videos_per_prompt", type=int, default=1, help="Number of videos to generate per prompt")
     parser.add_argument(
-        "--dtype", type=str, default="bfloat16", help="The data type for computation (e.g., 'float16' or 'bfloat16')"
+        "--dtype", type=str, default="bfloat16", help="The data type for computation (e.g., 'float16', 'bfloat16')"
+    )
+    parser.add_argument(
+        "--quantization_scheme",
+        type=str,
+        default="bf16",
+        choices=["int8", "fp8"],
+        help="The quantization scheme to use (int8, fp8)",
     )
 
     args = parser.parse_args()
@@ -101,5 +133,6 @@ if __name__ == "__main__":
         num_inference_steps=args.num_inference_steps,
         guidance_scale=args.guidance_scale,
         num_videos_per_prompt=args.num_videos_per_prompt,
+        quantization_scheme=args.quantization_scheme,
         dtype=dtype,
     )

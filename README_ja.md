@@ -8,10 +8,10 @@
 <img src=resources/logo.svg width="50%"/>
 </div>
 <p align="center">
-🤗 <a href="https://huggingface.co/spaces/THUDM/CogVideoX" target="_blank">CogVideoX Huggingface Space</a> で体験
+<a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> または <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a> で CogVideoX-5B モデルをオンラインで体験してください
 </p>
 <p align="center">
-📚 <a href="https://arxiv.org/abs/2408.06072" target="_blank">論文</a> をチェック
+📚 <a href="https://arxiv.org/abs/2408.06072" target="_blank">論文</a>と<a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">使用ドキュメント</a>を表示します。
 </p>
 <p align="center">
     👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> に参加
@@ -22,7 +22,10 @@
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
+- 🔥🔥 **ニュース**: ```2024/8/27```: CogVideoXシリーズのより大きなモデル**CogVideoX-5B**をオープンソース化しました。同時に、
+  **CogVideoX-2B**は **Apache 2.0** ライセンスに変更されます。モデルの推論性能を大幅に最適化し、推論のハードルを大きく下げました。これにより、
+  **CogVideoX-2B**は `GTX 1080TI` などの古いGPUで、**CogVideoX-5B**は `RTX 3060` などのデスクトップ向けGPUで実行できます。
+- 🔥**ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
   が生成したビデオの強化をサポートしました。より高い解像度とより高品質なビデオレンダリングを実現します。[チュートリアル](tools/venhancer/README_ja.md)
   に従って、ぜひお試しください。
 - 🔥**ニュース**: 2024/8/15: CogVideoX の依存関係である`SwissArmyTransformer`の依存が`0.4.12`
@@ -71,7 +74,6 @@
 
 [sat_demo](sat/README.md) の指示に従ってください:
 SATウェイトの推論コードと微調整コードが含まれています。CogVideoXモデル構造に基づいて改善することをお勧めします。革新的な研究者は、このコードを使用して迅速なスタッキングと開発を行うことができます。
-(推論には18GB、lora微調整には40GBが必要です)
 
 ### Diffusers
 
@@ -80,49 +82,152 @@ pip install -r requirements.txt
 ```
 
 次に [diffusers_demo](inference/cli_demo.py) を参照してください: 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
-(推論には24GBが必要で、微調整コードは開発中です)
 
-## CogVideoX-2B ギャラリー
+## Gallery
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="80%" controls autoplay></video>
-  <p>詳細に彫刻されたマストと帆を持つ木製の玩具船が、海の波を模倣した豪華な青いカーペットの上を滑らかに進んでいます。船体は濃い茶色に塗られ、小さな窓が付いています。カーペットは柔らかく、テクスチャーがあり、海洋の広がりを連想させる完璧な背景を提供します。船の周りにはさまざまな他の玩具や子供のアイテムがあり、遊び心のある環境を示唆しています。このシーンは、子供時代の無邪気さと想像力を捉えており、玩具船の旅は室内の幻想的な設定での無限の冒険を象徴しています。</p>
-</div>
+### CogVideoX-5B
+<table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
+  <tr>
+      <td>
+          <video src="https://github.com/user-attachments/assets/cf5953ea-96d3-48fd-9907-c4708752c714" width="100%" controls autoplay loop></video>
+      </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/fe0a78e6-b669-4800-8cf0-b5f9b5145b52" width="100%" controls autoplay loop></video>
+      </td>
+       <td>
+          <video src="https://github.com/user-attachments/assets/c182f606-8f8c-421d-b414-8487070fcfcb" width="100%" controls autoplay loop></video>
+     </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/7db2bbce-194d-434d-a605-350254b6c298" width="100%" controls autoplay loop></video>
+     </td>
+  </tr>
+  <tr>
+      <td>
+          <video src="https://github.com/user-attachments/assets/62b01046-8cab-44cc-bd45-4d965bb615ec" width="100%" controls autoplay loop></video>
+      </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/d78e552a-4b3f-4b81-ac3f-3898079554f6" width="100%" controls autoplay loop></video>
+      </td>
+       <td>
+          <video src="https://github.com/user-attachments/assets/30894f12-c741-44a2-9e6e-ddcacc231e5b" width="100%" controls autoplay loop></video>
+     </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/926575ca-7150-435b-a0ff-4900a963297b" width="100%" controls autoplay loop></video>
+     </td>
+  </tr>
+</table>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/9de41efd-d4d1-4095-aeda-246dd834e91d" width="80%" controls autoplay></video>
-  <p>カメラは、黒いルーフラックを備えた白いビンテージSUVの後ろを追いかけ、急な山道をスピードアップして進みます。タイヤからほこりが舞い上がり、日光がSUVに当たり、暖かい輝きを放ちます。山道は緩やかに曲がり、他の車両は見当たりません。道の両側には赤杉の木が立ち並び、緑のパッチが点在しています。車は後ろから見て、険しい地形を楽々と進んでいるように見えます。山道自体は急な丘と山に囲まれ、上空には青い空と薄い雲が広がっています。</p>
-</div>
+### CogVideoX-2B 
+<table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
+  <tr>
+      <td>
+          <video src="https://github.com/user-attachments/assets/ea3af39a-3160-4999-90ec-2f7863c5b0e9" width="100%" controls autoplay loop></video>
+      </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/9de41efd-d4d1-4095-aeda-246dd834e91d" width="100%" controls autoplay loop></video>
+      </td>
+       <td>
+          <video src="https://github.com/user-attachments/assets/941d6661-6a8d-4a1b-b912-59606f0b2841" width="100%" controls autoplay loop></video>
+     </td>
+      <td>
+          <video src="https://github.com/user-attachments/assets/938529c4-91ae-4f60-b96b-3c3947fa63cb" width="100%" controls autoplay loop></video>
+     </td>
+  </tr>
+</table>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/941d6661-6a8d-4a1b-b912-59606f0b2841" width="80%" controls autoplay></video>
-  <p>色とりどりのバンダナを巻いた、擦り切れたデニムジャケットを着たストリートアーティストが、広大なコンクリートの壁の前に立ち、スプレーペイント缶を持ち、斑点のある壁にカラフルな鳥をスプレーペイントしています。</p>
-</div>
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/938529c4-91ae-4f60-b96b-3c3947fa63cb" width="80%" controls autoplay></video>
-  <p>戦争で荒廃した都市の背景に、廃墟と崩れた壁が破壊の物語を語る中、若い少女の感動的なクローズアップがフレームに収められています。彼女の顔は灰で汚れており、周囲の混乱を静かに物語っています。彼女の目は悲しみと回復力の混じった輝きを放ち、紛争の荒廃によって無垢を失った世界の生の感情を捉えています。</p>
-</div>
+ギャラリーの対応するプロンプトワードを表示するには、[こちら](resources/galary_prompt.md)をクリックしてください
 
 ## モデル紹介
 
-CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源のオープンソース版ビデオ生成モデルです。
+CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオープンソース版動画生成モデルです。
+以下の表は、提供されている動画生成モデルに関する基本情報を示しています。
 
-以下の表は、現在提供しているビデオ生成モデルのリストと関連する基本情報を示しています:
+<table style="border-collapse: collapse; width: 100%;">
+  <tr>
+    <th style="text-align: center;">モデル名</th>
+    <th style="text-align: center;">CogVideoX-2B</th>
+    <th style="text-align: center;">CogVideoX-5B</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">モデル紹介</td>
+    <td style="text-align: center;">入門モデルで、互換性を重視。運用および二次開発のコストが低い。</td>
+    <td style="text-align: center;">動画生成品質が高く、視覚効果がより優れた大型モデル。</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">推論精度</td>
+    <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32, FP8*(E4M3, E5M2), INT8, INT4は非対応</td>
+    <td style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32, FP8*(E4M3, E5M2), INT8, INT4は非対応</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">単一GPUのメモリ消費量</td>
+    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers</b></td>
+    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers</b></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">複数GPUの推論メモリ消費量</td>
+    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b></td>
+    <td style="text-align: center;"><b>BF16: 15GB* using diffusers</b></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">推論速度<br>(Step = 50)</td>
+    <td style="text-align: center;">FP16: ~90* s</td>
+    <td style="text-align: center;">BF16: ~180* s</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">微調整精度</td>
+    <td style="text-align: center;"><b>FP16</b></td>
+    <td style="text-align: center;"><b>BF16</b></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">微調整時のメモリ消費量 (1GPUあたり)</td>
+    <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
+    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">プロンプト言語</td>
+    <td colspan="2" style="text-align: center;">英語*</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">プロンプトの長さ上限</td>
+    <td colspan="2" style="text-align: center;">226トークン</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">動画の長さ</td>
+    <td colspan="2" style="text-align: center;">6秒</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">フレームレート</td>
+    <td colspan="2" style="text-align: center;">8フレーム/秒</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">動画の解像度</td>
+    <td colspan="2" style="text-align: center;">720 * 480、他の解像度はサポートされていません（微調整も含む）</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">位置エンコード</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">ダウンロードリンク (Diffusers)</td>
+    <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
+    <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">ダウンロードリンク (SAT)</td>
+    <td colspan="2" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
+  </tr>
+</table>
 
-| モデル名                         | CogVideoX-2B                                                                                                                                                                                        | 
-|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| プロンプト言語                      | 英語                                                                                                                                                                                                  | 
-| 単一GPU推論 (FP16)               | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                                                                                      | 
-| 複数GPU推論 (FP16)               | 20GB minimum per GPU using diffusers                                                                                                                                                                |
-| 微調整に必要なGPUメモリ(bs=1)          | 40GB                                                                                                                                                                                                |
-| プロンプトの最大長                    | 226 トークン                                                                                                                                                                                            |
-| ビデオの長さ                       | 6秒                                                                                                                                                                                                  | 
-| フレームレート                      | 8フレーム                                                                                                                                                                                               | 
-| 解像度                          | 720 * 480                                                                                                                                                                                           |
-| 量子化推論                        | サポートされていません                                                                                                                                                                                         |          
-| ダウンロードリンク (HF diffusers モデル) | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
-| ダウンロードリンク (SAT モデル)          | [SAT](./sat/README.md)                                                                                                                                                                              |
+**データ解説**
+
++ diffusersライブラリを使用したテストでは、`enable_model_cpu_offload()`オプションと`pipe.vae.enable_tiling()`最適化が有効になっています。この手法は、**NVIDIA A100 / H100**以外のデバイスでの実際のメモリ/メモリ消費量についてはテストされていません。通常、この手法はすべての**NVIDIA Ampereアーキテクチャ**以上のデバイスに適合します。最適化を無効にすると、メモリ消費量が倍増し、ピークメモリは表の3倍程度になります。
++ 複数GPUで推論する際は、`enable_model_cpu_offload()`最適化を無効にする必要があります。
++ INT8モデルを使用すると推論速度が低下します。これは、メモリが少ないGPUで正常に推論を行い、動画品質の損失を最小限に抑えるためです。そのため、推論速度が大幅に低下します。
++ 2Bモデルは`FP16`精度でトレーニングされ、5Bモデルは`BF16`精度でトレーニングされています。推奨される精度で推論を行うことをお勧めします。
++ `FP8`精度は`NVIDIA H100`以上のデバイスでのみ使用でき、`torch`、`torchao`、`diffusers`、`accelerate`のPythonパッケージをソースコードからインストールする必要があります。`CUDA 12.4`の使用を推奨します。
++ 推論速度のテストも上記のメモリ最適化手法を使用して行いました。メモリ最適化を行わない場合、推論速度が約10％向上します。量子化をサポートするのは`diffusers`バージョンのモデルのみです。
++ モデルは英語入力のみをサポートしており、他の言語は大モデルでのポストプロセスで英語に翻訳する必要があります。
 
 ## 友好的リンク
 
@@ -132,23 +237,25 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
   強力で包括的な分散推論フレームワークであり、ワンクリックで独自のモデルや最新のオープンソースモデルを簡単にデプロイできます。
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSysは、使いやすく高性能なビデオ生成インフラを提供し、最新のモデルや技術を継続的に統合しています。
 
-
 ## プロジェクト構造
 
 このオープンソースリポジトリは、**CogVideoX** オープンソースモデルの基本的な使用方法と微調整の例を迅速に開始するためのガイドです。
 
 ### 推論
 
-+ [diffusers_demo](inference/cli_demo.py): 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
++ [cli_demo](inference/cli_demo.py): 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
++ [cli_demo_quantization](inference/cli_demo_quantization.py):
+  量子化モデル推論コードで、低メモリのデバイスでも実行可能です。また、このコードを変更して、FP8 精度の CogVideoX モデルの実行をサポートすることもできます。
 + [diffusers_vae_demo](inference/cli_vae_demo.py): VAE推論コードの実行には現在71GBのメモリが必要ですが、将来的には最適化される予定です。
++ [space demo](inference/gradio_composite_demo): Huggingface Spaceと同じGUIコードで、フレーム補間や超解像ツールが組み込まれています。
 + [convert_demo](inference/convert_demo.py):
-  ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
+  ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM-4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
 + [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2B モデルを使用して動画を生成する方法を示す、シンプルな
   Gradio Web UI デモです。私たちの Huggingface Space と同様に、このスクリプトを使用して Web デモを起動することができます。
 
 ```shell
 cd inference
-# For Linux and Windows users (and macOS with Intel??)
+# For Linux and Windows users
 python gradio_web_demo.py # humans mode
 
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
@@ -177,26 +284,6 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
 
 + [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): SATモデルのウェイトをHuggingfaceモデルのウェイトに変換します。
 + [caption_demo](tools/caption): キャプションツール、ビデオを理解し、テキストで出力するモデル。
-
-## プロジェクト計画
-
-- [x] CogVideoXモデルのオープンソース化
-    - [x] CogVideoXで使用される3D Causal VAEのオープンソース化
-    - [x] CogVideoXモデルの推論例 (CLI / Webデモ)
-    - [x] CogVideoXオンライン体験デモ (Huggingface Space)
-    - [x] CogVideoXオープンソースモデルAPIインターフェースの例 (Huggingface)
-    - [x] CogVideoXモデルの微調整例 (SAT)
-    - [ ] CogVideoXモデルの微調整例 (Huggingface / SAT)
-    - [ ] CogVideoX-Proのオープンソース化 (CogVideoX-2Bスイートに適応)
-    - [x] CogVideoX技術レポートの公開
-
-私たちはあなたの貢献を歓迎します。詳細については[こちら](resources/contribute.md)をクリックしてください。
-
-## モデルライセンス
-
-このリポジトリのコードは [Apache 2.0 ライセンス](LICENSE) の下で公開されています。
-
-モデルのウェイトと実装コードは [CogVideoX LICENSE](MODEL_LICENSE) の下で公開されています。
 
 ## CogVideo(ICLR'23)
 
@@ -238,19 +325,28 @@ CogVideoのデモは [https://models.aminer.cn/cogvideo](https://models.aminer.c
 
 ## オープンソースプロジェクト計画
 
-- [x] CogVideoX モデルのオープンソース化
-    - [x] CogVideoX モデル推論サンプル (CLI / Web デモ)
-    - [x] CogVideoX オンライン体験サンプル (Huggingface Space)
-    - [x] CogVideoX オープンソースAPIインターフェースサンプル (Huggingface)
-    - [x] CogVideoX モデルの微調整サンプル (SAT)
-    - [ ] CogVideoX モデルの微調整サンプル (Huggingface / SAT)
-    - [ ] CogVideoX-Pro オープンソース化 (CogVideoX-2B スイートに対応)
-    - [X] CogVideoX 技術レポート公開
+- [x] CogVideoX モデルオープンソース化
+    - [x] CogVideoX モデル推論例 (CLI / Web デモ)
+    - [x] CogVideoX オンライン体験例 (Huggingface Space)
+    - [x] CogVideoX オープンソースモデルAPIインターフェース例 (Huggingface)
+    - [x] CogVideoX モデル微調整例 (SAT)
+    - [ ] CogVideoX モデル微調整例 (Huggingface Diffusers)
+    - [X] CogVideoX-5B オープンソース化 (CogVideoX-2B スイートに適応)
+    - [X] CogVideoX 技術報告公開
+    - [X] CogVideoX 技術解説ビデオ
+- [ ] CogVideoX 周辺ツール
+    - [X] 基本的なビデオ超解像 / フレーム補間スイート
+    - [ ] 推論フレームワーク適応
+    - [ ] ComfyUI 完全エコシステムツール
 
-私たちは皆さんの貢献を歓迎しています。詳しくは[こちら](resources/contribute_zh.md)をご覧ください。
+あなたの貢献をお待ちしています！詳細は[こちら](resources/contribute_zh.md)をクリックしてください。
 
-## モデルライセンス
+## ライセンス契約
 
-本リポジトリのコードは [Apache 2.0 ライセンス](LICENSE) の下で公開されています。
+このリポジトリのコードは [Apache 2.0 License](LICENSE) の下で公開されています。
 
-本モデルのウェイトと実装コードは [CogVideoX LICENSE](MODEL_LICENSE) ライセンスに基づいて公開されています。
+CogVideoX-2B モデル (対応するTransformersモジュールやVAEモジュールを含む) は
+[Apache 2.0 License](LICENSE) の下で公開されています。
+
+CogVideoX-5B モデル (Transformersモジュール) は
+[CogVideoX LICENSE](https://huggingface.co/THUDM/CogVideoX-5b/blob/main/LICENSE) の下で公開されています。

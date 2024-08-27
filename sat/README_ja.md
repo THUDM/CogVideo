@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 ### 2. モデルウェイトをダウンロードします
 
-まず、SAT ミラーにアクセスして依存関係をダウンロードします。
+まず、SAT ミラーに移動してモデルの重みをダウンロードします。 CogVideoX-2B モデルの場合は、次のようにダウンロードしてください。
 
 ```shell
 mkdir CogVideoX-2b-sat
@@ -32,12 +32,23 @@ mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
 
-次に解凍し、モデル構造は次のようになります：
+CogVideoX-5B モデルの場合は、次のようにダウンロードしてください (VAE ファイルは同じです)。
+
+```shell
+mkdir CogVideoX-5b-sat
+cd CogVideoX-5b-sat
+wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
+mv 'index.html?dl=1' vae.zip
+unzip vae.zip
+```
+
+次に、[Tsinghua Cloud Disk](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list) に移動してモデルをダウンロードし、解凍する必要があります。
+整理すると、2 つのモデルの完全なモデル構造は次のようになります。 モデル構造は次のようになります：
 
 ```
 .
 ├── transformer
-│   ├── 1000
+│   ├── 1000 (or 1)
 │   │   └── mp_rank_00_model_states.pt
 │   └── latest
 └── vae

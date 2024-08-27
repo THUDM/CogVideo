@@ -18,8 +18,7 @@ pip install -r requirements.txt
 
 ### 2. 下载模型权重
 
-首先，前往 SAT 镜像下载依赖。
-
+首先，前往 SAT 镜像下载模型权重。对于 CogVideoX-2B 模型，请按照如下方式下载:
 ```shell
 mkdir CogVideoX-2b-sat
 cd CogVideoX-2b-sat
@@ -30,13 +29,21 @@ wget https://cloud.tsinghua.edu.cn/f/556a3e1329e74f1bac45/?dl=1
 mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
-
-然后，解压文件，模型结构应该如下
+对于 CogVideoX-5B 模型，请按照如下方式下载(VAE文件相同):
+```shell
+mkdir CogVideoX-5b-sat
+cd CogVideoX-5b-sat
+wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
+mv 'index.html?dl=1' vae.zip
+unzip vae.zip
+```
+然后，您需要前往[清华云盘](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list)下载我们的模型，并进行解压。
+整理之后， 两个模型的完整模型结构应该如下:
 
 ```
 .
 ├── transformer
-│   ├── 1000
+│   ├── 1000 (or 1)
 │   │   └── mp_rank_00_model_states.pt
 │   └── latest
 └── vae
