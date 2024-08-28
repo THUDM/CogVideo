@@ -17,14 +17,16 @@
     👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> に参加
 </p>
 <p align="center">
-📍 <a href="https://chatglm.cn/video?fr=osm_cogvideox">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験
+📍 <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験
 </p>
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/8/27```: CogVideoXシリーズのより大きなモデル**CogVideoX-5B**をオープンソース化しました。同時に、
-  **CogVideoX-2B**は **Apache 2.0** ライセンスに変更されます。モデルの推論性能を大幅に最適化し、推論のハードルを大きく下げました。これにより、
-  **CogVideoX-2B**は `GTX 1080TI` などの古いGPUで、**CogVideoX-5B**は `RTX 3060` などのデスクトップ向けGPUで実行できます。
+- 🔥🔥 **ニュース**: ```2024/8/27```: **CogVideoX-2B** モデルのオープンソースライセンスが **Apache 2.0 ライセンス**
+  に変更されました。
+- 🔥🔥 **ニュース**: ```2024/8/27```: CogVideoX シリーズのより大きなモデル **CogVideoX-5B** をオープンソース化しました。
+  モデルの推論性能を大幅に最適化し、推論のハードルを大幅に下げました。`GTX 1080TI` などの旧型GPUで **CogVideoX-2B**
+  を、`RTX 3060` などのミドル
 - 🔥**ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
   が生成したビデオの強化をサポートしました。より高い解像度とより高品質なビデオレンダリングを実現します。[チュートリアル](tools/venhancer/README_ja.md)
   に従って、ぜひお試しください。
@@ -86,6 +88,7 @@ pip install -r requirements.txt
 ## Gallery
 
 ### CogVideoX-5B
+
 <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
   <tr>
       <td>
@@ -117,7 +120,8 @@ pip install -r requirements.txt
   </tr>
 </table>
 
-### CogVideoX-2B 
+### CogVideoX-2B
+
 <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
   <tr>
       <td>
@@ -139,7 +143,7 @@ pip install -r requirements.txt
 
 ## モデル紹介
 
-CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオープンソース版動画生成モデルです。
+CogVideoXは[清影](https://chatglm.cn/video?lang=en?fr=osm_cogvideo) 同源のオープンソース版動画生成モデルです。
 以下の表は、提供されている動画生成モデルに関する基本情報を示しています。
 
 <table style="border-collapse: collapse; width: 100%;">
@@ -160,8 +164,8 @@ CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオー�
   </tr>
   <tr>
     <td style="text-align: center;">単一GPUのメモリ消費量</td>
-    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers</b></td>
-    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers</b></td>
+    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers with torchao</b></td>
+    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers with torchao</b></td>
   </tr>
   <tr>
     <td style="text-align: center;">複数GPUの推論メモリ消費量</td>
@@ -221,12 +225,24 @@ CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオー�
 
 **データ解説**
 
-+ diffusersライブラリを使用したテストでは、`enable_model_cpu_offload()`オプションと`pipe.vae.enable_tiling()`最適化が有効になっています。この手法は、**NVIDIA A100 / H100**以外のデバイスでの実際のメモリ/メモリ消費量についてはテストされていません。通常、この手法はすべての**NVIDIA Ampereアーキテクチャ**以上のデバイスに適合します。最適化を無効にすると、メモリ消費量が倍増し、ピークメモリは表の3倍程度になります。
++ diffusersライブラリを使用したテストでは、`enable_model_cpu_offload()`オプションと`pipe.vae.enable_tiling()`
+  最適化が有効になっています。この手法は、**NVIDIA A100 / H100**以外のデバイスでの実際のメモリ/メモリ消費量についてはテストされていません。通常、この手法はすべての
+  **NVIDIA Ampereアーキテクチャ**以上のデバイスに適合します。最適化を無効にすると、メモリ消費量が倍増し、ピークメモリは表の3倍程度になります。
 + 複数GPUで推論する際は、`enable_model_cpu_offload()`最適化を無効にする必要があります。
 + INT8モデルを使用すると推論速度が低下します。これは、メモリが少ないGPUで正常に推論を行い、動画品質の損失を最小限に抑えるためです。そのため、推論速度が大幅に低下します。
-+ 2Bモデルは`FP16`精度でトレーニングされ、5Bモデルは`BF16`精度でトレーニングされています。推奨される精度で推論を行うことをお勧めします。
-+ `FP8`精度は`NVIDIA H100`以上のデバイスでのみ使用でき、`torch`、`torchao`、`diffusers`、`accelerate`のPythonパッケージをソースコードからインストールする必要があります。`CUDA 12.4`の使用を推奨します。
-+ 推論速度のテストも上記のメモリ最適化手法を使用して行いました。メモリ最適化を行わない場合、推論速度が約10％向上します。量子化をサポートするのは`diffusers`バージョンのモデルのみです。
+- [PytorchAO](https://github.com/pytorch/ao) と [Optimum-quanto](https://github.com/huggingface/optimum-quanto/) は、Text
+  Encoder、Transformer、VAE モジュールを量子化して CogVideoX のメモリ要件を下げるために使用できます。これにより、無料の T4
+  Colab や小さな VRAM GPU でもモデルを実行できるようになります！また、TorchAO の量子化は `torch.compile`
+  と完全に互換性があり、推論速度を大幅に向上させることができます。`NVIDIA H100` 以上のデバイスでは `FP8`
+  精度が必須であり、`torch`、`torchao`、`diffusers`、`accelerate` の Python
+  パッケージのソースインストールが必要です。`CUDA 12.4` の使用を推奨します。
++ `FP8`精度は`NVIDIA H100`以上のデバイスでのみ使用でき、`torch`、`torchao`、`diffusers`、`accelerate`
+  のPythonパッケージをソースコードからインストールする必要があります。`CUDA 12.4`の使用を推奨します。
++
+
+推論速度のテストも上記のメモリ最適化手法を使用して行いました。メモリ最適化を行わない場合、推論速度が約10％向上します。量子化をサポートするのは`diffusers`
+バージョンのモデルのみです。
+
 + モデルは英語入力のみをサポートしており、他の言語は大モデルでのポストプロセスで英語に翻訳する必要があります。
 
 ## 友好的リンク
@@ -245,32 +261,26 @@ CogVideoXは[清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源のオー�
 
 + [cli_demo](inference/cli_demo.py): 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
 + [cli_demo_quantization](inference/cli_demo_quantization.py):
-  量子化モデル推論コードで、低メモリのデバイスでも実行可能です。また、このコードを変更して、FP8 精度の CogVideoX モデルの実行をサポートすることもできます。
+  量子化モデル推論コードで、低メモリのデバイスでも実行可能です。また、このコードを変更して、FP8 精度の CogVideoX
+  モデルの実行をサポートすることもできます。
 + [diffusers_vae_demo](inference/cli_vae_demo.py): VAE推論コードの実行には現在71GBのメモリが必要ですが、将来的には最適化される予定です。
 + [space demo](inference/gradio_composite_demo): Huggingface Spaceと同じGUIコードで、フレーム補間や超解像ツールが組み込まれています。
 + [convert_demo](inference/convert_demo.py):
   ユーザー入力をCogVideoXに適した形式に変換する方法。CogVideoXは長いキャプションでトレーニングされているため、入力テキストをLLMを使用してトレーニング分布と一致させる必要があります。デフォルトではGLM-4を使用しますが、GPT、Geminiなどの他のLLMに置き換えることもできます。
-+ [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2B モデルを使用して動画を生成する方法を示す、シンプルな
++ [gradio_web_demo](inference/gradio_web_demo.py): CogVideoX-2B / 5B モデルを使用して動画を生成する方法を示す、シンプルな
   Gradio Web UI デモです。私たちの Huggingface Space と同様に、このスクリプトを使用して Web デモを起動することができます。
 
 ```shell
 cd inference
 # For Linux and Windows users
-python gradio_web_demo.py # humans mode
+python gradio_web_demo.py
 
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
-PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
+PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py
 ```
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
-</div>
-
-+ [streamlit_web_demo](inference/streamlit_web_demo.py): CogVideoX-2Bモデルを使用してビデオを生成する方法を示すシンプルなstreamlit
-  Webアプリケーション。
-
-<div style="text-align: center;">
-    <img src="resources/web_demo.png" style="width: 100%; height: auto;" />
 </div>
 
 ### sat

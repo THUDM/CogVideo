@@ -23,9 +23,11 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2024/8/27```:  我们开源 CogVideoX 系列更大的模型 **CogVideoX-5B**。同时 **CogVideoX-2B** 将修改为
-  **Apache 2.0 协议**。我们大幅度优化了模型的推理性能，推理门槛大幅降低，您可以在 `GTX 1080TI` 等早期显卡运行 **CogVideoX-2B**
-  ，在 `RTX 3060`等桌面端甜品卡运行 **CogVideoX-5B** 模型。
+- 🔥🔥 **News**: ```2024/8/27```: **CogVideoX-2B** 模型开源协议已经修改为**Apache 2.0 协议**。
+- 🔥🔥 **News**: ```2024/8/27```:  我们开源 CogVideoX 系列更大的模型 **CogVideoX-5B**
+  。我们大幅度优化了模型的推理性能，推理门槛大幅降低，您可以在 `GTX 1080TI` 等早期显卡运行 **CogVideoX-2B**，在 `RTX 3060`
+  等桌面端甜品卡运行 **CogVideoX-5B** 模型。 请严格按照[要求](requirements.txt)
+  更新安装依赖，推理代码请查看 [cli_demo](inference/cli_demo.py)。
 - 🔥**News**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) 已经支持对 CogVideoX
   生成的视频进行增强，实现更高分辨率，更高质量的视频渲染。欢迎大家按照[教程](tools/venhancer/README_zh.md)体验使用。
 - 🔥**News**: ```2024/8/15```: CogVideoX 依赖中`SwissArmyTransformer`依赖升级到`0.4.12`,
@@ -83,6 +85,7 @@ pip install -r requirements.txt
 ## 视频作品
 
 ### CogVideoX-5B
+
 <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
   <tr>
       <td>
@@ -114,7 +117,8 @@ pip install -r requirements.txt
   </tr>
 </table>
 
-### CogVideoX-2B 
+### CogVideoX-2B
+
 <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
   <tr>
       <td>
@@ -158,8 +162,8 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
   </tr>
   <tr>
     <td style="text-align: center;">单GPU显存消耗<br></td>
-    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers</b></td>
-    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers</b></td>
+    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers with torchao</b></td>
+    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers with torchao</b></td>
   </tr>
   <tr>
     <td style="text-align: center;">多GPU推理显存消耗</td>
@@ -225,7 +229,11 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 + 多GPU推理时，需要关闭 `enable_model_cpu_offload()` 优化。
 + 使用 INT8 模型会导致推理速度降低，此举是为了满足显存较低的显卡能正常推理并保持较少的视频质量损失，推理速度大幅降低。
 + 2B 模型采用 `FP16` 精度训练， 5B模型采用 `BF16` 精度训练。我们推荐使用模型训练的精度进行推理。
-+ `FP8` 精度必须在`NVIDIA H100` 及以上的设备上使用，需要源代码安装`torch`,`torchao`,`diffusers`,`accelerate` python包，推荐使用 `CUDA 12.4`。
+- [PytorchAO](https://github.com/pytorch/ao) 和 [Optimum-quanto](https://github.com/huggingface/optimum-quanto/)
+  可以用于量化文本编码器、Transformer 和 VAE 模块，以降低 CogVideoX 的内存需求。这使得在免费的 T4 Colab 或更小显存的 GPU
+  上运行模型成为可能！同样值得注意的是，TorchAO 量化完全兼容 `torch.compile`，这可以显著提高推理速度。在 `NVIDIA H100`
+  及以上设备上必须使用 `FP8` 精度，这需要源码安装 `torch`、`torchao`、`diffusers` 和 `accelerate` Python
+  包。建议使用 `CUDA 12.4`。
 + 推理速度测试同样采用了上述显存优化方案，不采用显存优化的情况下，推理速度提升约10%。 只有`diffusers`版本模型支持量化。
 + 模型仅支持英语输入，其他语言可以通过大模型润色时翻译为英语。
 
@@ -244,31 +252,27 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 
 + [cli_demo](inference/cli_demo.py): 更详细的推理代码讲解，常见参数的意义，在这里都会提及。
 + [cli_demo_quantization](inference/cli_demo_quantization.py):
-  量化模型推理代码，可以在显存较低的设备上运行，也可以基于此代码修改，以支持运行FP8等精度的CogVideoX模型。请注意，FP8 仅测试通过，且必须将 `torch-nightly`,`torchao`源代码安装，不建议在生产环境中使用。
+  量化模型推理代码，可以在显存较低的设备上运行，也可以基于此代码修改，以支持运行FP8等精度的CogVideoX模型。请注意，FP8
+  仅测试通过，且必须将 `torch-nightly`,`torchao`源代码安装，不建议在生产环境中使用。
 + [diffusers_vae_demo](inference/cli_vae_demo.py): 单独执行VAE的推理代码。
 + [space demo](inference/gradio_composite_demo): Huggingface Space同款的 GUI 代码，植入了插帧，超分工具。
 + [convert_demo](inference/convert_demo.py): 如何将用户的输入转换成适合
   CogVideoX的长输入。因为CogVideoX是在长文本上训练的，所以我们需要把输入文本的分布通过LLM转换为和训练一致的长文本。脚本中默认使用GLM-4，也可以替换为GPT、Gemini等任意大语言模型。
-+ [gradio_web_demo](inference/gradio_web_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B 模型生成视频。 与我们的
++ [gradio_web_demo](inference/gradio_web_demo.py): 一个简单的gradio网页应用，展示如何使用 CogVideoX-2B / 5B 模型生成视频。
+  与我们的
   Huggingface Space 类似，你可以使用此脚本运行一个简单的网页应用，用于生成视频。
 
 ```shell
 cd inference
 # For Linux and Windows users
-python gradio_web_demo.py # humans mode
+python gradio_web_demo.py
 
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
-PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
+PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py
 ```
 
 <div style="text-align: center;">
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
-</div>
-
-+ [streamlit_web_demo](inference/streamlit_web_demo.py): 一个简单的streamlit网页应用，展示如何使用 CogVideoX-2B 模型生成视频。
-
-<div style="text-align: center;">
-    <img src="resources/web_demo.png" style="width: 100%; height: auto;" />
 </div>
 
 ### sat
