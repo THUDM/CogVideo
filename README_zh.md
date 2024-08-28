@@ -1,6 +1,6 @@
 # CogVideo && CogVideoX
 
-[Read this in English.](./README_zh)
+[Read this in English](./README_zh.md)
 
 [日本語で読む](./README_ja.md)
 
