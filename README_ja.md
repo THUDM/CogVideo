@@ -22,9 +22,12 @@
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/8/27```: **CogVideoX-2B** モデルのオープンソースライセンスが **Apache 2.0 ライセンス**
+- 🔥🔥 **ニュース**: ```2024/8/29```: `pipe.enable_sequential_cpu_offload()` と `pipe.vae.enable_slicing()`
+  をCogVideoX-5Bの推論コードに追加することで、VRAM使用量を`5GB`
+  まで削減できます。更新された[cli_demo](inference/cli_demo.py)をご覧ください。
+- 🔥**ニュース**: ```2024/8/27```: **CogVideoX-2B** モデルのオープンソースライセンスが **Apache 2.0 ライセンス**
   に変更されました。
-- 🔥🔥 **ニュース**: ```2024/8/27```: CogVideoX シリーズのより大きなモデル **CogVideoX-5B** をオープンソース化しました。
+- 🔥**ニュース**: ```2024/8/27```: CogVideoX シリーズのより大きなモデル **CogVideoX-5B** をオープンソース化しました。
   モデルの推論性能を大幅に最適化し、推論のハードルを大幅に下げました。`GTX 1080TI` などの旧型GPUで **CogVideoX-2B**
   を、`RTX 3060` などのミドル
 - 🔥**ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
@@ -163,9 +166,9 @@ CogVideoXは[清影](https://chatglm.cn/video?lang=en?fr=osm_cogvideo) 同源の
     <td style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32, FP8*(E4M3, E5M2), INT8, INT4は非対応</td>
   </tr>
   <tr>
-    <td style="text-align: center;">単一GPUのメモリ消費量</td>
-    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers with torchao</b></td>
-    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers with torchao</b></td>
+    <td style="text-align: center;">シングルGPU VRAM消費量<br></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers BF16: 4GBから*</b><br><b>diffusers INT8(torchao): 3.6GBから*</b></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16: 5GBから*</b><br><b>diffusers INT8(torchao): 4.4GBから*</b></td>
   </tr>
   <tr>
     <td style="text-align: center;">複数GPUの推論メモリ消費量</td>
@@ -225,25 +228,31 @@ CogVideoXは[清影](https://chatglm.cn/video?lang=en?fr=osm_cogvideo) 同源の
 
 **データ解説**
 
-+ diffusersライブラリを使用したテストでは、`enable_model_cpu_offload()`オプションと`pipe.vae.enable_tiling()`
-  最適化が有効になっています。この手法は、**NVIDIA A100 / H100**以外のデバイスでの実際のメモリ/メモリ消費量についてはテストされていません。通常、この手法はすべての
-  **NVIDIA Ampereアーキテクチャ**以上のデバイスに適合します。最適化を無効にすると、メモリ消費量が倍増し、ピークメモリは表の3倍程度になります。
-+ 複数GPUで推論する際は、`enable_model_cpu_offload()`最適化を無効にする必要があります。
-+ INT8モデルを使用すると推論速度が低下します。これは、メモリが少ないGPUで正常に推論を行い、動画品質の損失を最小限に抑えるためです。そのため、推論速度が大幅に低下します。
-- [PytorchAO](https://github.com/pytorch/ao) と [Optimum-quanto](https://github.com/huggingface/optimum-quanto/) は、Text
-  Encoder、Transformer、VAE モジュールを量子化して CogVideoX のメモリ要件を下げるために使用できます。これにより、無料の T4
-  Colab や小さな VRAM GPU でもモデルを実行できるようになります！また、TorchAO の量子化は `torch.compile`
++ `diffusers` ライブラリを使用してテストする際、`diffusers` ライブラリに付属するすべての最適化を有効にしました。このソリューションは、
+  **NVIDIA A100 / H100** 以外のデバイスでの実際のVRAM/メモリ使用量についてはテストされていません。一般的に、このソリューションは
+  **NVIDIA Ampereアーキテクチャ**
+  以上のすべてのデバイスに適応できます。最適化を無効にすると、VRAM使用量が大幅に増加し、表の約3倍のピークVRAMを使用しますが、速度は3-4倍向上します。以下の最適化の一部を選択的に無効にすることができます:
+
+```
+pipe.enable_model_cpu_offload()
+pipe.enable_sequential_cpu_offload()
+pipe.vae.enable_slicing()
+pipe.vae.enable_tiling()
+```
+
++ マルチGPU推論を行う際には、`enable_model_cpu_offload()` の最適化を無効にする必要があります。
++ INT8モデルを使用すると推論速度が低下します。これは、ビデオ品質の損失を最小限に抑えながら、VRAMが少ないGPUでも正常に推論できるようにするためですが、推論速度は大幅に低下します。
++ 2Bモデルは `FP16` 精度でトレーニングされ、5Bモデルは `BF16` 精度でトレーニングされています。推論には、モデルがトレーニングされた精度を使用することをお勧めします。
++ [PytorchAO](https://github.com/pytorch/ao) および [Optimum-quanto](https://github.com/huggingface/optimum-quanto/)
+  は、CogVideoXのメモリ要件を削減するためにテキストエンコーダー、トランスフォーマー、およびVAEモジュールを量子化するために使用できます。これにより、無料のT4
+  ColabまたはVRAMが少ないGPUでモデルを実行できるようになります。また、TorchAO量子化は `torch.compile`
   と完全に互換性があり、推論速度を大幅に向上させることができます。`NVIDIA H100` 以上のデバイスでは `FP8`
-  精度が必須であり、`torch`、`torchao`、`diffusers`、`accelerate` の Python
-  パッケージのソースインストールが必要です。`CUDA 12.4` の使用を推奨します。
-+ `FP8`精度は`NVIDIA H100`以上のデバイスでのみ使用でき、`torch`、`torchao`、`diffusers`、`accelerate`
-  のPythonパッケージをソースコードからインストールする必要があります。`CUDA 12.4`の使用を推奨します。
+  精度を使用する必要があり、これには `torch`、`torchao`、`diffusers`、および `accelerate` Python
+  パッケージをソースからインストールする必要があります。`CUDA 12.4` が推奨されます。
 +
-
-推論速度のテストも上記のメモリ最適化手法を使用して行いました。メモリ最適化を行わない場合、推論速度が約10％向上します。量子化をサポートするのは`diffusers`
+推論速度テストでも、上記のVRAM最適化スキームを使用しました。VRAMの最適化を行わない場合、推論速度は約10％向上します。量子化をサポートするのは `diffusers`
 バージョンのモデルのみです。
-
-+ モデルは英語入力のみをサポートしており、他の言語は大モデルでのポストプロセスで英語に翻訳する必要があります。
++ モデルは英語入力のみをサポートしており、他の言語は大規模なモデルでのリファイン時に英語に翻訳できます。
 
 ## 友好的リンク
 

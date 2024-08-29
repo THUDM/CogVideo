@@ -78,7 +78,7 @@ def generate_video(
         transformer=transformer,
         vae=vae,
         torch_dtype=dtype,
-    ).to("cuda")
+    )
     pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
     # Using with compile will run faster. First time infer will cost ~30min to compile.
