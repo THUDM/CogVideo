@@ -32,8 +32,17 @@ snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
-pipe.transformer.to(memory_format=torch.channels_last)
-pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
+# Unnecessary
+
+pipe.enable_model_cpu_offload()
+pipe.enable_sequential_cpu_offload()
+pipe.vae.enable_slicing()
+pipe.vae.enable_tiling()
+
+# Compile
+
+# pipe.transformer.to(memory_format=torch.channels_last)
+# pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)

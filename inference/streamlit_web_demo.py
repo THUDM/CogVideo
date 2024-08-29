@@ -79,6 +79,9 @@ def generate_video(
         dtype=dtype,
     )
     pipe.enable_model_cpu_offload()
+    pipe.enable_sequential_cpu_offload()
+    pipe.vae.enable_slicing()
+    pipe.vae.enable_tiling()
     # Generate video
     video = pipe(
         num_inference_steps=num_inference_steps,

@@ -18,9 +18,14 @@ from datetime import datetime, timedelta
 from openai import OpenAI
 import moviepy.editor as mp
 
-dtype = torch.float16
-device = "cuda" if torch.cuda.is_available() else "cpu"
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-2b", torch_dtype=dtype).to(device)
+dtype = torch.bfloat16
+device = "cuda"  # Need to use cuda
+
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=dtype).to(device)
+pipe.enable_model_cpu_offload()
+pipe.enable_sequential_cpu_offload()
+pipe.vae.enable_slicing()
+pipe.vae.enable_tiling()
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)

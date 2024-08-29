@@ -1,4 +1,4 @@
-# CogVideo && CogVideoX
+# CogVideo & CogVideoX
 
 [中文阅读](./README_zh.md)
 
@@ -22,9 +22,12 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Update and News
 
-- 🔥🔥 **News**: ```2024/8/27```: The **CogVideoX-2B** model's open-source license has been changed to the **Apache 2.0
+- 🔥🔥 **News**: ```2024/8/29```: By adding `pipe.enable_sequential_cpu_offload()` and `pipe.vae.enable_slicing()` to the
+  inference code of CogVideoX-5B, VRAM usage can be reduced to `5GB`. Please check the
+  updated [cli_demo](inference/cli_demo.py).
+- 🔥 **News**: ```2024/8/27```: The **CogVideoX-2B** model's open-source license has been changed to the **Apache 2.0
   License**.
-- 🔥🔥 **News**: ```2024/8/27```: We have open-sourced a larger model in the CogVideoX series, **CogVideoX-5B**.
+- 🔥 **News**: ```2024/8/27```: We have open-sourced a larger model in the CogVideoX series, **CogVideoX-5B**.
   We have significantly optimized the model's inference performance, greatly lowering the inference threshold. You can
   run **CogVideoX-2B** on older GPUs like the `GTX 1080TI`, and run the **CogVideoX-5B** model on mid-range GPUs like
   the `RTX 3060`. Please ensure you update and install the dependencies according to
@@ -178,9 +181,9 @@ models we currently offer, along with their foundational information.
     <td style="text-align: center;"><b>BF16 (Recommended)</b>, FP16, FP32, FP8*, INT8, no support for INT4</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Single GPU VRAM Consumption</td>
-    <td style="text-align: center;">FP16: 18GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>12.5GB* using diffusers</b><br><b>INT8: 7.8GB* using diffusers with torchao</b></td>
-    <td style="text-align: center;">BF16: 26GB using <a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> / <b>20.7GB* using diffusers</b><br><b>INT8: 11.4GB* using diffusers with torchao</b></td>
+    <td style="text-align: center;">Single GPU VRAM Consumption<br></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: starting from 4GB*</b><br><b>diffusers INT8(torchao): starting from 3.6GB*</b></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16: starting from 5GB*</b><br><b>diffusers INT8(torchao): starting from 4.4GB*</b></td>
   </tr>
   <tr>
     <td style="text-align: center;">Multi-GPU Inference VRAM Consumption</td>
@@ -240,25 +243,34 @@ models we currently offer, along with their foundational information.
 
 **Data Explanation**
 
-- When testing with the diffusers library, the `enable_model_cpu_offload()` option and `pipe.vae.enable_tiling()`
-  optimization were enabled. This solution has not been tested for actual VRAM/memory usage on devices other than *
-  *NVIDIA A100/H100**. Generally, this solution can be adapted to all devices with **NVIDIA Ampere architecture** and
-  above. If optimization is disabled, VRAM usage will increase significantly, with peak VRAM approximately 3 times the
-  value in the table.
-- When performing multi-GPU inference, the `enable_model_cpu_offload()` optimization needs to be disabled.
-- Using an INT8 model will result in reduced inference speed. This is done to accommodate GPUs with lower VRAM, allowing
-  inference to run properly with minimal video quality loss, though the inference speed will be significantly reduced.
-- The 2B model is trained using `FP16` precision, while the 5B model is trained using `BF16` precision. It is
-  recommended to use the precision used in model training for inference.
-- [PytorchAO](https://github.com/pytorch/ao) and [Optimum-quanto](https://github.com/huggingface/optimum-quanto/) can be
-  used to quantize the Text Encoder, Transformer and VAE modules to lower the memory requirement of CogVideoX. This
-  makes it possible to run the model on free-tier T4 Colab or smaller VRAM GPUs as well! It is also worth noting that
-  TorchAO quantization is fully compatible with `torch.compile`, which allows for much faster inference speed. `FP8`
-  precision must be used on `NVIDIA H100` and above devices, requiring source installation of
-  the `torch`, `torchao`, `diffusers`, and `accelerate` Python packages. `CUDA 12.4` is recommended.
-- Inference speed testing also used the aforementioned VRAM optimization scheme. Without VRAM optimization, inference
-  speed increases by about 10%. Only models using `diffusers` support quantization.
-- The model only supports English input; other languages can be translated to English during large model refinements.
++ When testing using the `diffusers` library, all optimizations provided by the `diffusers` library were enabled. This
+  solution has not been tested for actual VRAM/memory usage on devices other than **NVIDIA A100 / H100**. Generally,
+  this solution can be adapted to all devices with **NVIDIA Ampere architecture** and above. If the optimizations are
+  disabled, VRAM usage will increase significantly, with peak VRAM usage being about 3 times higher than the table
+  shows. However, speed will increase by 3-4 times. You can selectively disable some optimizations, including:
+
+```
+pipe.enable_model_cpu_offload()
+pipe.enable_sequential_cpu_offload()
+pipe.vae.enable_slicing()
+pipe.vae.enable_tiling()
+``` 
+
++ When performing multi-GPU inference, the `enable_model_cpu_offload()` optimization needs to be disabled.
++ Using INT8 models will reduce inference speed. This is to ensure that GPUs with lower VRAM can perform inference
+  normally while maintaining minimal video quality loss, though inference speed will decrease significantly.
++ The 2B model is trained with `FP16` precision, and the 5B model is trained with `BF16` precision. We recommend using
+  the precision the model was trained with for inference.
++ [PytorchAO](https://github.com/pytorch/ao) and [Optimum-quanto](https://github.com/huggingface/optimum-quanto/) can be
+  used to quantize the text encoder, Transformer, and VAE modules to reduce CogVideoX's memory requirements. This makes
+  it possible to run the model on a free T4 Colab or GPUs with smaller VRAM! It is also worth noting that TorchAO
+  quantization is fully compatible with `torch.compile`, which can significantly improve inference speed. `FP8`
+  precision must be used on devices with `NVIDIA H100` or above, which requires installing
+  the `torch`, `torchao`, `diffusers`, and `accelerate` Python packages from source. `CUDA 12.4` is recommended.
++ The inference speed test also used the above VRAM optimization scheme. Without VRAM optimization, inference speed
+  increases by about 10%. Only the `diffusers` version of the model supports quantization.
++ The model only supports English input; other languages can be translated into English during refinement by a large
+  model.
 
 ## Friendly Links
 
@@ -321,6 +333,8 @@ This folder contains some tools for model conversion / caption generation, etc.
 
 + [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
 + [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
++ [AutoDL Mirror](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment of Huggingface
+  Space mirror provided by community members.
 
 ## CogVideo(ICLR'23)
 

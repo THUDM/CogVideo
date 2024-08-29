@@ -78,13 +78,15 @@ def generate_video(
         transformer=transformer,
         vae=vae,
         torch_dtype=dtype,
-    ).to("cuda")
+    )
     pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
     # Using with compile will run faster. First time infer will cost ~30min to compile.
     # pipe.transformer.to(memory_format=torch.channels_last)
     # for FP8 should remove  pipe.enable_model_cpu_offload()
     pipe.enable_model_cpu_offload()
+    pipe.enable_sequential_cpu_offload()
+    pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
     video = pipe(
         prompt=prompt,

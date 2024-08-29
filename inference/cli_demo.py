@@ -54,12 +54,15 @@ def generate_video(
     # 3. Enable CPU offload for the model, enable tiling.
     # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
     pipe.enable_model_cpu_offload()
+    pipe.enable_sequential_cpu_offload()
+    pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
 
     # 4. Generate the video frames based on the prompt.
     # `num_frames` is the Number of frames to generate.
     # This is the default value for 6 seconds video and 8 fps,so 48 frames and will plus 1 frame for the first frame.
     # for diffusers `0.30.1` and after version, this should be 49.
+
     video = pipe(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
