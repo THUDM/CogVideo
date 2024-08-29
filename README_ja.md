@@ -1,4 +1,4 @@
-# CogVideo && CogVideoX
+# CogVideo & CogVideoX
 
 [Read this in English.](./README_zh)
 
@@ -167,7 +167,7 @@ CogVideoXは[清影](https://chatglm.cn/video?lang=en?fr=osm_cogvideo) 同源の
   </tr>
   <tr>
     <td style="text-align: center;">シングルGPU VRAM消費量<br></td>
-    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers BF16: 4GBから*</b><br><b>diffusers INT8(torchao): 3.6GBから*</b></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: 4GBから*</b><br><b>diffusers INT8(torchao): 3.6GBから*</b></td>
     <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16: 5GBから*</b><br><b>diffusers INT8(torchao): 4.4GBから*</b></td>
   </tr>
   <tr>

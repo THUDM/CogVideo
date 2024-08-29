@@ -1,4 +1,4 @@
-# CogVideo && CogVideoX
+# CogVideo & CogVideoX
 
 [中文阅读](./README_zh.md)
 
@@ -182,7 +182,7 @@ models we currently offer, along with their foundational information.
   </tr>
   <tr>
     <td style="text-align: center;">Single GPU VRAM Consumption<br></td>
-    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers BF16: starting from 4GB*</b><br><b>diffusers INT8(torchao): starting from 3.6GB*</b></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: starting from 4GB*</b><br><b>diffusers INT8(torchao): starting from 3.6GB*</b></td>
     <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16: starting from 5GB*</b><br><b>diffusers INT8(torchao): starting from 4.4GB*</b></td>
   </tr>
   <tr>
