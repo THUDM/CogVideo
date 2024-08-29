@@ -17,10 +17,18 @@ from diffusers.utils import export_to_video
 from datetime import datetime, timedelta
 from openai import OpenAI
 import moviepy.editor as mp
+import sys
+
 
 dtype = torch.float16
-device = "cuda" if torch.cuda.is_available() else "cpu"
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-2b", torch_dtype=dtype).to(device)
+
+if '--very-low-vram-5b' in sys.argv:
+    pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=dtype)
+    pipe.enable_sequential_cpu_offload()
+    pipe.vae.enable_tiling()
+else:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-2b", torch_dtype=dtype).to(device)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)

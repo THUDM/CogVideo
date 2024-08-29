@@ -300,6 +300,8 @@ of the **CogVideoX** open-source model.
 cd inference
 # For Linux and Windows users
 python gradio_web_demo.py
+# or run 5b with pipe.enable_sequential_cpu_offload() and  pipe.vae.enable_tiling()
+python3 inference/gradio_web_demo.py --very-low-vram-5b
 
 # For macOS with Apple Silicon users, Intel not supported, this maybe 20x slower than RTX 4090
 PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py
