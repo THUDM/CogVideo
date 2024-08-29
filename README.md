@@ -271,7 +271,6 @@ pipe.vae.enable_tiling()
   increases by about 10%. Only the `diffusers` version of the model supports quantization.
 + The model only supports English input; other languages can be translated into English during refinement by a large
   model.
-+
 
 ## Friendly Links
 
