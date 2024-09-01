@@ -283,6 +283,10 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSys provides a user-friendly, high-performance
   infrastructure for video generation, with full pipeline support and continuous integration of the latest models and
   techniques.
++ [AutoDL Image](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment Huggingface
+  Space image provided by community members.
++ [Colab Space](https://github.com/camenduru/CogVideoX-5B-jupyter) Run the CogVideoX-5B model using Jupyter Notebook on
+  Colab.
 
 ## Project Structure
 

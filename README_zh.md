@@ -253,6 +253,8 @@ pipe.vae.enable_tiling()
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSys 提供了易用且高性能的视频生成基础设施，支持完整的管道，并持续集成最新的模型和技术。
 + [AutoDL镜像](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): 由社区成员提供的一键部署Huggingface
   Space镜像。
++ [Colab Space](https://github.com/camenduru/CogVideoX-5B-jupyter) 使用 Jupyter Notebook 运行 CogVideoX-5B 模型的 Colab
+  代码。
 
 ## 完整项目代码结构
 
