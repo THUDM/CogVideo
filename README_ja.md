@@ -250,8 +250,10 @@ pipe.vae.enable_tiling()
   精度を使用する必要があり、これには `torch`、`torchao`、`diffusers`、および `accelerate` Python
   パッケージをソースからインストールする必要があります。`CUDA 12.4` が推奨されます。
 +
+
 推論速度テストでも、上記のVRAM最適化スキームを使用しました。VRAMの最適化を行わない場合、推論速度は約10％向上します。量子化をサポートするのは `diffusers`
 バージョンのモデルのみです。
+
 + モデルは英語入力のみをサポートしており、他の言語は大規模なモデルでのリファイン時に英語に翻訳できます。
 
 ## 友好的リンク
@@ -261,6 +263,9 @@ pipe.vae.enable_tiling()
 + [Xorbits Inference](https://github.com/xorbitsai/inference):
   強力で包括的な分散推論フレームワークであり、ワンクリックで独自のモデルや最新のオープンソースモデルを簡単にデプロイできます。
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSysは、使いやすく高性能なビデオ生成インフラを提供し、最新のモデルや技術を継続的に統合しています。
++ [AutoDLイメージ](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): コミュニティメンバーが提供するHuggingface
+  Spaceイメージのワンクリックデプロイメント。
++ [Colab Space](https://github.com/camenduru/CogVideoX-5B-jupyter) ColabでJupyter Notebookを使用してCogVideoX-5Bモデルを実行します。
 
 ## プロジェクト構造
 

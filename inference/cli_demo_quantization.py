@@ -85,7 +85,9 @@ def generate_video(
     # pipe.transformer.to(memory_format=torch.channels_last)
     # for FP8 should remove  pipe.enable_model_cpu_offload()
     pipe.enable_model_cpu_offload()
-    pipe.enable_sequential_cpu_offload()
+
+    # This is not for FP8 and INT8 and should remove this line
+    # pipe.enable_sequential_cpu_offload()
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
     video = pipe(

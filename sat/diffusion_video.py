@@ -1,8 +1,6 @@
 import math
-from contextlib import contextmanager
-from typing import Any, Dict, List, Tuple, Union, Optional
-from omegaconf import ListConfig, OmegaConf
-from copy import deepcopy
+from typing import Any, Dict, List, Tuple, Union
+from omegaconf import ListConfig
 import torch.nn.functional as F
 
 from sat.helpers import print_rank0
@@ -21,7 +19,6 @@ from sgm.util import (
 )
 import gc
 from sat import mpu
-import random
 
 
 class SATVideoDiffusionEngine(nn.Module):
