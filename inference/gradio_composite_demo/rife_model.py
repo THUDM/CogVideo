@@ -19,7 +19,7 @@ def pad_image(img, scale):
     tmp = max(32, int(32 / scale))
     ph = ((h - 1) // tmp + 1) * tmp
     pw = ((w - 1) // tmp + 1) * tmp
-    padding = (0, 0, pw - w, ph - h)
+    padding = (0, pw - w, 0,  ph - h)
     return F.pad(img, padding)
 
 
