@@ -43,3 +43,8 @@ pip install -r requirements.txt
 ```bash
 python gradio_web_demo.py
 ```
+
+
+### known issue
+
+The known issue is that RIFE may experience precision overflow on different devices, resulting in incorrect image colors. 
