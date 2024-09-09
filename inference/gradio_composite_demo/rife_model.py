@@ -19,7 +19,7 @@ def pad_image(img, scale):
     tmp = max(32, int(32 / scale))
     ph = ((h - 1) // tmp + 1) * tmp
     pw = ((w - 1) // tmp + 1) * tmp
-    padding = (0, 0, pw - w, ph - h)
+    padding = (0, pw - w, 0,  ph - h)
     return F.pad(img, padding)
 
 
@@ -103,9 +103,13 @@ def rife_inference_with_path(model, video_path):
     pt_frame_data = []
     pt_frame = skvideo.io.vreader(video_path)
     for frame in pt_frame:
+        # BGR to RGB
+        frame_rgb = frame[..., ::-1]
+        frame_rgb = frame_rgb.copy()
+        tensor = torch.from_numpy(frame_rgb).float().to("cpu", non_blocking=True).float() / 255.0
         pt_frame_data.append(
-            torch.from_numpy(np.transpose(frame, (2, 0, 1))).to("cpu", non_blocking=True).float() / 255.0
-        )
+            tensor.permute(2, 0, 1)
+        )  # to [c, h, w,]
 
     pt_frame = torch.from_numpy(np.stack(pt_frame_data))
     pt_frame = pt_frame.to(device)
