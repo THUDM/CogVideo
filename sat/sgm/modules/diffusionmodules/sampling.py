@@ -515,7 +515,10 @@ class VideoDDIMSampler(BaseDiffusionSampler):
             ).to(torch.float32)
             if isinstance(self.guider, DynamicCFG):
                 denoised = self.guider(
-                    denoised, (1 - alpha_cumprod_sqrt**2) ** 0.5, step_index=self.num_steps - timestep, scale=scale
+                    denoised,
+                    (1 - alpha_cumprod_sqrt**2) ** 0.5,
+                    step_index=self.discretization.num_steps - timestep,
+                    scale=scale,
                 )
             else:
                 denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt**2) ** 0.5, scale=scale)
