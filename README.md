@@ -250,13 +250,12 @@ models we currently offer, along with their foundational information.
   shows. However, speed will increase by 3-4 times. You can selectively disable some optimizations, including:
 
 ```
-pipe.enable_model_cpu_offload()
 pipe.enable_sequential_cpu_offload()
 pipe.vae.enable_slicing()
 pipe.vae.enable_tiling()
 ``` 
 
-+ When performing multi-GPU inference, the `enable_model_cpu_offload()` optimization needs to be disabled.
++ When performing multi-GPU inference, the `enable_sequential_cpu_offload()` optimization needs to be disabled.
 + Using INT8 models will reduce inference speed. This is to ensure that GPUs with lower VRAM can perform inference
   normally while maintaining minimal video quality loss, though inference speed will decrease significantly.
 + The 2B model is trained with `FP16` precision, and the 5B model is trained with `BF16` precision. We recommend using

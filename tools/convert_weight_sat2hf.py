@@ -2,7 +2,7 @@
 This script demonstrates how to convert and generate video from a text prompt using CogVideoX with 🤗Huggingface Diffusers Pipeline.
 
 Note:
-    This script requires the `diffusers>=0.30.0` library to be installed.
+    This script requires the `diffusers>=0.30.1` library to be installed.
 
 Run the script:
     $ python convert_and_generate.py --transformer_ckpt_path <path_to_transformer_checkpoint> --vae_ckpt_path <path_to_vae_checkpoint> --output_path <path_to_output_directory> --text_encoder_path <path_to_t5>

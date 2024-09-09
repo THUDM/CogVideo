@@ -234,13 +234,12 @@ CogVideoXは[清影](https://chatglm.cn/video?lang=en?fr=osm_cogvideo) 同源の
   以上のすべてのデバイスに適応できます。最適化を無効にすると、VRAM使用量が大幅に増加し、表の約3倍のピークVRAMを使用しますが、速度は3-4倍向上します。以下の最適化の一部を選択的に無効にすることができます:
 
 ```
-pipe.enable_model_cpu_offload()
 pipe.enable_sequential_cpu_offload()
 pipe.vae.enable_slicing()
 pipe.vae.enable_tiling()
 ```
 
-+ マルチGPU推論を行う際には、`enable_model_cpu_offload()` の最適化を無効にする必要があります。
++ マルチGPU推論を行う際には、`enable_sequential_cpu_offload()` の最適化を無効にする必要があります。
 + INT8モデルを使用すると推論速度が低下します。これは、ビデオ品質の損失を最小限に抑えながら、VRAMが少ないGPUでも正常に推論できるようにするためですが、推論速度は大幅に低下します。
 + 2Bモデルは `FP16` 精度でトレーニングされ、5Bモデルは `BF16` 精度でトレーニングされています。推論には、モデルがトレーニングされた精度を使用することをお勧めします。
 + [PytorchAO](https://github.com/pytorch/ao) および [Optimum-quanto](https://github.com/huggingface/optimum-quanto/)
