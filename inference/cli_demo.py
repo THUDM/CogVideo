@@ -53,7 +53,6 @@ def generate_video(
 
     # 3. Enable CPU offload for the model, enable tiling.
     # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
-    pipe.enable_model_cpu_offload()
     pipe.enable_sequential_cpu_offload()
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()

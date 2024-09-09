@@ -2,17 +2,9 @@ from typing import List, Optional, Union
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from omegaconf import ListConfig
-import math
-
-from ...modules.diffusionmodules.sampling import VideoDDIMSampler, VPSDEDPMPP2MSampler
 from ...util import append_dims, instantiate_from_config
 from ...modules.autoencoding.lpips.loss.lpips import LPIPS
-
-# import rearrange
-from einops import rearrange
-import random
 from sat import mpu
 
 
@@ -106,6 +98,9 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
         noised_input = input.float() * append_dims(alphas_cumprod_sqrt, input.ndim) + noise * append_dims(
             (1 - alphas_cumprod_sqrt**2) ** 0.5, input.ndim
         )
+
+        if "concat_images" in batch.keys():
+            additional_model_inputs["concat_images"] = batch["concat_images"]
 
         model_output = denoiser(network, noised_input, alphas_cumprod_sqrt, cond, **additional_model_inputs)
         w = append_dims(1 / (1 - alphas_cumprod_sqrt**2), input.ndim)  # v-pred
