@@ -228,13 +228,12 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
 + 使用 diffusers 库进行测试时，启用了全部`diffusers`库自带的优化，该方案未测试在非**NVIDIA A100 / H100** 外的设备上的实际显存 / 内存占用。通常，该方案可以适配于所有 **NVIDIA 安培架构**
 以上的设备。若关闭优化，显存占用会成倍增加，峰值显存约为表格的3倍。但速度提升3-4倍左右。你可以选择性的关闭部分优化，这些优化包括:
 ```
-pipe.enable_model_cpu_offload()
 pipe.enable_sequential_cpu_offload()
 pipe.vae.enable_slicing()
 pipe.vae.enable_tiling()
 ```
 
-+ 多GPU推理时，需要关闭 `enable_model_cpu_offload()` 优化。
++ 多GPU推理时，需要关闭 `enable_sequential_cpu_offload()` 优化。
 + 使用 INT8 模型会导致推理速度降低，此举是为了满足显存较低的显卡能正常推理并保持较少的视频质量损失，推理速度大幅降低。
 + 2B 模型采用 `FP16` 精度训练， 5B模型采用 `BF16` 精度训练。我们推荐使用模型训练的精度进行推理。
 + [PytorchAO](https://github.com/pytorch/ao) 和 [Optimum-quanto](https://github.com/huggingface/optimum-quanto/)
