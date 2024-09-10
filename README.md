@@ -279,10 +279,11 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
 + [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
   framework, allowing you to easily deploy your own models or the latest cutting-edge open-source models with just one
   click.
++ [ComfyUI-CogVideoXWrapper](https://github.com/kijai/ComfyUI-CogVideoXWrapper) Use the ComfyUI framework to integrate CogVideoX into your workflow.
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSys provides a user-friendly, high-performance
   infrastructure for video generation, with full pipeline support and continuous integration of the latest models and
   techniques.
-+ [AutoDL Image](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment Huggingface
++ [AutoDL Space](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment Huggingface
   Space image provided by community members.
 + [Colab Space](https://github.com/camenduru/CogVideoX-5B-jupyter) Run the CogVideoX-5B model using Jupyter Notebook on
   Colab.
@@ -336,9 +337,6 @@ This folder contains some tools for model conversion / caption generation, etc.
 
 + [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
 + [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
-+ [AutoDL Mirror](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment of Huggingface
-  Space mirror provided by community members.
-
 ## CogVideo(ICLR'23)
 
 The official repo for the
