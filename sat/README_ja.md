@@ -411,4 +411,34 @@ SAT ウェイト形式は Huggingface のウェイト形式と異なり、変換
 python ../tools/convert_weight_sat2hf.py
 ```
 
-**注意**：この内容は LORA ファインチューニングモデルではまだテストされていません。
+### SATチェックポイントからHuggingface Diffusers lora LoRAウェイトをエクスポート
+
+上記のステップを完了すると、LoRAウェイト付きのSATチェックポイントが得られます。ファイルは `{args.save}/1000/1000/mp_rank_00_model_states.pt` にあります。
+
+LoRAウェイトをエクスポートするためのスクリプトは、CogVideoXリポジトリの `tools/export_sat_lora_weight.py` にあります。エクスポート後、`load_cogvideox_lora.py` を使用して推論を行うことができます。
+
+#### エクスポートコマンド:
+```bash
+python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory {args.save}/export_hf_lora_weights_1/
+```
+
+このトレーニングでは主に以下のモデル構造が変更されました。以下の表は、HF (Hugging Face) 形式のLoRA構造に変換する際の対応関係を示しています。ご覧の通り、LoRAはモデルの注意メカニズムに低ランクの重みを追加しています。
+
+
+
+```
+
+    'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
+    'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
+    'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
+    'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
+    'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
+    'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
+    'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
+    'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
+```
+  
+export_sat_lora_weight.py を使用して、SATチェックポイントをHF LoRA形式に変換できます。
+
+
+![alt text](../resources/hf_lora_weights.png)
