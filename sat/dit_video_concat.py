@@ -155,6 +155,25 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
     return emb
 
 
+class Basic2DPositionEmbeddingMixin(BaseMixin):
+    def __init__(self, height, width, compressed_num_frames, hidden_size, text_length=0):
+        super().__init__()
+        self.height = height
+        self.width = width
+        self.spatial_length = height * width
+        self.pos_embedding = nn.Parameter(
+            torch.zeros(1, int(text_length + self.spatial_length), int(hidden_size)), requires_grad=False
+        )
+
+    def position_embedding_forward(self, position_ids, **kwargs):
+        return self.pos_embedding
+
+    def reinit(self, parent_model=None):
+        del self.transformer.position_embeddings
+        pos_embed = get_2d_sincos_pos_embed(self.pos_embedding.shape[-1], self.height, self.width)
+        self.pos_embedding.data[:, -self.spatial_length :].copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
+
+
 class Basic3DPositionEmbeddingMixin(BaseMixin):
     def __init__(
         self,
@@ -240,10 +259,10 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
         text_length,
         theta=10000,
         rot_v=False,
+        learnable_pos_embed=False,
     ):
         super().__init__()
         self.rot_v = rot_v
-        self.text_length = text_length
 
         dim_t = hidden_size_head // 4
         dim_h = hidden_size_head // 8 * 3
@@ -273,6 +292,13 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
         freqs_cos = freqs.cos()
         self.register_buffer("freqs_sin", freqs_sin)
         self.register_buffer("freqs_cos", freqs_cos)
+
+        self.text_length = text_length
+        if learnable_pos_embed:
+            num_patches = height * width * compressed_num_frames + text_length
+            self.pos_embedding = nn.Parameter(torch.zeros(1, num_patches, int(hidden_size)), requires_grad=True)
+        else:
+            self.pos_embedding = None
 
     def rotary(self, t, **kwargs):
         seq_len = t.shape[2]
@@ -362,7 +388,6 @@ class FinalLayerMixin(BaseMixin):
 
     def final_forward(self, logits, **kwargs):
         x, emb = logits[:, kwargs["text_length"] :, :], kwargs["emb"]  # x:(b,(t n),d)
-
         shift, scale = self.adaLN_modulation(emb).chunk(2, dim=1)
         x = modulate(self.norm_final(x), shift, scale)
         x = self.linear(x)
@@ -458,6 +483,7 @@ class AdaLNMixin(BaseMixin):
         # hidden_states (b,(n_t+t*n_i),d)
         text_hidden_states = hidden_states[:, :text_length]  # (b,n,d)
         img_hidden_states = hidden_states[:, text_length:]  # (b,(t n),d)
+
         layer = self.transformer.layers[kwargs["layer_id"]]
         adaLN_modulation = self.adaLN_modulations[kwargs["layer_id"]]
 
@@ -492,7 +518,6 @@ class AdaLNMixin(BaseMixin):
         attention_output = layer.attention(attention_input, mask, **kwargs)
         text_attention_output = attention_output[:, :text_length]  # (b,n,d)
         img_attention_output = attention_output[:, text_length:]  # (b,(t n),d)
-
         if self.transformer.layernorm_order == "sandwich":
             text_attention_output = layer.third_layernorm(text_attention_output)
             img_attention_output = layer.third_layernorm(img_attention_output)
@@ -748,6 +773,15 @@ class DiffusionTransformer(BaseModel):
         b, t, d, h, w = x.shape
         if x.dtype != self.dtype:
             x = x.to(self.dtype)
+
+        # This is not use in inference
+        if "concat_images" in kwargs and kwargs["concat_images"] is not None:
+            if kwargs["concat_images"].shape[0] != x.shape[0]:
+                concat_images = kwargs["concat_images"].repeat(2, 1, 1, 1, 1)
+            else:
+                concat_images = kwargs["concat_images"]
+            x = torch.cat([x, concat_images], dim=2)
+
         assert (y is not None) == (
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
@@ -768,5 +802,4 @@ class DiffusionTransformer(BaseModel):
 
         kwargs["input_ids"] = kwargs["position_ids"] = kwargs["attention_mask"] = torch.ones((1, 1)).to(x.dtype)
         output = super().forward(**kwargs)[0]
-
         return output

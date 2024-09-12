@@ -162,7 +162,6 @@ class SATVideoDiffusionEngine(nn.Module):
                     kwargs = {"timesteps": len(z[n * n_samples : (n + 1) * n_samples])}
                 else:
                     kwargs = {}
-                use_cp = False
                 out = self.first_stage_model.decode(z[n * n_samples : (n + 1) * n_samples], **kwargs)
                 all_out.append(out)
         out = torch.cat(all_out, dim=0)
@@ -175,8 +174,6 @@ class SATVideoDiffusionEngine(nn.Module):
         if frame > 1 and self.latent_input:
             x = x.permute(0, 2, 1, 3, 4).contiguous()
             return x * self.scale_factor  # already encoded
-
-        use_cp = False
 
         n_samples = default(self.en_and_decode_n_samples_a_time, x.shape[0])
         n_rounds = math.ceil(x.shape[0] / n_samples)
@@ -305,11 +302,29 @@ class SATVideoDiffusionEngine(nn.Module):
 
         samples = self.sample(c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs)  # b t c h w
         samples = samples.permute(0, 2, 1, 3, 4).contiguous()
-        if only_log_video_latents:
-            latents = 1.0 / self.scale_factor * samples
-            log["latents"] = latents
-        else:
-            samples = self.decode_first_stage(samples).to(torch.float32)
+        if self.noised_image_input:
+            image = x[:, :, 0:1]
+            image = self.add_noise_to_first_frame(image)
+            image = self.encode_first_stage(image, batch)
+            image = image.permute(0, 2, 1, 3, 4).contiguous()
+            image = torch.concat([image, torch.zeros_like(z[:, 1:])], dim=1)
+            c["concat"] = image
+            uc["concat"] = image
+            samples = self.sample(c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs)  # b t c h w
             samples = samples.permute(0, 2, 1, 3, 4).contiguous()
-            log["samples"] = samples
+            if only_log_video_latents:
+                latents = 1.0 / self.scale_factor * samples
+                log["latents"] = latents
+            else:
+                samples = self.decode_first_stage(samples).to(torch.float32)
+                samples = samples.permute(0, 2, 1, 3, 4).contiguous()
+                log["samples"] = samples
+        else:
+            if only_log_video_latents:
+                latents = 1.0 / self.scale_factor * samples
+                log["latents"] = latents
+            else:
+                samples = self.decode_first_stage(samples).to(torch.float32)
+                samples = samples.permute(0, 2, 1, 3, 4).contiguous()
+                log["samples"] = samples
         return log
