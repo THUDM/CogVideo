@@ -773,12 +773,15 @@ class DiffusionTransformer(BaseModel):
         b, t, d, h, w = x.shape
         if x.dtype != self.dtype:
             x = x.to(self.dtype)
+
+        # This is not use in inference
         if "concat_images" in kwargs and kwargs["concat_images"] is not None:
             if kwargs["concat_images"].shape[0] != x.shape[0]:
                 concat_images = kwargs["concat_images"].repeat(2, 1, 1, 1, 1)
             else:
                 concat_images = kwargs["concat_images"]
             x = torch.cat([x, concat_images], dim=2)
+
         assert (y is not None) == (
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
