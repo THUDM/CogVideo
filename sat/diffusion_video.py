@@ -130,6 +130,14 @@ class SATVideoDiffusionEngine(nn.Module):
         loss_dict = {"loss": loss_mean}
         return loss_mean, loss_dict
 
+    def add_noise_to_first_frame(self, image):
+        sigma = torch.normal(mean=-3.0, std=0.5, size=(image.shape[0],)).to(self.device)
+        sigma = torch.exp(sigma).to(image.dtype)
+        image_noise = torch.randn_like(image) * sigma[:, None, None, None, None]
+        image = image + image_noise
+        return image
+
+
     def shared_step(self, batch: Dict) -> Any:
         x = self.get_input(batch)
         if self.lr_scale is not None:
