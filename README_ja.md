@@ -1,6 +1,6 @@
 # CogVideo & CogVideoX
 
-[Read this in English.](./README_zh)
+[Read this in English](./README_zh.md)
 
 [中文阅读](./README_zh.md)
 
