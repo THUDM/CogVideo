@@ -1,3 +1,5 @@
+import random
+
 import math
 from typing import Any, Dict, List, Tuple, Union
 from omegaconf import ListConfig
@@ -137,7 +139,6 @@ class SATVideoDiffusionEngine(nn.Module):
         image = image + image_noise
         return image
 
-
     def shared_step(self, batch: Dict) -> Any:
         x = self.get_input(batch)
         if self.lr_scale is not None:
@@ -147,8 +148,22 @@ class SATVideoDiffusionEngine(nn.Module):
             batch["lr_input"] = lr_z
 
         x = x.permute(0, 2, 1, 3, 4).contiguous()
+        if self.noised_image_input:
+            image = x[:, :, 0:1]
+            image = self.add_noise_to_first_frame(image)
+            image = self.encode_first_stage(image, batch)
+
         x = self.encode_first_stage(x, batch)
         x = x.permute(0, 2, 1, 3, 4).contiguous()
+        if self.noised_image_input:
+            image = image.permute(0, 2, 1, 3, 4).contiguous()
+            if self.noised_image_all_concat:
+                image = image.repeat(1, x.shape[1], 1, 1, 1)
+            else:
+                image = torch.concat([image, torch.zeros_like(x[:, 1:])], dim=1)
+            if random.random() < self.noised_image_dropout:
+                image = torch.zeros_like(image)
+            batch["concat_images"] = image
 
         gc.collect()
         torch.cuda.empty_cache()
@@ -311,6 +326,7 @@ class SATVideoDiffusionEngine(nn.Module):
         samples = self.sample(c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs)  # b t c h w
         samples = samples.permute(0, 2, 1, 3, 4).contiguous()
         if self.noised_image_input:
+            print("Adding noise to first frame")
             image = x[:, :, 0:1]
             image = self.add_noise_to_first_frame(image)
             image = self.encode_first_stage(image, batch)
