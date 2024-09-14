@@ -406,4 +406,30 @@ The SAT weight format is different from Huggingface's weight format and needs to
 python ../tools/convert_weight_sat2hf.py
 ```
 
-**Note**: This content has not yet been tested with LORA fine-tuning models.
+### Exporting Huggingface Diffusers lora LoRA Weights from SAT Checkpoints
+
+After completing the training using the above steps, we get a SAT checkpoint with LoRA weights. You can find the file at `{args.save}/1000/1000/mp_rank_00_model_states.pt`.
+
+The script for exporting LoRA weights can be found in the CogVideoX repository at `tools/export_sat_lora_weight.py`. After exporting, you can use `load_cogvideox_lora.py` for inference.
+
+#### Export command:
+```bash
+python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory {args.save}/export_hf_lora_weights_1/
+```
+
+This training mainly modified the following model structures. The table below lists the corresponding structure mappings for converting to the HF (Hugging Face) format LoRA structure. As you can see, LoRA adds a low-rank weight to the model's attention structure.
+
+```
+
+    'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
+    'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
+    'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
+    'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
+    'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
+    'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
+    'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
+    'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
+```
+  
+Using export_sat_lora_weight.py, you can convert the SAT checkpoint into the HF LoRA format.
+![alt text](../resources/hf_lora_weights.png)
