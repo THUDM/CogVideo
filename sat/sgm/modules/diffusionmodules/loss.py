@@ -100,8 +100,9 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
         )
 
         if "concat_images" in batch.keys():
-            additional_model_inputs["concat_images"] = batch["concat_images"]
+            cond["concat"] = batch["concat_images"]
 
+        # [2, 13, 16, 60, 90],[2] dict_keys(['crossattn', 'concat'])  dict_keys(['idx'])
         model_output = denoiser(network, noised_input, alphas_cumprod_sqrt, cond, **additional_model_inputs)
         w = append_dims(1 / (1 - alphas_cumprod_sqrt**2), input.ndim)  # v-pred
 
@@ -117,11 +118,3 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
         elif self.type == "lpips":
             loss = self.lpips(model_output, target).reshape(-1)
             return loss
-
-
-def get_3d_position_ids(frame_len, h, w):
-    i = torch.arange(frame_len).view(frame_len, 1, 1).expand(frame_len, h, w)
-    j = torch.arange(h).view(1, h, 1).expand(frame_len, h, w)
-    k = torch.arange(w).view(1, 1, w).expand(frame_len, h, w)
-    position_ids = torch.stack([i, j, k], dim=-1).reshape(-1, 3)
-    return position_ids

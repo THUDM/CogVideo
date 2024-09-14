@@ -1,15 +1,16 @@
 args:
+  image2video: False # True for image2video, False for text2video
   latent_channels: 16
   mode: inference
   load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
   # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
-
   batch_size: 1
   input_type: txt
   input_file: configs/test.txt
+  sampling_image_size: [480, 720]
   sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
-  fp16: True # For CogVideoX-2B
-#  bf16: True # For CogVideoX-5B
+#  fp16: True # For CogVideoX-2B
+  bf16: True # For CogVideoX-5B and CoGVideoX-5B-I2V
   output_dir: outputs/
   force_inference: True
