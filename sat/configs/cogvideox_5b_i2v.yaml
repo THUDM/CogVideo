@@ -1,9 +1,12 @@
 model:
   scale_factor: 0.7
   disable_first_stage_autocast: true
+  latent_input: false
+  noised_image_input: true
+  noised_image_dropout: 0.05
   log_keys:
     - txt
-  
+
   denoiser_config:
     target: sgm.modules.diffusionmodules.denoiser.DiscreteDenoiser
     params:
@@ -28,13 +31,13 @@ model:
       time_compressed_rate: 4
       latent_width: 90
       latent_height: 60
-      num_layers: 42 # different from cogvideox_2b_infer.yaml
+      num_layers: 42
       patch_size: 2
-      in_channels: 16
+      in_channels: 32  #different from cogvideox_5b_infer.yaml
       out_channels: 16
-      hidden_size: 3072 # different from cogvideox_2b_infer.yaml
+      hidden_size: 3072
       adm_in_channels: 256
-      num_attention_heads: 48 # different from cogvideox_2b_infer.yaml
+      num_attention_heads: 48
 
       transformer_args:
         checkpoint_activations: True
@@ -47,8 +50,9 @@ model:
 
       modules:
         pos_embed_config:
-          target: dit_video_concat.Rotary3DPositionEmbeddingMixin # different from cogvideox_2b_infer.yaml
+          target: dit_video_concat.Rotary3DPositionEmbeddingMixin
           params:
+            learnable_pos_embed: True
             hidden_size_head: 64
             text_length: 226
 
@@ -69,60 +73,61 @@ model:
     target: sgm.modules.GeneralConditioner
     params:
       emb_models:
-        - is_trainable: false
-          input_key: txt
-          ucg_rate: 0.1
-          target: sgm.modules.encoders.modules.FrozenT5Embedder
-          params:
-            model_dir: "t5-v1_1-xxl"
-            max_length: 226
+          - is_trainable: false
+            input_key: txt
+            ucg_rate: 0.1
+            target: sgm.modules.encoders.modules.FrozenT5Embedder
+            params:
+              model_dir: "t5-v1_1-xxl"
+              max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
-      cp_size: 1
-      ckpt_path: "cogvideox-5b-sat/vae/3d-vae.pt"
-      ignore_keys: [ 'loss' ]
+        cp_size: 1
+        ckpt_path: "cogvideox-5b-i2v-sat/vae/3d-vae.pt"
+        ignore_keys: ['loss']
 
-      loss_config:
-        target: torch.nn.Identity
+        loss_config:
+          target: torch.nn.Identity
 
-      regularizer_config:
-        target: vae_modules.regularizers.DiagonalGaussianRegularizer
+        regularizer_config:
+          target: vae_modules.regularizers.DiagonalGaussianRegularizer
 
-      encoder_config:
-        target: vae_modules.cp_enc_dec.ContextParallelEncoder3D
-        params:
-          double_z: true
-          z_channels: 16
-          resolution: 256
-          in_channels: 3
-          out_ch: 3
-          ch: 128
-          ch_mult: [ 1, 2, 2, 4 ]
-          attn_resolutions: [ ]
-          num_res_blocks: 3
-          dropout: 0.0
-          gather_norm: True
+        encoder_config:
+          target: vae_modules.cp_enc_dec.ContextParallelEncoder3D
+          params:
+            double_z: true
+            z_channels: 16
+            resolution: 256
+            in_channels: 3
+            out_ch: 3
+            ch: 128
+            ch_mult: [1, 2, 2, 4]
+            attn_resolutions: []
+            num_res_blocks: 3
+            dropout: 0.0
+            gather_norm: True
 
-      decoder_config:
-        target: vae_modules.cp_enc_dec.ContextParallelDecoder3D
-        params:
-          double_z: True
-          z_channels: 16
-          resolution: 256
-          in_channels: 3
-          out_ch: 3
-          ch: 128
-          ch_mult: [ 1, 2, 2, 4 ]
-          attn_resolutions: [ ]
-          num_res_blocks: 3
-          dropout: 0.0
-          gather_norm: False
+        decoder_config:
+          target: vae_modules.cp_enc_dec.ContextParallelDecoder3D
+          params:
+            double_z: True
+            z_channels: 16
+            resolution: 256
+            in_channels: 3
+            out_ch: 3
+            ch: 128
+            ch_mult: [1, 2, 2, 4]
+            attn_resolutions: []
+            num_res_blocks: 3
+            dropout: 0.0
+            gather_norm: True
 
   loss_fn_config:
     target: sgm.modules.diffusionmodules.loss.VideoDiffusionLoss
     params:
+      fixed_frames: 0
       offset_noise_level: 0
       sigma_sampler_config:
         target: sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling
@@ -132,18 +137,19 @@ model:
           discretization_config:
             target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
             params:
-              shift_scale: 1.0 # different from cogvideox_2b_infer.yaml
+              shift_scale: 1.0
 
   sampler_config:
     target: sgm.modules.diffusionmodules.sampling.VPSDEDPMPP2MSampler
     params:
+      fixed_frames: 0
       num_steps: 50
       verbose: True
 
       discretization_config:
         target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
         params:
-          shift_scale: 1.0 # different from cogvideox_2b_infer.yaml
+          shift_scale: 1.0
 
       guider_config:
         target: sgm.modules.diffusionmodules.guiders.DynamicCFG
