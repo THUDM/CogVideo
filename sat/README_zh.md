@@ -404,4 +404,30 @@ SAT 权重格式与 Huggingface 的权重格式不同，需要转换。请运行
 python ../tools/convert_weight_sat2hf.py
 ```
 
-**注意** 本内容暂未测试 LORA 微调模型。
+### 从SAT权重文件 导出Huggingface Diffusers lora权重
+
+支持了从SAT权重文件 
+在经过上面这些步骤训练之后，我们得到了一个sat带lora的权重，在{args.save}/1000/1000/mp_rank_00_model_states.pt你可以看到这个文件
+
+导出的lora权重脚本在CogVideoX仓库 tools/export_sat_lora_weight.py ,导出后使用 load_cogvideox_lora.py 推理
+- 导出命令
+```
+python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory   {args.save}/export_hf_lora_weights_1/
+···
+
+这次训练主要修改了下面几个模型结构,下面列出了 转换为HF格式的lora结构对应关系,可以看到lora将模型注意力结构上增加一个低秩权重,
+
+```
+
+    'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
+    'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
+    'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
+    'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
+    'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
+    'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
+    'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
+    'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
+```
+    
+通过export_sat_lora_weight.py将它转换为HF格式的lora结构
+![alt text](../resources/hf_lora_weights.png)
