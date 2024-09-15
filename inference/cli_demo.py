@@ -21,26 +21,28 @@ import argparse
 from typing import Literal
 
 import torch
-from diffusers import (CogVideoXPipeline,
-                       CogVideoXDDIMScheduler,
-                       CogVideoXDPMScheduler,
-                       CogVideoXImageToVideoPipeline,
-                       CogVideoXVideoToVideoPipeline)
+from diffusers import (
+    CogVideoXPipeline,
+    CogVideoXDDIMScheduler,
+    CogVideoXDPMScheduler,
+    CogVideoXImageToVideoPipeline,
+    CogVideoXVideoToVideoPipeline,
+)
 
 from diffusers.utils import export_to_video, load_image, load_video
 
 
 def generate_video(
-        prompt: str,
-        model_path: str,
-        output_path: str = "./output.mp4",
-        image_or_video_path: str = "",
-        num_inference_steps: int = 50,
-        guidance_scale: float = 6.0,
-        num_videos_per_prompt: int = 1,
-        dtype: torch.dtype = torch.bfloat16,
-        generate_type: str = Literal["t2v", "i2v", "v2v"],  # i2v: image to video, v2v: video to video
-        seed: int = 42,
+    prompt: str,
+    model_path: str,
+    output_path: str = "./output.mp4",
+    image_or_video_path: str = "",
+    num_inference_steps: int = 50,
+    guidance_scale: float = 6.0,
+    num_videos_per_prompt: int = 1,
+    dtype: torch.dtype = torch.bfloat16,
+    generate_type: str = Literal["t2v", "i2v", "v2v"],  # i2v: image to video, v2v: video to video
+    seed: int = 42,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -53,7 +55,7 @@ def generate_video(
     - guidance_scale (float): The scale for classifier-free guidance. Higher values can lead to better alignment with the prompt.
     - num_videos_per_prompt (int): Number of videos to generate per prompt.
     - dtype (torch.dtype): The data type for computation (default is torch.bfloat16).
-    - generate_type (str): The type of video generation (e.g., 't2v', 'i2v', 'v2v').
+    - generate_type (str): The type of video generation (e.g., 't2v', 'i2v', 'v2v').·
     - seed (int): The seed for reproducibility.
     """
 
@@ -97,13 +99,13 @@ def generate_video(
             image=image,  # The path of the image to be used as the background of the video
             num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
             num_inference_steps=num_inference_steps,  # Number of inference steps
-            num_frames=49,  # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
+            num_frames=49,  # Number of frames to generate，changed to 49 for diffusers version `0.30.3` and after.
             use_dynamic_cfg=True,  ## This id used for DPM Sechduler, for DDIM scheduler, it should be False
             guidance_scale=guidance_scale,
             generator=torch.Generator().manual_seed(seed),  # Set the seed for reproducibility
         ).frames[0]
     elif generate_type == "t2v":
-        video_generate  = pipe(
+        video_generate = pipe(
             prompt=prompt,
             num_videos_per_prompt=num_videos_per_prompt,
             num_inference_steps=num_inference_steps,
@@ -130,19 +132,29 @@ def generate_video(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate a video from a text prompt using CogVideoX")
     parser.add_argument("--prompt", type=str, required=True, help="The description of the video to be generated")
-    parser.add_argument("--image_or_video_path", type=str, default=None,
-                        help="The path of the image to be used as the background of the video")
-    parser.add_argument("--model_path", type=str, default="THUDM/CogVideoX-5b",
-                        help="The path of the pre-trained model to be used")
-    parser.add_argument("--output_path", type=str, default="./output.mp4",
-                        help="The path where the generated video will be saved")
+    parser.add_argument(
+        "--image_or_video_path",
+        type=str,
+        default=None,
+        help="The path of the image to be used as the background of the video",
+    )
+    parser.add_argument(
+        "--model_path", type=str, default="THUDM/CogVideoX-5b", help="The path of the pre-trained model to be used"
+    )
+    parser.add_argument(
+        "--output_path", type=str, default="./output.mp4", help="The path where the generated video will be saved"
+    )
     parser.add_argument("--guidance_scale", type=float, default=6.0, help="The scale for classifier-free guidance")
-    parser.add_argument("--num_inference_steps", type=int, default=50, help="Number of steps for the inference process")
+    parser.add_argument(
+        "--num_inference_steps", type=int, default=50, help="Number of steps for the inference process"
+    )
     parser.add_argument("--num_videos_per_prompt", type=int, default=1, help="Number of videos to generate per prompt")
-    parser.add_argument("--generate_type", type=str, default="t2v",
-                        help="The type of video generation (e.g., 't2v', 'i2v', 'v2v')")
-    parser.add_argument("--dtype", type=str, default="bfloat16",
-                        help="The data type for computation (e.g., 'float16' or 'bfloat16')")
+    parser.add_argument(
+        "--generate_type", type=str, default="t2v", help="The type of video generation (e.g., 't2v', 'i2v', 'v2v')"
+    )
+    parser.add_argument(
+        "--dtype", type=str, default="bfloat16", help="The data type for computation (e.g., 'float16' or 'bfloat16')"
+    )
     parser.add_argument("--seed", type=int, default=42, help="The seed for reproducibility")
 
     args = parser.parse_args()

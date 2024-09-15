@@ -19,8 +19,9 @@ from openai import OpenAI
 import moviepy.editor as mp
 
 dtype = torch.bfloat16
+device = "cuda"  # Need to use cuda
 
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=dtype)
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=dtype).to(device)
 pipe.enable_model_cpu_offload()
 pipe.enable_sequential_cpu_offload()
 pipe.vae.enable_slicing()
