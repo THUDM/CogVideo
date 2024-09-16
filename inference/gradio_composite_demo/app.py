@@ -65,10 +65,10 @@ pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
 ).to(device)
 
 
-# pipe.transformer.to(memory_format=torch.channels_last)
-# pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
-# pipe_image.transformer.to(memory_format=torch.channels_last)
-# pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
+pipe.transformer.to(memory_format=torch.channels_last)
+pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
+pipe_image.transformer.to(memory_format=torch.channels_last)
+pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)
