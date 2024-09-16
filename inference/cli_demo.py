@@ -77,7 +77,9 @@ def generate_video(
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
-    # We recommend using `CogVideoXDDIMScheduler` for CogVideoX-2B and `CogVideoXDPMScheduler` for CogVideoX-5B.
+    # We recommend using `CogVideoXDDIMScheduler` for CogVideoX-2B.
+    # using `CogVideoXDPMScheduler` for CogVideoX-5B / CogVideoX-5B-I2V.
+
     # pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
     pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
@@ -85,14 +87,16 @@ def generate_video(
     # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
     # and enable to("cuda")
 
-    # pipe.enable_sequential_cpu_offload()
-    pipe.to("cuda")
+    # pipe.to("cuda")
+
+    pipe.enable_sequential_cpu_offload()
+
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
 
     # 4. Generate the video frames based on the prompt.
     # `num_frames` is the Number of frames to generate.
-    # This is the default value for 6 seconds video and 8 fps,so 48 frames and will plus 1 frame for the first frame and 49 frames.
+    # This is the default value for 6 seconds video and 8 fps and will plus 1 frame for the first frame and 49 frames.
     if generate_type == "i2v":
         video_generate = pipe(
             prompt=prompt,
@@ -100,7 +104,7 @@ def generate_video(
             num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
             num_inference_steps=num_inference_steps,  # Number of inference steps
             num_frames=49,  # Number of frames to generate，changed to 49 for diffusers version `0.30.3` and after.
-            use_dynamic_cfg=True,  ## This id used for DPM Sechduler, for DDIM scheduler, it should be False
+            use_dynamic_cfg=True,  # This id used for DPM Sechduler, for DDIM scheduler, it should be False
             guidance_scale=guidance_scale,
             generator=torch.Generator().manual_seed(seed),  # Set the seed for reproducibility
         ).frames[0]

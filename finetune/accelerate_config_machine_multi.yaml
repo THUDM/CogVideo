@@ -1,0 +1,26 @@
+compute_environment: LOCAL_MACHINE
+debug: true
+deepspeed_config:
+  deepspeed_hostfile: hostfile.txt
+  deepspeed_multinode_launcher: pdsh
+  gradient_accumulation_steps: 1
+  gradient_clipping: 1.0
+  offload_optimizer_device: none
+  offload_param_device: none
+  zero3_init_flag: true
+  zero_stage: 3
+distributed_type: DEEPSPEED
+downcast_bf16: 'yes'
+enable_cpu_affinity: true
+main_process_ip: 10.250.128.19
+main_process_port: 12355
+main_training_function: main
+mixed_precision: bf16
+num_machines: 4
+num_processes: 32
+rdzv_backend: static
+same_network: true
+tpu_env: []
+tpu_use_cluster: false
+tpu_use_sudo: false
+use_cpu: false
