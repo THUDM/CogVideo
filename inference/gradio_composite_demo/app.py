@@ -53,7 +53,7 @@ pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
 ).to(device)
 
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b",
+    "THUDM/CogVideoX-5b-I2V",
     transformer=CogVideoXTransformer3DModel.from_pretrained(
         "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
     ),
@@ -65,10 +65,10 @@ pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
 ).to(device)
 
 
-pipe.transformer.to(memory_format=torch.channels_last)
-pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
-pipe_image.transformer.to(memory_format=torch.channels_last)
-pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
+# pipe.transformer.to(memory_format=torch.channels_last)
+# pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
+# pipe_image.transformer.to(memory_format=torch.channels_last)
+# pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)
@@ -294,7 +294,8 @@ def delete_old_files():
 
 
 threading.Thread(target=delete_old_files, daemon=True).start()
-examples = [["horse.mp4"], ["kitten.mp4"], ["train_running.mp4"]]
+examples_videos = [["example_videos/horse.mp4"], ["example_videos/kitten.mp4"], ["example_videos/train_running.mp4"]]
+examples_images = [["example_images/beach.png"], ["example_images/street.png"], ["example_images/camping.png"]]
 
 with gr.Blocks() as demo:
     gr.Markdown("""
@@ -302,7 +303,8 @@ with gr.Blocks() as demo:
                CogVideoX-5B Huggingface Space🤗
            </div>
            <div style="text-align: center;">
-               <a href="https://huggingface.co/THUDM/CogVideoX-5B">🤗 5B Model Hub</a> |
+               <a href="https://huggingface.co/THUDM/CogVideoX-5B">🤗 5B(T2V) Model Hub</a> |
+               <a href="https://huggingface.co/THUDM/CogVideoX-5B-I2V">🤗 5B(I2V) Model Hub</a> |
                <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> |
                <a href="https://arxiv.org/pdf/2408.06072">📜 arxiv </a>
            </div>
@@ -320,10 +322,11 @@ with gr.Blocks() as demo:
         with gr.Column():
             with gr.Accordion("I2V: Image Input (cannot be used simultaneously with video input)", open=False):
                 image_input = gr.Image(label="Input Image (will be cropped to 720 * 480)")
+                examples_component_images = gr.Examples(examples_images, inputs=[examples_images], cache_examples=False)
             with gr.Accordion("V2V: Video Input (cannot be used simultaneously with image input)", open=False):
                 video_input = gr.Video(label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)")
                 strength = gr.Slider(0.1, 1.0, value=0.8, step=0.01, label="Strength")
-                examples_component = gr.Examples(examples, inputs=[video_input], cache_examples=False)
+                examples_component_videos = gr.Examples(examples_videos, inputs=[examples_videos], cache_examples=False)
             prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
 
             with gr.Row():
@@ -338,7 +341,7 @@ with gr.Blocks() as demo:
                             label="Inference Seed (Enter a positive number, -1 for random)", value=-1
                         )
                     with gr.Row():
-                        enable_scale = gr.Checkbox(label="Super-Resolution (720 × 480 -> 1440 × 960)", value=False)
+                        enable_scale = gr.Checkbox(label="Super-Resolution (720 × 480 -> 2880 × 1920)", value=False)
                         enable_rife = gr.Checkbox(label="Frame Interpolation (8fps -> 16fps)", value=False)
                     gr.Markdown(
                         "✨In this demo, we use [RIFE](https://github.com/hzwer/ECCV2022-RIFE) for frame interpolation and [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) for upscaling(Super-Resolution).<br>&nbsp;&nbsp;&nbsp;&nbsp;The entire process is based on open-source solutions."
@@ -356,7 +359,7 @@ with gr.Blocks() as demo:
     gr.Markdown("""
     <table border="0" style="width: 100%; text-align: left; margin-top: 20px;">
         <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
-            🎥 Video Gallery
+            🎥 Video Gallery(For 5B)
         </div>
         <tr>
             <td style="width: 25%; vertical-align: top; font-size: 0.9em;">

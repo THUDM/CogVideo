@@ -18,7 +18,10 @@ pip install -r requirements.txt
 
 ### 2. 下载模型权重
 
-首先，前往 SAT 镜像下载模型权重。对于 CogVideoX-2B 模型，请按照如下方式下载:
+首先，前往 SAT 镜像下载模型权重。
+
+对于 CogVideoX-2B 模型，请按照如下方式下载:
+
 ```shell
 mkdir CogVideoX-2b-sat
 cd CogVideoX-2b-sat
@@ -29,28 +32,27 @@ wget https://cloud.tsinghua.edu.cn/f/556a3e1329e74f1bac45/?dl=1
 mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
-对于 CogVideoX-5B 模型，请按照如下方式下载(VAE文件相同):
-```shell
-mkdir CogVideoX-5b-sat
-cd CogVideoX-5b-sat
-wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
-mv 'index.html?dl=1' vae.zip
-unzip vae.zip
-```
-然后，您需要前往[清华云盘](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list)下载我们的模型，并进行解压。
-整理之后， 两个模型的完整模型结构应该如下:
+
+请按如下链接方式下载 CogVideoX-5B 模型的 `transformers` 文件（VAE 文件与 2B 相同）：
+
++ [CogVideoX-5B](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list)
++ [CogVideoX-5B-I2V](https://cloud.tsinghua.edu.cn/d/5cc62a2d6e7d45c0a2f6/?p=%2F1&mode=list)
+
+接着，你需要将模型文件排版成如下格式：
 
 ```
 .
 ├── transformer
-│   ├── 1000 (or 1)
-│   │   └── mp_rank_00_model_states.pt
-│   └── latest
+│   ├── 1000 (or 1)
+│   │   └── mp_rank_00_model_states.pt
+│   └── latest
 └── vae
     └── 3d-vae.pt
 ```
 
-由于模型的权重档案较大，建议使用`git lfs`。`git lfs`安装参见[这里](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)
+由于模型的权重档案较大，建议使用`git lfs`。`git lfs`
+安装参见[这里](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)
+
 ```shell
 git lfs install
 ```
@@ -254,7 +256,7 @@ args:
   sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
-#  bf16: True # For CogVideoX-5B
+  #  bf16: True # For CogVideoX-5B
   output_dir: outputs/
   force_inference: True
 ```
@@ -406,28 +408,29 @@ python ../tools/convert_weight_sat2hf.py
 
 ### 从SAT权重文件 导出Huggingface Diffusers lora权重
 
-支持了从SAT权重文件 
+支持了从SAT权重文件
 在经过上面这些步骤训练之后，我们得到了一个sat带lora的权重，在{args.save}/1000/1000/mp_rank_00_model_states.pt你可以看到这个文件
 
 导出的lora权重脚本在CogVideoX仓库 tools/export_sat_lora_weight.py ,导出后使用 load_cogvideox_lora.py 推理
-- 导出命令
+
+导出命令:
+
 ```
 python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory   {args.save}/export_hf_lora_weights_1/
-···
+```
 
 这次训练主要修改了下面几个模型结构,下面列出了 转换为HF格式的lora结构对应关系,可以看到lora将模型注意力结构上增加一个低秩权重,
 
 ```
-
-    'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
-    'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
-    'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
-    'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
-    'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
-    'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
-    'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
-    'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
+'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
+'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
+'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
+'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
+'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
+'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
+'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
+'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
 ```
-    
+
 通过export_sat_lora_weight.py将它转换为HF格式的lora结构
 ![alt text](../resources/hf_lora_weights.png)
