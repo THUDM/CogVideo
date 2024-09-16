@@ -55,7 +55,7 @@ pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
     "THUDM/CogVideoX-5b",
     transformer=CogVideoXTransformer3DModel.from_pretrained(
-        "THUDM/CogVideoX-5b-I2V", subfolder="transformers", torch_dtype=torch.bfloat16
+        "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
     ),
     vae=pipe.vae,
     scheduler=pipe.scheduler,
@@ -65,10 +65,10 @@ pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
 ).to(device)
 
 
-pipe.transformer.to(memory_format=torch.channels_last)
-pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
-pipe_image.transformer.to(memory_format=torch.channels_last)
-pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
+# pipe.transformer.to(memory_format=torch.channels_last)
+# pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
+# pipe_image.transformer.to(memory_format=torch.channels_last)
+# pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)
@@ -241,7 +241,7 @@ def infer(
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
     elif image_input is not None:
-        image_input = Image.fromarray(image_input)  # Change to PIL
+        image_input = Image.fromarray(image_input).resize(size=(720, 480))  # Convert to PIL
         image = load_image(image_input)
         video_pt = pipe_image(
             image=image,

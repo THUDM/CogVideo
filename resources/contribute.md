@@ -8,16 +8,15 @@ will acknowledge your contribution on the project homepage.
 
 ## Model Algorithms
 
-- Support for model quantization inference (Int4, Int8, etc. quantization engineering)
-- Support for multi-card inference / model inference concurrency engineering
-- Support for non-CUDA architecture inference devices
+- Support for model quantization inference (Int4 quantization project)
+- Optimization of model fine-tuning data loading (replacing the existing decord tool)
 
-## Model Engineering / Secondary Development
+## Model Engineering
 
-- Model fine-tuning examples / best prompt practices
-- Video super-resolution/frame interpolation for enhancing video generation quality.
-- Any peripheral tools for the model
-- Any minimal complete open-source projects using the CogVideoX open-source model
+- Model fine-tuning examples / Best prompt practices
+- Inference adaptation on different devices (e.g., MLX framework)
+- Any tools related to the model
+- Any minimal fully open-source project using the CogVideoX open-source model
 
 ## Code Standards
 

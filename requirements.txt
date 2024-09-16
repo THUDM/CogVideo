@@ -7,7 +7,6 @@ torchvision==0.19.0
 sentencepiece==0.2.0
 SwissArmyTransformer>=0.4.12
 gradio>=4.44.0
-streamlit>=1.38.0
 imageio>=2.35.1
 imageio-ffmpeg>=0.5.1
 openai>=1.45.0

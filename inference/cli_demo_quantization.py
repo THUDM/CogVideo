@@ -84,8 +84,8 @@ def generate_video(
     # Using with compile will run faster. First time infer will cost ~30min to compile.
     # pipe.transformer.to(memory_format=torch.channels_last)
 
-    # for FP8 should remove  pipe.enable_sequential_cpu_offload()
-    pipe.enable_sequential_cpu_offload()
+    # for FP8 should remove pipe.enable_model_cpu_offload()
+    pipe.enable_model_cpu_offload()
 
     # This is not for FP8 and INT8 and should remove this line
     # pipe.enable_sequential_cpu_offload()
