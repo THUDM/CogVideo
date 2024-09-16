@@ -10,7 +10,6 @@ import skvideo.io
 from rife.RIFE_HDv3 import Model
 
 logger = logging.getLogger(__name__)
-
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -37,8 +36,7 @@ def make_inference(model, I0, I1, upscale_amount, n):
 
 @torch.inference_mode()
 def ssim_interpolation_rife(model, samples, exp=1, upscale_amount=1, output_device="cpu"):
-    print(f"samples dtype:{samples.dtype}")
-    print(f"samples shape:{samples.shape}")
+
     output = []
     # [f, c, h, w]
     for b in range(samples.shape[0]):
@@ -119,13 +117,11 @@ def rife_inference_with_path(model, video_path):
 
 
 def rife_inference_with_latents(model, latents):
-    pbar = utils.ProgressBar(latents.shape[1], desc="RIFE inference")
     rife_results = []
     latents = latents.to(device)
     for i in range(latents.size(0)):
         #  [f, c, w, h]
         latent = latents[i]
-
         frames = ssim_interpolation_rife(model, latent)
         pt_image = torch.stack([frames[i].squeeze(0) for i in range(len(frames))])  # (to [f, c, w, h])
         rife_results.append(pt_image)
