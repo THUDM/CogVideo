@@ -1,4 +1,2 @@
 node1 slots=8
 node2 slots=8
-node3 slots=8
-node4 slots=8

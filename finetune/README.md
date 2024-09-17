@@ -1,20 +1,34 @@
 # CogVideoX diffusers Fine-tuning Guide
 
-If you want to see the SAT version fine-tuning, please check [here](../sat/README.md). The dataset format is different
-from this version.
+[中文阅读](./README_zh.md)
 
-This tutorial aims to quickly fine-tune the diffusers version of the CogVideoX model.
+[日本語で読む](./README_ja.md)
 
-### Hardware Requirements
+This feature is not fully complete yet. If you want to check the fine-tuning for the SAT version, please
+see [here](../sat/README_zh.md). The dataset format is different from this version.
 
-+ CogVideoX-2B LORA: 1 * A100
+## Hardware Requirements
+
++ CogVideoX-2B LoRA: 1 * A100
 + CogVideoX-2B SFT:  8 * A100
-+ CogVideoX-5B/5B-I2V not yet supported
++ CogVideoX-5B/5B-I2V is not supported yet.
 
-### Prepare the Dataset
+## Install Dependencies
 
-First, you need to prepare the dataset. The format of the dataset is as follows, where `videos.txt` contains paths to
-the videos in the `videos` directory.
+Since the related code has not been merged into the diffusers release, you need to base your fine-tuning on the
+diffusers branch. Please follow the steps below to install dependencies:
+
+```shell
+git clone https://github.com/huggingface/diffusers.git
+cd diffusers
+git checkout cogvideox-lora-and-training
+pip install -e .
+```
+
+## Prepare the Dataset
+
+First, you need to prepare the dataset. The dataset format should be as follows, with `videos.txt` containing the list
+of videos in the `videos` directory:
 
 ```
 .
@@ -23,152 +37,89 @@ the videos in the `videos` directory.
 └── videos.txt
 ```
 
-You can download [Disney Steamboat Willie](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset)
-from here.
+You can download
+the [Disney Steamboat Willie](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset) dataset from
+here.
 
-The video fine-tuning dataset is used as a test for fine-tuning.
+This video fine-tuning dataset is used as a test for fine-tuning.
 
-### Configuration Files and Execution
+## Configuration Files and Execution
 
-`accelerate` configuration files are as follows:
+The `accelerate` configuration files are as follows:
 
-+ accelerate_config_machine_multi.yaml for multi-GPU use
-+ accelerate_config_machine_single.yaml for single-GPU use
++ `accelerate_config_machine_multi.yaml`: Suitable for multi-GPU use
++ `accelerate_config_machine_single.yaml`: Suitable for single-GPU use
 
-The `finetune` script configuration is as follows:
+The configuration for the `finetune` script is as follows:
 
 ```shell
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  
+# This command sets the PyTorch CUDA memory allocation strategy to expandable segments to prevent OOM (Out of Memory) errors.
 
-# This command sets PyTorch's CUDA memory allocation strategy to segment-based memory management to prevent OOM (Out of Memory) errors.
+accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu # Launch training using Accelerate with the specified config file for multi-GPU.
 
-accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \
+  train_cogvideox_lora.py   # This is the training script for LoRA fine-tuning of the CogVideoX model.
 
-# Use Accelerate to start training, specifying the `accelerate_config_machine_single.yaml` configuration file, and using multiple GPUs.
+  --pretrained_model_name_or_path THUDM/CogVideoX-2b   # Path to the pretrained model you want to fine-tune, pointing to the CogVideoX-2b model.
 
-train_cogvideox_lora.py \
+  --cache_dir ~/.cache   # Directory for caching models downloaded from Hugging Face.
 
-# This is the training script you will execute for LoRA fine-tuning of the CogVideoX model.
+  --enable_tiling   # Enable VAE tiling to reduce memory usage by processing images in smaller chunks.
 
---pretrained_model_name_or_path THUDM/CogVideoX-2b \
+  --enable_slicing   # Enable VAE slicing to split the image into slices along the channel to save memory.
 
-# The path to the pretrained model, pointing to the CogVideoX-5b model you want to fine-tune.
+  --instance_data_root ~/disney/   # Root directory for instance data, i.e., the dataset used for training.
 
---cache_dir ~/.cache \
+  --caption_column prompts.txt   # Specify the column or file containing instance prompts (text descriptions), in this case, the `prompts.txt` file.
 
-# The directory where downloaded models and datasets will be stored.
+  --video_column videos.txt   # Specify the column or file containing video paths, in this case, the `videos.txt` file.
 
---enable_tiling \
+  --validation_prompt "Mickey with the captain and friends:::Mickey and the bear"   # Validation prompts; multiple prompts are separated by the specified delimiter (e.g., `:::`).
 
-# Enable VAE tiling functionality, which reduces memory usage by processing smaller blocks of the image.
+  --validation_prompt_separator :::   # The separator for validation prompts, set to `:::` here.
 
---enable_slicing \
+  --num_validation_videos 1   # Number of videos to generate during validation, set to 1.
 
-# Enable VAE slicing functionality, which slices the image across channels to save memory.
+  --validation_epochs 2   # Number of epochs after which validation will be run, set to every 2 epochs.
 
---instance_data_root ~/disney/ \
+  --seed 3407   # Set a random seed to ensure reproducibility, set to 3407.
 
-# The root directory of the instance data, the folder of the dataset used during training.
+  --rank 128   # Dimension of the LoRA update matrix, controls the size of the LoRA layers, set to 128.
 
---caption_column prompts.txt \
+  --mixed_precision bf16   # Use mixed precision training, set to `bf16` (bfloat16) to reduce memory usage and speed up training.
 
-# Specifies the column or file containing instance prompts (text descriptions), in this case, the `prompts.txt` file.
+  --output_dir cogvideox-lora-single-gpu   # Output directory for storing model predictions and checkpoints.
 
---video_column videos.txt \
+  --height 480   # Height of the input videos, all videos will be resized to 480 pixels.
 
-# Specifies the column or file containing paths to videos, in this case, the `videos.txt` file.
+  --width 720   # Width of the input videos, all videos will be resized to 720 pixels.
 
---validation_prompt "Mickey with the captain and friends:::Mickey and the bear" \
+  --fps 8   # Frame rate of the input videos, all videos will be processed at 8 frames per second.
 
-# The prompt(s) used for validation, multiple prompts should be separated by the specified delimiter (`:::`).
+  --max_num_frames 49   # Maximum number of frames per input video, videos will be truncated to 49 frames.
 
---validation_prompt_separator ::: \
+  --skip_frames_start 0   # Number of frames to skip from the start of each video, set to 0 to not skip any frames.
 
-# The delimiter for validation prompts, set here as `:::`.
+  --skip_frames_end 0   # Number of frames to skip from the end of each video, set to 0 to not skip any frames.
 
---num_validation_videos 1 \
+  --train_batch_size 1   # Training batch size per device, set to 1.
 
-# The number of videos to be generated during validation, set to 1.
+  --num_train_epochs 10   # Total number of training epochs, set to 10.
 
---validation_epochs 2 \
+  --checkpointing_steps 500   # Save checkpoints every 500 steps.
 
-# How many epochs to run validation, set to validate every 2 epochs.
+  --gradient_accumulation_steps 1   # Gradient accumulation steps, perform an update every 1 step.
 
---seed 3407 \
+  --learning_rate 1e-4   # Initial learning rate, set to 1e-4.
 
-# Sets the random seed for reproducible training, set to 3407.
+  --optimizer AdamW   # Optimizer type, using AdamW optimizer.
 
---rank 128 \
+  --adam_beta1 0.9   # Beta1 parameter for the Adam optimizer, set to 0.9.
 
-# The dimension of the LoRA update matrices, controlling the size of the LoRA layer parameters, set to 128.
-
---mixed_precision bf16 \
-
-# Use mixed precision training, set to `bf16` (bfloat16), which can reduce memory usage and speed up training.
-
---output_dir cogvideox-lora-single-gpu \
-
-# Output directory, where model predictions and checkpoints will be stored.
-
---height 480 \
-
-# The height of input videos, all videos will be resized to 480 pixels.
-
---width 720 \
-
-# The width of input videos, all videos will be resized to 720 pixels.
-
---fps 8 \
-
-# The frame rate of input videos, all videos will be processed at 8 frames per second.
-
---max_num_frames 49 \
-
-# The maximum number of frames for input videos, videos will be truncated to a maximum of 49 frames.
-
---skip_frames_start 0 \
-
-# The number of frames to skip at the beginning of each video, set to 0, indicating no frames are skipped.
-
---skip_frames_end 0 \
-
-# The number of frames to skip at the end of each video, set to 0, indicating no frames are skipped.
-
---train_batch_size 1 \
-
-# The batch size for training, set to 1 per device.
-
---num_train_epochs 10 \
-
-# The total number of epochs for training, set to 10.
-
---checkpointing_steps 500 \
-
-# Save a checkpoint every 500 steps.
-
---gradient_accumulation_steps 1 \
-
-# The number of gradient accumulation steps, indicating that a gradient update is performed every 1 step.
-
---learning_rate 1e-4 \
-
-# The initial learning rate, set to 1e-4.
-
---optimizer AdamW \
-
-# The type of optimizer, choosing AdamW.
-
---adam_beta1 0.9 \
-
-# The beta1 parameter for the Adam optimizer, set to 0.9.
-
---adam_beta2 0.95 \
-
-# The beta2 parameter for the Adam optimizer, set to 0.95.
-
+  --adam_beta2 0.95   # Beta2 parameter for the Adam optimizer, set to 0.95.
 ```
 
-### Run the script to start fine-tuning
+## Running the Script to Start Fine-tuning
 
 Single GPU fine-tuning:
 
@@ -179,19 +130,23 @@ bash finetune_single_gpu.sh
 Multi-GPU fine-tuning:
 
 ```shell
-bash finetune_multi_gpus_1.sh # needs to be run on each node
+bash finetune_multi_gpus_1.sh # Needs to be run on each node
 ```
 
-### Best Practices
+## Loading the Fine-tuned Model
 
-+ Include 70 videos with a resolution of `200 x 480 x 720` (frames x height x width). Through data preprocessing's frame
-  skipping, we created two smaller datasets of 49 and 16 frames to speed up experiments, as the CogVideoX team suggests
-  a maximum frame count of 49. We divided the 70 videos into three groups of 10, 25, and 50 videos. These videos are
-  conceptually similar.
-+ 25 or more videos work best when training new concepts and styles.
-+ Now using an identifier token specified through `--id_token` enhances training results. This is similar to Dreambooth
-  training, but regular fine-tuning without this token also works.
-+ The original repository uses `lora_alpha` set to 1. We found this value to be ineffective in multiple runs, likely due
-  to differences in model backend and training setups. Our recommendation is to set lora_alpha to the same as rank or
-  rank // 2.
-+ Using settings with a rank of 64 or above is recommended.
++ Please refer to [cli_demo.py](../inference/cli_demo.py) for how to load the fine-tuned model.
+
+## Best Practices
+
++ Includes 70 training videos with a resolution of `200 x 480 x 720` (frames x height x width). By skipping frames in
+  the data preprocessing, we created two smaller datasets with 49 and 16 frames to speed up experimentation, as the
+  maximum frame limit recommended by the CogVideoX team is 49 frames. We split the 70 videos into three groups of 10,
+  25, and 50 videos, with similar conceptual nature.
++ Using 25 or more videos works best when training new concepts and styles.
++ It works better to train using identifier tokens specified with `--id_token`. This is similar to Dreambooth training,
+  but regular fine-tuning without such tokens also works.
++ The original repository used `lora_alpha` set to 1. We found this value ineffective across multiple runs, likely due
+  to differences in the backend and training setup. Our recommendation is to set `lora_alpha` equal to rank or rank //
+  2.
++ We recommend using a rank of 64 or higher.

@@ -1,16 +1,29 @@
 # CogVideoX diffusers 微调方案
 
-如果您想查看SAT版本微调，请查看[这里](../sat/README_zh.md)。其数据集格式与本版本不同。
+[Read this in English](./README_zh.md)
 
-本教程旨在快速微调 diffusers 版本 CogVideoX 模型。
+[日本語で読む](./README_ja.md)
 
-### 硬件要求
+本功能尚未完全完善，如果您想查看SAT版本微调，请查看[这里](../sat/README_zh.md)。其数据集格式与本版本不同。
+
+## 硬件要求
 
 + CogVideoX-2B LORA: 1 * A100
 + CogVideoX-2B SFT:  8 * A100
 + CogVideoX-5B/5B-I2V 暂未支持
 
-### 准备数据集
+## 安装依赖
+
+由于相关代码还没有被合并到diffusers发行版，你需要基于diffusers分支进行微调。请按照以下步骤安装依赖：
+
+```shell
+git clone https://github.com/huggingface/diffusers.git
+cd diffusers
+git checkout cogvideox-lora-and-training
+pip install -e .
+```
+
+## 准备数据集
 
 首先，你需要准备数据集，数据集格式如下，其中，videos.txt 存放 videos 中的视频。
 
@@ -25,7 +38,7 @@
 
 视频微调数据集作为测试微调。
 
-### 配置文件和运行
+## 配置文件和运行
 
 `accelerate` 配置文件如下:
 
@@ -132,7 +145,7 @@ accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gp
   # Adam 优化器的 beta2 参数，设置为 0.95。
 ```
 
-### 运行脚本，开始微调
+## 运行脚本，开始微调
 
 单卡微调：
 
@@ -146,7 +159,11 @@ bash finetune_single_gpu.sh
 bash finetune_multi_gpus_1.sh #需要在每个节点运行
 ```
 
-### 最佳实践
+## 载入微调的模型
+
++ 请关注[cli_demo.py](../inference/cli_demo.py) 以了解如何加载微调的模型。
+
+## 最佳实践
 
 + 包含70个分辨率为 `200 x 480 x 720`（帧数 x 高 x
   宽）的训练视频。通过数据预处理中的帧跳过，我们创建了两个较小的49帧和16帧数据集，以加快实验速度，因为CogVideoX团队建议的最大帧数限制是49帧。我们将70个视频分成三组，分别为10、25和50个视频。这些视频的概念性质相似。
@@ -155,7 +172,4 @@ bash finetune_multi_gpus_1.sh #需要在每个节点运行
 + 原始仓库使用 `lora_alpha` 设置为 1。我们发现这个值在多次运行中效果不佳，可能是因为模型后端和训练设置的不同。我们的建议是将
   lora_alpha 设置为与 rank 相同或 rank // 2。
 + 建议使用 rank 为 64 及以上的设置。
-
-
-
 

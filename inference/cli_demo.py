@@ -35,6 +35,8 @@ from diffusers.utils import export_to_video, load_image, load_video
 def generate_video(
     prompt: str,
     model_path: str,
+    lora_path: str = None,
+    lora_rank: int = 128,
     output_path: str = "./output.mp4",
     image_or_video_path: str = "",
     num_inference_steps: int = 50,
@@ -50,6 +52,8 @@ def generate_video(
     Parameters:
     - prompt (str): The description of the video to be generated.
     - model_path (str): The path of the pre-trained model to be used.
+    - lora_path (str): The path of the LoRA weights to be used.
+    - lora_rank (int): The rank of the LoRA weights.
     - output_path (str): The path where the generated video will be saved.
     - num_inference_steps (int): Number of steps for the inference process. More steps can result in better quality.
     - guidance_scale (float): The scale for classifier-free guidance. Higher values can lead to better alignment with the prompt.
@@ -74,6 +78,11 @@ def generate_video(
     else:
         pipe = CogVideoXVideoToVideoPipeline.from_pretrained(model_path, torch_dtype=dtype)
         video = load_video(image_or_video_path)
+
+    # If you're using with lora, add this code
+    if lora_path:
+        pipe.load_lora_weights(lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
+        pipe.fuse_lora(lora_scale=1 / lora_rank)
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
@@ -145,6 +154,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_path", type=str, default="THUDM/CogVideoX-5b", help="The path of the pre-trained model to be used"
     )
+    parser.add_argument("--lora_path", type=str, default=None, help="The path of the LoRA weights to be used")
+    parser.add_argument("--lora_rank", type=int, default=128, help="The rank of the LoRA weights")
     parser.add_argument(
         "--output_path", type=str, default="./output.mp4", help="The path where the generated video will be saved"
     )
@@ -166,8 +177,10 @@ if __name__ == "__main__":
     generate_video(
         prompt=args.prompt,
         model_path=args.model_path,
-        image_or_video_path=args.image_or_video_path,
+        lora_path=args.lora_path,
+        lora_rank=args.lora_rank,
         output_path=args.output_path,
+        image_or_video_path=args.image_or_video_path,
         num_inference_steps=args.num_inference_steps,
         guidance_scale=args.guidance_scale,
         num_videos_per_prompt=args.num_videos_per_prompt,
