@@ -21,6 +21,10 @@
 └── videos.txt
 ```
 
+你可以从这里下载 [迪士尼汽船威利号](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset)
+
+视频微调数据集作为测试微调。
+
 ### 配置文件和运行
 
 `accelerate` 配置文件如下:

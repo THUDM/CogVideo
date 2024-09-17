@@ -23,6 +23,11 @@ the videos in the `videos` directory.
 └── videos.txt
 ```
 
+You can download [Disney Steamboat Willie](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset)
+from here.
+
+The video fine-tuning dataset is used as a test for fine-tuning.
+
 ### Configuration Files and Execution
 
 `accelerate` configuration files are as follows:

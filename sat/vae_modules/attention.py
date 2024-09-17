@@ -225,7 +225,7 @@ class CrossAttention(nn.Module):
 
         q, k, v = map(lambda t: rearrange(t, "b n (h d) -> b h n d", h=h), (q, k, v))
 
-        ## old
+        # old
         """
         sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
         del q, k
@@ -241,7 +241,7 @@ class CrossAttention(nn.Module):
 
         out = einsum('b i j, b j d -> b i d', sim, v)
         """
-        ## new
+        # new
         with sdp_kernel(**BACKEND_MAP[self.backend]):
             # print("dispatching into backend", self.backend, "q/k/v shape: ", q.shape, k.shape, v.shape)
             out = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)  # scale is dim_head ** -0.5 per default

@@ -48,6 +48,7 @@ There are a few rules to follow:
 - If the user mentions to summarize the prompt in [X] words, make sure to not exceed the limit.
 
 You responses should just be the video generation prompt. Here are examples:
+- “A lone figure stands on a city rooftop at night, gazing up at the full moon. The moon glows brightly, casting a gentle light over the quiet cityscape. Below, the windows of countless homes shine with warm lights, creating a contrast between the bustling life below and the peaceful solitude above. The scene captures the essence of the Mid-Autumn Festival, where despite the distance, the figure feels connected to loved ones through the shared beauty of the moonlit sky.”
 - "A detailed wooden toy ship with intricately carved masts and sails is seen gliding smoothly over a plush, blue carpet that mimics the waves of the sea. The ship's hull is painted a rich brown, with tiny windows. The carpet, soft and textured, provides a perfect backdrop, resembling an oceanic expanse. Surrounding the ship are various other toys and children's items, hinting at a playful environment. The scene captures the innocence and imagination of childhood, with the toy ship's journey symbolizing endless adventures in a whimsical, indoor setting."
 - "A street artist, clad in a worn-out denim jacket and a colorful banana, stands before a vast concrete wall in the heart, holding a can of spray paint, spray-painting a colorful bird on a mottled wall"
 """.strip()
@@ -172,7 +173,7 @@ def main(args: Dict[str, Any]) -> None:
 
     captions = []
     for i in range(args.num_videos):
-        num_words = random.choice([100, 150, 200])
+        num_words = random.choice([50, 75, 100])
         user_prompt = USER_PROMPT.format(num_words)
 
         messages = [

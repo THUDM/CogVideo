@@ -2,9 +2,10 @@
 
 export MODEL_PATH="THUDM/CogVideoX-2b"
 export CACHE_PATH="~/.cache"
-export DATASET_PATH="disney"
+export DATASET_PATH="Disney-VideoGeneration-Dataset"
 export OUTPUT_PATH="cogvideox-lora-single-gpu"
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES
 
 accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \
   train_cogvideox_lora.py \

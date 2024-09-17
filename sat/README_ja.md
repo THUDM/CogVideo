@@ -32,18 +32,12 @@ mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
 
-CogVideoX-5B モデルの場合は、次のようにダウンロードしてください (VAE ファイルは同じです)。
+CogVideoX-5B モデルの `transformers` ファイルを以下のリンクからダウンロードしてください （VAE ファイルは 2B と同じです）：
 
-```shell
-mkdir CogVideoX-5b-sat
-cd CogVideoX-5b-sat
-wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
-mv 'index.html?dl=1' vae.zip
-unzip vae.zip
-```
++ [CogVideoX-5B](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list)
++ [CogVideoX-5B-I2V](https://cloud.tsinghua.edu.cn/d/5cc62a2d6e7d45c0a2f6/?p=%2F1&mode=list)
 
-次に、[Tsinghua Cloud Disk](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list) に移動してモデルをダウンロードし、解凍する必要があります。
-整理すると、2 つのモデルの完全なモデル構造は次のようになります。 モデル構造は次のようになります：
+次に、モデルファイルを以下の形式にフォーマットする必要があります：
 
 ```
 .
@@ -55,8 +49,9 @@ unzip vae.zip
     └── 3d-vae.pt
 ```
 
+モデルの重みファイルが大きいため、`git lfs`を使用することをお勧めいたします。`git lfs`
+のインストールについては、[こちら](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)をご参照ください。
 
-モデルの重みファイルが大きいため、`git lfs`を使用することをお勧めいたします。`git lfs`のインストールについては、[こちら](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)をご参照ください。
 ```shell
 git lfs install
 ```
@@ -166,14 +161,14 @@ model:
           ucg_rate: 0.1
           target: sgm.modules.encoders.modules.FrozenT5Embedder
           params:
-            model_dir: "{absolute_path/to/your/t5-v1_1-xxl}/t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxlフォルダの絶対パス
+            model_dir: "t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxlフォルダの絶対パス
             max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
       cp_size: 1
-      ckpt_path: "{absolute_path/to/your/t5-v1_1-xxl}/CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.ptフォルダの絶対パス
+      ckpt_path: "CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.ptフォルダの絶対パス
       ignore_keys: [ 'loss' ]
 
       loss_config:
@@ -244,6 +239,7 @@ model:
           exp: 5
           num_steps: 50
 ```
+
 ### 4. `configs/inference.yaml` ファイルを変更します。
 
 ```yaml
@@ -259,7 +255,7 @@ args:
   sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
-#  bf16: True # For CogVideoX-5B
+  #  bf16: True # For CogVideoX-5B
   output_dir: outputs/
   force_inference: True
 ```
@@ -417,25 +413,23 @@ python ../tools/convert_weight_sat2hf.py
 
 LoRAウェイトをエクスポートするためのスクリプトは、CogVideoXリポジトリの `tools/export_sat_lora_weight.py` にあります。エクスポート後、`load_cogvideox_lora.py` を使用して推論を行うことができます。
 
-#### エクスポートコマンド:
+エクスポートコマンド:
+
 ```bash
 python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory {args.save}/export_hf_lora_weights_1/
 ```
 
 このトレーニングでは主に以下のモデル構造が変更されました。以下の表は、HF (Hugging Face) 形式のLoRA構造に変換する際の対応関係を示しています。ご覧の通り、LoRAはモデルの注意メカニズムに低ランクの重みを追加しています。
 
-
-
 ```
-
-    'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
-    'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
-    'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
-    'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
-    'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
-    'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
-    'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
-    'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
+'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
+'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
+'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
+'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
+'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
+'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
+'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
+'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
 ```
   
 export_sat_lora_weight.py を使用して、SATチェックポイントをHF LoRA形式に変換できます。

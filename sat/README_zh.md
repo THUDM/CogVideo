@@ -162,14 +162,14 @@ model:
           ucg_rate: 0.1
           target: sgm.modules.encoders.modules.FrozenT5Embedder
           params:
-            model_dir: "{absolute_path/to/your/t5-v1_1-xxl}/t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxl权重文件夹的绝对路径
+            model_dir: "t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxl 权重文件夹的绝对路径
             max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
       cp_size: 1
-      ckpt_path: "{absolute_path/to/your/t5-v1_1-xxl}/CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.pt文件夹的绝对路径
+      ckpt_path: "CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.pt文件夹的绝对路径
       ignore_keys: [ 'loss' ]
 
       loss_config:
@@ -294,9 +294,9 @@ bash inference.sh
 ```
 .
 ├── labels
-│   ├── 1.txt
-│   ├── 2.txt
-│   ├── ...
+│   ├── 1.txt
+│   ├── 2.txt
+│   ├── ...
 └── videos
     ├── 1.mp4
     ├── 2.mp4

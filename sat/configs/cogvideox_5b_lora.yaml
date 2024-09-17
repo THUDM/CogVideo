@@ -1,7 +1,7 @@
 model:
   scale_factor: 0.7 # different from cogvideox_2b_infer.yaml
   disable_first_stage_autocast: true
-  not_trainable_prefixes: ['all'] ## Using Lora
+  not_trainable_prefixes: ['all'] # Using Lora
   log_keys:
     - txt
 
@@ -53,7 +53,7 @@ model:
             hidden_size_head: 64
             text_length: 226
 
-        lora_config: ## Using Lora
+        lora_config: # Using Lora
           target: sat.model.finetune.lora2.LoraMixin
           params:
             r: 128

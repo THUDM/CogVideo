@@ -1073,7 +1073,6 @@ def main(args):
         target_modules=["to_k", "to_q", "to_v", "to_out.0"],
     )
     transformer.add_adapter(transformer_lora_config)
-
     if args.train_text_encoder:
         text_lora_config = LoraConfig(
             r=args.rank,
