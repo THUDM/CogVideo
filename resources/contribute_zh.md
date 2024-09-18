@@ -30,10 +30,10 @@ pip install ruff
 ruff check tools sat inference
 ```
 
-检查代码风格，如果有问题，您可以通过`ruff formate`命令自动修复。
+检查代码风格，如果有问题，您可以通过`ruff format .`命令自动修复。
 
 ```shell
-ruff formate tools sat inference
+ruff format tools sat inference
 ```
 
 如果您的代码符合规范，应该不会出现任何的错误。
