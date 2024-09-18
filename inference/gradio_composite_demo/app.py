@@ -40,10 +40,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran")
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
+pipe = CogVideoXPipeline.from_pretrained("/share/official_pretrains/hf_home/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b",
+    "/share/official_pretrains/hf_home/CogVideoX-5b",
     transformer=pipe.transformer,
     vae=pipe.vae,
     scheduler=pipe.scheduler,
@@ -53,9 +53,9 @@ pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
 ).to(device)
 
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b-I2V",
+    "/share/official_pretrains/hf_home/CogVideoX-5b-I2V",
     transformer=CogVideoXTransformer3DModel.from_pretrained(
-        "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
+        "/share/official_pretrains/hf_home/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
     ),
     vae=pipe.vae,
     scheduler=pipe.scheduler,
@@ -322,11 +322,11 @@ with gr.Blocks() as demo:
         with gr.Column():
             with gr.Accordion("I2V: Image Input (cannot be used simultaneously with video input)", open=False):
                 image_input = gr.Image(label="Input Image (will be cropped to 720 * 480)")
-                examples_component_images = gr.Examples(examples_images, inputs=[examples_images], cache_examples=False)
+                examples_component_images = gr.Examples(examples_images, inputs=[image_input], cache_examples=False)
             with gr.Accordion("V2V: Video Input (cannot be used simultaneously with image input)", open=False):
                 video_input = gr.Video(label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)")
                 strength = gr.Slider(0.1, 1.0, value=0.8, step=0.01, label="Strength")
-                examples_component_videos = gr.Examples(examples_videos, inputs=[examples_videos], cache_examples=False)
+                examples_component_videos = gr.Examples(examples_videos, inputs=[video_input], cache_examples=False)
             prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
 
             with gr.Row():

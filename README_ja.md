@@ -24,6 +24,9 @@
 
 - 🔥🔥 **ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
   をオープンソース化しました。このモデルでは、背景として画像を入力し、プロンプトと組み合わせてビデオを生成でき、より強力なコントロール性を提供します。これで、CogVideoXシリーズは、テキスト生成ビデオ、ビデオ拡張、画像生成ビデオの3つのタスクをサポートしています。ぜひ [オンラインでお試しください](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)。
+- 🔥🔥 **ニュース**: ```2024/9/19```：CogVideoX
+  のトレーニングプロセスで、ビデオデータをテキストに変換するためのキャプションモデル [cogvlm2-llama3-caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
+  がオープンソース化されました。ぜひダウンロードしてご利用ください。
 - 🔥 **ニュース**: ```2024/9/16```: 自動動画生成ツールを追加しました！オープンソースのローカルモデル + FLUX + CogVideoX
   を使用して、高品質な動画を自動生成できます。ぜひ[お試しください](tools/llm_flux_cogvideox/llm_flux_cogvideox.py)。
 - 🔥 **ニュース**: ```2024/9/15```: CogVideoXのLoRAファインチューニングの重みがエクスポートされ、`diffusers`
@@ -286,6 +289,8 @@ pipe.vae.enable_tiling()
   CogVideoX-5B テキストからビデオへの量子化推論用Colabコード。1回の実行に約30分かかります。
 + [CogVideoX-5B-I2V-Colab.ipynb](https://colab.research.google.com/drive/17CqYCqSwz39nZAX2YyonDxosVKUZGzcX?usp=sharing):
   CogVideoX-5B 画像からビデオへの生成用Colabコード。
++ [CogVideoX-5B-V2V-Colab.ipynb](https://colab.research.google.com/drive/1comfGAUJnChl5NwPuO8Ox5_6WCy4kbNN?usp=sharing):
+  CogVideoX-5B ビデオからビデオへの生成用Colabコード。
 
 ### Inference
 

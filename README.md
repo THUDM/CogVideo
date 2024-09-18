@@ -26,6 +26,9 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
   This model allows inputting an image as a background combined with prompts to generate videos, providing greater
   controllability. With this release, the CogVideoX series now supports three tasks: text-to-video, video extension, and
   image-to-video generation. Feel free to try it out [online](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space).
+- 🔥🔥 **News**: ```2024/9/19```: The caption model used in the CogVideoX training process to convert video data into text
+  descriptions, [cogvlm2-llama3-caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption), is now open-source. Feel
+  free to download and use it.
 - 🔥 **News**: ```2024/9/16```: We have added an automated video generation tool! You can now use local open-source
   models + FLUX + CogVideoX to automatically generate high-quality videos. Feel free
   to [try it out](tools/llm_flux_cogvideox/llm_flux_cogvideox.py).
@@ -319,7 +322,8 @@ Here provide three projects that can be run directly on free Colab T4 instances:
   CogVideoX-5B Quantized Text-to-Video Inference Colab code, which takes about 30 minutes per run.
 + [CogVideoX-5B-I2V-Colab.ipynb](https://colab.research.google.com/drive/17CqYCqSwz39nZAX2YyonDxosVKUZGzcX?usp=sharing):
   CogVideoX-5B Image-to-Video Colab code.
-
++ [CogVideoX-5B-V2V-Colab.ipynb](https://colab.research.google.com/drive/1comfGAUJnChl5NwPuO8Ox5_6WCy4kbNN?usp=sharing):
+  CogVideoX-5B Video-to-Video Colab code.
 
 ### Inference
 
