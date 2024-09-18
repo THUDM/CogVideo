@@ -178,7 +178,7 @@ models we currently offer, along with their foundational information.
     <th style="text-align: center;">Model Name</th>
     <th style="text-align: center;">CogVideoX-2B</th>
     <th style="text-align: center;">CogVideoX-5B</th>
-    <th style="text-align: center;">CogVideoX-5B-I2V (This Repository)</th>
+    <th style="text-align: center;">CogVideoX-5B-I2V</th>
   </tr>
   <tr>
     <td style="text-align: center;">Model Description</td>
