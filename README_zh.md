@@ -93,6 +93,9 @@ pip install -r requirements.txt
 
 查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。
 
+关于量化推理的更多细节，请查看[diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao/)
+。这里发布了一份完整的内存和时间基准测试列表，涵盖了A100和H100上的各种设置。
+
 ## 视频作品
 
 ### CogVideoX-5B

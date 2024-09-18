@@ -114,6 +114,10 @@ pip install -r requirements.txt
 Then follow [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the
 significance of common parameters.
 
+For more details on quantized inference, please refer
+to [diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao/). A full list of memory and time benchmarks with
+various settings on A100 and H100 has been published there.
+
 ## Gallery
 
 ### CogVideoX-5B

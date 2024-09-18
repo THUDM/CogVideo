@@ -97,6 +97,9 @@ pip install -r requirements.txt
 
 次に [diffusers_demo](inference/cli_demo.py) を参照してください: 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
 
+量子化推論に関する詳細は、[diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao/)
+をご覧ください。A100とH100における様々な設定でのメモリおよび時間のベンチマークリストが公開されています。
+
 ## Gallery
 
 ### CogVideoX-5B
