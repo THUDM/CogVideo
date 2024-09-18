@@ -22,6 +22,7 @@ pip install -r requirements.txt
 ### 2. Download model weights
 
 First, go to the SAT mirror to download the model weights. For the CogVideoX-2B model, please download as follows:
+
 ```shell
 mkdir CogVideoX-2b-sat
 cd CogVideoX-2b-sat
@@ -32,16 +33,14 @@ wget https://cloud.tsinghua.edu.cn/f/556a3e1329e74f1bac45/?dl=1
 mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
-For the CogVideoX-5B model, please download as follows (VAE files are the same):
-```shell
-mkdir CogVideoX-5b-sat
-cd CogVideoX-5b-sat
-wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
-mv 'index.html?dl=1' vae.zip
-unzip vae.zip
-```
-Then, you need to go to [Tsinghua Cloud Disk](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list) to download our model and unzip it.
-After sorting, the complete model structure of the two models should be as follows:
+
+For the CogVideoX-5B model, please download the `transformers` file as follows link:
+(VAE files are the same as 2B)
+
++ [CogVideoX-5B](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list)
++ [CogVideoX-5B-I2V](https://cloud.tsinghua.edu.cn/d/5cc62a2d6e7d45c0a2f6/?p=%2F1&mode=list)
+
+Next, you need to format the model files as follows:
 
 ```
 .
@@ -53,7 +52,8 @@ After sorting, the complete model structure of the two models should be as follo
     └── 3d-vae.pt
 ```
 
-Due to large size of model weight file, using `git lfs` is recommended. Installation of `git lfs` can be found [here](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing) 
+Due to large size of model weight file, using `git lfs` is recommended. Installation of `git lfs` can be
+found [here](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)
 
 Next, clone the T5 model, which is not used for training and fine-tuning, but must be used.
 > T5 model is available on [Modelscope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b) as well.
@@ -160,14 +160,14 @@ model:
           ucg_rate: 0.1
           target: sgm.modules.encoders.modules.FrozenT5Embedder
           params:
-            model_dir: "{absolute_path/to/your/t5-v1_1-xxl}/t5-v1_1-xxl" # Absolute path to the CogVideoX-2b/t5-v1_1-xxl weights folder
+            model_dir: "t5-v1_1-xxl" # Absolute path to the CogVideoX-2b/t5-v1_1-xxl weights folder
             max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
       cp_size: 1
-      ckpt_path: "{absolute_path/to/your/t5-v1_1-xxl}/CogVideoX-2b-sat/vae/3d-vae.pt" # Absolute path to the CogVideoX-2b-sat/vae/3d-vae.pt folder
+      ckpt_path: "CogVideoX-2b-sat/vae/3d-vae.pt" # Absolute path to the CogVideoX-2b-sat/vae/3d-vae.pt folder
       ignore_keys: [ 'loss' ]
 
       loss_config:
@@ -254,13 +254,14 @@ args:
   sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
-#  bf16: True # For CogVideoX-5B
-  output_dir: outputs/ 
+  #  bf16: True # For CogVideoX-5B
+  output_dir: outputs/
   force_inference: True
 ```
 
-+ Modify `configs/test.txt` if multiple prompts is required, in which each line makes a prompt.  
-+ For better prompt formatting, refer to [convert_demo.py](../inference/convert_demo.py), for which you should set the OPENAI_API_KEY as your environmental variable.
++ Modify `configs/test.txt` if multiple prompts is required, in which each line makes a prompt.
++ For better prompt formatting, refer to [convert_demo.py](../inference/convert_demo.py), for which you should set the
+  OPENAI_API_KEY as your environmental variable.
 + Modify `input_type` in `configs/inference.yaml` if use command line as prompt iuput.
 
 ```yaml
@@ -408,28 +409,32 @@ python ../tools/convert_weight_sat2hf.py
 
 ### Exporting Huggingface Diffusers lora LoRA Weights from SAT Checkpoints
 
-After completing the training using the above steps, we get a SAT checkpoint with LoRA weights. You can find the file at `{args.save}/1000/1000/mp_rank_00_model_states.pt`.
+After completing the training using the above steps, we get a SAT checkpoint with LoRA weights. You can find the file
+at `{args.save}/1000/1000/mp_rank_00_model_states.pt`.
 
-The script for exporting LoRA weights can be found in the CogVideoX repository at `tools/export_sat_lora_weight.py`. After exporting, you can use `load_cogvideox_lora.py` for inference.
+The script for exporting LoRA weights can be found in the CogVideoX repository at `tools/export_sat_lora_weight.py`.
+After exporting, you can use `load_cogvideox_lora.py` for inference.
 
-#### Export command:
+Export command:
+
 ```bash
 python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory {args.save}/export_hf_lora_weights_1/
 ```
 
-This training mainly modified the following model structures. The table below lists the corresponding structure mappings for converting to the HF (Hugging Face) format LoRA structure. As you can see, LoRA adds a low-rank weight to the model's attention structure.
+This training mainly modified the following model structures. The table below lists the corresponding structure mappings
+for converting to the HF (Hugging Face) format LoRA structure. As you can see, LoRA adds a low-rank weight to the
+model's attention structure.
 
 ```
-
-    'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
-    'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
-    'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
-    'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
-    'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
-    'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
-    'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
-    'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
+'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
+'attention.query_key_value.matrix_A.1': 'attn1.to_k.lora_A.weight',
+'attention.query_key_value.matrix_A.2': 'attn1.to_v.lora_A.weight',
+'attention.query_key_value.matrix_B.0': 'attn1.to_q.lora_B.weight',
+'attention.query_key_value.matrix_B.1': 'attn1.to_k.lora_B.weight',
+'attention.query_key_value.matrix_B.2': 'attn1.to_v.lora_B.weight',
+'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
+'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
 ```
-  
+
 Using export_sat_lora_weight.py, you can convert the SAT checkpoint into the HF LoRA format.
 ![alt text](../resources/hf_lora_weights.png)

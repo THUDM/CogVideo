@@ -323,7 +323,6 @@ class SATVideoDiffusionEngine(nn.Module):
             if isinstance(c[k], torch.Tensor):
                 c[k], uc[k] = map(lambda y: y[k][:N].to(self.device), (c, uc))
 
-
         if self.noised_image_input:
             image = x[:, :, 0:1]
             image = self.add_noise_to_first_frame(image)

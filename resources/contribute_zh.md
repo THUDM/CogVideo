@@ -4,14 +4,13 @@
 
 ## 模型算法
 
-- 模型量化推理支持 (Int4,Int8等量化工程)
-- 模型多卡推理支持 / 模型推理并发工程
-- 非 CUDA 架构 推理设备支持
+- 模型量化推理支持 (Int4量化工程)
+- 模型微调数据载入优化支持(替换现有的decord工具)
 
-## 模型工程 / 模型二次开发
+## 模型工程
 
 - 模型微调示例 / 最佳提示词实践
-- 视频超分/插帧，用于美化视频生成效果。
+- 不同设备上的推理适配(MLX等框架)
 - 任何模型周边工具
 - 任何使用CogVideoX开源模型制作的最小完整开源项目
 
@@ -31,10 +30,10 @@ pip install ruff
 ruff check tools sat inference
 ```
 
-检查代码风格，如果有问题，您可以通过`ruff formate`命令自动修复。
+检查代码风格，如果有问题，您可以通过`ruff format .`命令自动修复。
 
 ```shell
-ruff formate tools sat inference
+ruff format tools sat inference
 ```
 
 如果您的代码符合规范，应该不会出现任何的错误。

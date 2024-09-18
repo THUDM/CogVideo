@@ -1,15 +1,14 @@
-diffusers>=0.30.1 #git+https://github.com/huggingface/diffusers.git@main#egg=diffusers is suggested
-transformers>=4.44.2  # The development team is working on version 4.44.2
-accelerate>=0.33.0 #git+https://github.com/huggingface/accelerate.git@main#egg=accelerate is suggested
-sentencepiece>=0.2.0 # T5 used
-SwissArmyTransformer>=0.4.12
+diffusers>=0.30.3
+accelerate>=0.34.2
+transformers>=4.44.2
 numpy==1.26.0
-torch>=2.4.0 # Tested in 2.2 2.3 2.4 and 2.5, The development team is working on version 2.4.0.
-torchvision>=0.19.0 # The development team is working on version 0.19.0.
-gradio>=4.42.0 # For HF gradio demo
-streamlit>=1.38.0 # For streamlit web demo
-imageio==2.34.2 # For diffusers inference export video
-imageio-ffmpeg==0.5.1 # For diffusers inference export video
-openai>=1.42.0 # For prompt refiner
-moviepy==1.0.3 # For export video
+torch>=2.4.0
+torchvision>=0.19.0
+sentencepiece>=0.2.0
+SwissArmyTransformer>=0.4.12
+gradio>=4.44.0
+imageio>=2.35.1
+imageio-ffmpeg>=0.5.1
+openai>=1.45.0
+moviepy>=1.0.3
 pillow==9.5.0
