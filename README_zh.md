@@ -268,7 +268,7 @@ pipe.vae.enable_tiling()
 
 ### Colab 快速使用
 
-我们提供了四个能直接在免费的 Colab T4上 运行的项目
+这里提供了三个能直接在免费的 Colab T4上 运行的项目
 
 + [CogVideoX-5B-T2V-Colab.ipynb](https://colab.research.google.com/drive/1pCe5s0bC_xuXbBlpvIH1z0kfdTLQPzCS?usp=sharing):
   CogVideoX-5B 文字生成视频 Colab 代码。
@@ -276,8 +276,6 @@ pipe.vae.enable_tiling()
   CogVideoX-5B 文字生成视频量化推理 Colab 代码，运行一次大约需要30分钟。
 + [CogVideoX-5B-I2V-Colab.ipynb](https://colab.research.google.com/drive/17CqYCqSwz39nZAX2YyonDxosVKUZGzcX?usp=sharing):
   CogVideoX-5B 图片生成视频 Colab 代码。
-+ [CogVideoX-5B-V2V-Colab.ipynb](https://colab.research.google.com/drive/1DUffhcjrU-uz7_cpuJO3E_D4BaJT7OPa?usp=sharing):
-  CogVideoX-5B 视频生成视频 Colab 代码。
 
 ### inference
 

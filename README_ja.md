@@ -276,7 +276,18 @@ pipe.vae.enable_tiling()
 
 このオープンソースリポジトリは、**CogVideoX** オープンソースモデルの基本的な使用方法と微調整の例を迅速に開始するためのガイドです。
 
-### 推論
+### Colabでのクイックスタート
+
+無料のColab T4上で直接実行できる3つのプロジェクトを提供しています。
+
++ [CogVideoX-5B-T2V-Colab.ipynb](https://colab.research.google.com/drive/1pCe5s0bC_xuXbBlpvIH1z0kfdTLQPzCS?usp=sharing):
+  CogVideoX-5B テキストからビデオへの生成用Colabコード。
++ [CogVideoX-5B-T2V-Int8-Colab.ipynb](https://colab.research.google.com/drive/1DUffhcjrU-uz7_cpuJO3E_D4BaJT7OPa?usp=sharing):
+  CogVideoX-5B テキストからビデオへの量子化推論用Colabコード。1回の実行に約30分かかります。
++ [CogVideoX-5B-I2V-Colab.ipynb](https://colab.research.google.com/drive/17CqYCqSwz39nZAX2YyonDxosVKUZGzcX?usp=sharing):
+  CogVideoX-5B 画像からビデオへの生成用Colabコード。
+
+### Inference
 
 + [cli_demo](inference/cli_demo.py): 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
 + [cli_demo_quantization](inference/cli_demo_quantization.py):

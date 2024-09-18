@@ -309,6 +309,18 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
 This open-source repository will guide developers to quickly get started with the basic usage and fine-tuning examples
 of the **CogVideoX** open-source model.
 
+### Quick Start with Colab
+
+Here provide three projects that can be run directly on free Colab T4 instances:
+
++ [CogVideoX-5B-T2V-Colab.ipynb](https://colab.research.google.com/drive/1pCe5s0bC_xuXbBlpvIH1z0kfdTLQPzCS?usp=sharing):
+  CogVideoX-5B Text-to-Video Colab code.
++ [CogVideoX-5B-T2V-Int8-Colab.ipynb](https://colab.research.google.com/drive/1DUffhcjrU-uz7_cpuJO3E_D4BaJT7OPa?usp=sharing):
+  CogVideoX-5B Quantized Text-to-Video Inference Colab code, which takes about 30 minutes per run.
++ [CogVideoX-5B-I2V-Colab.ipynb](https://colab.research.google.com/drive/17CqYCqSwz39nZAX2YyonDxosVKUZGzcX?usp=sharing):
+  CogVideoX-5B Image-to-Video Colab code.
+
+
 ### Inference
 
 + [dcli_demo](inference/cli_demo.py): A more detailed inference code explanation, including the significance of
