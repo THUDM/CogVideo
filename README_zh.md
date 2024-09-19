@@ -29,30 +29,15 @@
 - 🔥🔥 **News**: ```2024/9/19```: CogVideoX 训练过程中用于将视频数据转换为文本描述的 Caption
   模型 [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
   已经开源。欢迎前往下载并使用。
-- 🔥 **News**: ```2024/9/16```: 我们添加自动化生成视频工具，你可以使用本地开源模型 + FLUX + CogVideoX
-  实现自动生成优质视频，欢迎[体验](tools/llm_flux_cogvideox/llm_flux_cogvideox.py)
-- 🔥 **News**: ```2024/9/15```: CogVideoX LoRA微调权重导出并在`diffusers`库中测试通过，请查看[教程](sat/README_zh.md)。
-- 🔥 **News**: ```2024/8/29```: 使用`pipe.enable_sequential_cpu_offload()` 和 `pipe.vae.enable_slicing()`
-  加入到CogVideoX-5B的推理代码中，可以将显存占用下降至`5GB`，请查看[cli_demo](inference/cli_demo.py)的更新。
-- 🔥 **News**: ```2024/8/27```: **CogVideoX-2B** 模型开源协议已经修改为**Apache 2.0 协议**。
-- 🔥 **News**: ```2024/8/27```:  我们开源 CogVideoX 系列更大的模型 **CogVideoX-5B**
+- 🔥 ```2024/8/27```:  我们开源 CogVideoX 系列更大的模型 **CogVideoX-5B**
   。我们大幅度优化了模型的推理性能，推理门槛大幅降低，您可以在 `GTX 1080TI` 等早期显卡运行 **CogVideoX-2B**，在 `RTX 3060`
   等桌面端甜品卡运行 **CogVideoX-5B** 模型。 请严格按照[要求](requirements.txt)
-  更新安装依赖，推理代码请查看 [cli_demo](inference/cli_demo.py)。
-- 🔥**News**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) 已经支持对 CogVideoX
-  生成的视频进行增强，实现更高分辨率，更高质量的视频渲染。欢迎大家按照[教程](tools/venhancer/README_zh.md)体验使用。
-- 🔥**News**: ```2024/8/15```: CogVideoX 依赖中`SwissArmyTransformer`依赖升级到`0.4.12`,
-  微调不再需要从源代码安装`SwissArmyTransformer`。同时，`Tied VAE` 技术已经被应用到 `diffusers`
-  库中的实现，请从源代码安装 `diffusers` 和 `accelerate` 库，推理 CogVdideoX 仅需
-  12GB显存。推理代码需要修改，请查看 [cli_demo](inference/cli_demo.py)
-- 🔥 **News**: ```2024/8/12```: CogVideoX 论文已上传到arxiv，欢迎查看[论文](https://arxiv.org/abs/2408.06072)。
-- 🔥 **News**: ```2024/8/7```: CogVideoX 已经合并入 `diffusers`
-  0.30.0版本，单张3090可以推理，详情请见[代码](inference/cli_demo.py)。
-- 🔥 **News**: ```2024/8/6```: 我们开源 **3D Causal VAE**，用于 **CogVideoX-2B**，可以几乎无损地重构视频。
-- 🔥 **News**: ```2024/8/6```: 我们开源 CogVideoX 系列视频生成模型的第一个模型, **CogVideoX-2B**。
+  更新安装依赖，推理代码请查看 [cli_demo](inference/cli_demo.py)。同时，**CogVideoX-2B** 模型开源协议已经修改为**Apache 2.0
+  协议**。
+- 🔥 ```2024/8/6```: 我们开源 **3D Causal VAE**，用于 **CogVideoX-2B**，可以几乎无损地重构视频。
+- 🔥 ```2024/8/6```: 我们开源 CogVideoX 系列视频生成模型的第一个模型, **CogVideoX-2B**。
 - 🌱 **Source**: ```2022/5/19```: 我们开源了 CogVideo 视频生成模型（现在你可以在 `CogVideo` 分支中看到），这是首个开源的基于
   Transformer 的大型文本生成视频模型，您可以访问 [ICLR'23 论文](https://arxiv.org/abs/2205.15868) 查看技术细节。
-  **性能更强，参数量更大的模型正在到来的路上～，欢迎关注**
 
 ## 目录
 
@@ -93,8 +78,10 @@ pip install -r requirements.txt
 
 查看[diffusers_demo](inference/cli_demo.py)：包含对推理代码更详细的解释，包括各种关键的参数。
 
-关于量化推理的更多细节，请查看[diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao/)
-。这里发布了一份完整的内存和时间基准测试列表，涵盖了A100和H100上的各种设置。
+欲了解更多关于量化推理的细节，请参考 [diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao/)。使用 Diffusers
+和 TorchAO，量化推理也是可能的，这可以实现内存高效的推理，并且在某些情况下编译后速度有所提升。有关在 A100 和 H100
+上使用各种设置的内存和时间基准测试的完整列表，已发布在 [diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao)
+上。
 
 ## 视频作品
 
