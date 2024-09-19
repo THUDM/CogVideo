@@ -1,0 +1,23 @@
+decord>=0.6.0
+#根据https://download.pytorch.org/whl/torch/，python版本为[3.8,3.11]
+torch==2.1.0
+torchvision== 0.16.0
+pytorchvideo==0.1.5
+xformers
+transformers==4.42.4
+#git+https://github.com/huggingface/transformers.git
+huggingface-hub>=0.23.0
+pillow
+chainlit>=1.0
+pydantic>=2.7.1
+timm>=0.9.16
+openai>=1.30.1
+loguru>=0.7.2
+pydantic>=2.7.1
+einops
+sse-starlette>=2.1.0
+flask
+gunicorn
+gevent
+requests
+gradio

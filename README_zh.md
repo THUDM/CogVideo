@@ -27,7 +27,7 @@
   。该模型可以将一张图像作为背景输入，结合提示词一起生成视频，具有更强的可控性。
   至此，CogVideoX系列模型已经支持文本生成视频，视频续写，图片生成视频三种任务。欢迎前往在线[体验](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)。
 - 🔥🔥 **News**: ```2024/9/19```: CogVideoX 训练过程中用于将视频数据转换为文本描述的 Caption
-  模型 [cogvlm2-llama3-caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
+  模型 [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
   已经开源。欢迎前往下载并使用。
 - 🔥 **News**: ```2024/9/16```: 我们添加自动化生成视频工具，你可以使用本地开源模型 + FLUX + CogVideoX
   实现自动生成优质视频，欢迎[体验](tools/llm_flux_cogvideox/llm_flux_cogvideox.py)

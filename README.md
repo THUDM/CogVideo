@@ -27,7 +27,7 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
   controllability. With this release, the CogVideoX series now supports three tasks: text-to-video, video extension, and
   image-to-video generation. Feel free to try it out [online](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space).
 - 🔥🔥 **News**: ```2024/9/19```: The caption model used in the CogVideoX training process to convert video data into text
-  descriptions, [cogvlm2-llama3-caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption), is now open-source. Feel
+  descriptions, [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption), is now open-source. Feel
   free to download and use it.
 - 🔥 **News**: ```2024/9/16```: We have added an automated video generation tool! You can now use local open-source
   models + FLUX + CogVideoX to automatically generate high-quality videos. Feel free
