@@ -23,38 +23,26 @@
 ## 更新とニュース
 
 - 🔥🔥 **ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
-  をオープンソース化しました。このモデルでは、背景として画像を入力し、プロンプトと組み合わせてビデオを生成でき、より強力なコントロール性を提供します。これで、CogVideoXシリーズは、テキスト生成ビデオ、ビデオ拡張、画像生成ビデオの3つのタスクをサポートしています。ぜひ [オンラインでお試しください](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)。
-- 🔥🔥 **ニュース**: ```2024/9/19```：CogVideoX
-  のトレーニングプロセスで、ビデオデータをテキストに変換するためのキャプションモデル [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
-  がオープンソース化されました。ぜひダウンロードしてご利用ください。
-- 🔥 **ニュース**: ```2024/9/16```: 自動動画生成ツールを追加しました！オープンソースのローカルモデル + FLUX + CogVideoX
-  を使用して、高品質な動画を自動生成できます。ぜひ[お試しください](tools/llm_flux_cogvideox/llm_flux_cogvideox.py)。
-- 🔥 **ニュース**: ```2024/9/15```: CogVideoXのLoRAファインチューニングの重みがエクスポートされ、`diffusers`
-  ライブラリでのテストに成功しました。[チュートリアル](sat/README_ja.md) をご覧ください。
-- 🔥 **ニュース**: ```2024/8/29```: `pipe.enable_sequential_cpu_offload()` と `pipe.vae.enable_slicing()`
-  をCogVideoX-5Bの推論コードに追加することで、VRAM使用量を`5GB`
-  まで削減できます。更新された[cli_demo](inference/cli_demo.py)をご覧ください。
-- 🔥**ニュース**: ```2024/8/27```: **CogVideoX-2B** モデルのオープンソースライセンスが **Apache 2.0 ライセンス**
-  に変更されました。
-- 🔥**ニュース**: ```2024/8/27```: CogVideoX シリーズのより大きなモデル **CogVideoX-5B** をオープンソース化しました。
-  モデルの推論性能を大幅に最適化し、推論のハードルを大幅に下げました。`GTX 1080TI` などの旧型GPUで **CogVideoX-2B**
-  を、`RTX 3060` などのミドル
-- 🔥**ニュース**: ```2024/8/20```: [VEnhancer](https://github.com/Vchitect/VEnhancer) は CogVideoX
-  が生成したビデオの強化をサポートしました。より高い解像度とより高品質なビデオレンダリングを実現します。[チュートリアル](tools/venhancer/README_ja.md)
-  に従って、ぜひお試しください。
-- 🔥**ニュース**: 2024/8/15: CogVideoX の依存関係である`SwissArmyTransformer`の依存が`0.4.12`
-  にアップグレードされました。これにより、微調整の際に`SwissArmyTransformer`
-  をソースコードからインストールする必要がなくなりました。同時に、`Tied VAE` 技術が `diffusers`
-  ライブラリの実装に適用されました。`diffusers` と `accelerate` ライブラリをソースコードからインストールしてください。CogVdideoX
-  の推論には 12GB の VRAM だけが必要です。 推論コードの修正が必要です。[cli_demo](inference/cli_demo.py)をご確認ください。
-- 🔥 **ニュース**: ```2024/8/12```: CogVideoX
-  論文がarxivにアップロードされました。ぜひ[論文](https://arxiv.org/abs/2408.06072)をご覧ください。
-- 🔥 **ニュース**: ```2024/8/7```: CogVideoX は `diffusers` バージョン 0.30.0 に統合されました。単一の 3090 GPU
-  で推論を実行できます。詳細については [コード](inference/cli_demo.py) を参照してください。
-- 🔥 **ニュース**: ```2024/8/6```: **CogVideoX-2B** で使用される **3D Causal VAE** もオープンソース化しました。これにより、ビデオをほぼ無損失で再構築できます。
-- 🔥 **ニュース**: ```2024/8/6```: **CogVideoX-2B**、CogVideoXシリーズのビデオ生成モデルの最初のモデルをオープンソース化しました。
-- 🌱 **ソース**: ```2022/5/19```: **CogVideo** (現在 `CogVideo` ブランチで確認できます)
-  をオープンソース化しました。これは、最初のオープンソースの事前学習済みテキストからビデオ生成モデルであり、技術的な詳細については [ICLR'23 CogVideo 論文](https://arxiv.org/abs/2205.15868)
+  をオープンソース化しました。このモデルは、画像を背景入力として使用し、プロンプトワードと組み合わせてビデオを生成することができ、より高い制御性を提供します。これにより、CogVideoXシリーズのモデルは、テキストからビデオ生成、ビデオの継続、画像からビデオ生成の3つのタスクをサポートするようになりました。オンラインでの[体験](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)
+  をお楽しみください。
+
+- 🔥🔥 **ニュース**: ```2024/9/19```:
+  CogVideoXのトレーニングプロセスでビデオデータをテキスト記述に変換するために使用されるキャプションモデル [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
+  をオープンソース化しました。ダウンロードしてご利用ください。
+
+- 🔥 ```2024/8/27```: CogVideoXシリーズのより大きなモデル **CogVideoX-5B**
+  をオープンソース化しました。モデルの推論性能を大幅に最適化し、推論のハードルを大幅に下げました。`GTX 1080TI` などの旧型GPUで
+  **CogVideoX-2B** を、`RTX 3060` などのデスクトップGPUで **CogVideoX-5B**
+  モデルを実行できます。依存関係を更新・インストールするために、[要件](requirements.txt)
+  を厳守し、推論コードは [cli_demo](inference/cli_demo.py) を参照してください。さらに、**CogVideoX-2B** モデルのオープンソースライセンスが
+  **Apache 2.0 ライセンス** に変更されました。
+
+- 🔥 ```2024/8/6```: **CogVideoX-2B** 用の **3D Causal VAE** をオープンソース化しました。これにより、ビデオをほぼ無損失で再構築することができます。
+
+- 🔥 ```2024/8/6```: CogVideoXシリーズのビデオ生成モデルの最初のモデル、**CogVideoX-2B** をオープンソース化しました。
+
+- 🌱 **ソース**: ```2022/5/19```: CogVideoビデオ生成モデルをオープンソース化しました（現在、`CogVideo`
+  ブランチで確認できます）。これは、トランスフォーマーに基づく初のオープンソース大規模テキスト生成ビデオモデルです。技術的な詳細については、[ICLR'23論文](https://arxiv.org/abs/2205.15868)
   をご覧ください。
 
 **より強力なモデルが、より大きなパラメータサイズで登場予定です。お楽しみに！**
@@ -96,6 +84,12 @@ pip install -r requirements.txt
 ```
 
 次に [diffusers_demo](inference/cli_demo.py) を参照してください: 推論コードの詳細な説明が含まれており、一般的なパラメータの意味についても言及しています。
+
+量子化推論の詳細については、[diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao/) を参照してください。Diffusers
+と TorchAO を使用することで、量子化推論も可能となり、メモリ効率の良い推論や、コンパイル時に場合によっては速度の向上が期待できます。A100
+および H100
+上でのさまざまな設定におけるメモリおよび時間のベンチマークの完全なリストは、[diffusers-torchao](https://github.com/sayakpaul/diffusers-torchao)
+に公開されています。
 
 ## Gallery
 
