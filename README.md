@@ -277,6 +277,7 @@ pipe.vae.enable_tiling()
 We highly welcome contributions from the community and actively contribute to the open-source community. The following
 works have already been adapted for CogVideoX, and we invite everyone to use them:
 
++ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun): CogVideoX-Fun is a modified pipeline based on the CogVideoX architecture, supporting flexible resolutions and multiple launch methods.
 + [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
   framework, allowing you to easily deploy your own models or the latest cutting-edge open-source models with just one
   click.
