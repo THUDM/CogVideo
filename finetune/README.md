@@ -9,9 +9,9 @@ see [here](../sat/README_zh.md). The dataset format is different from this versi
 
 ## Hardware Requirements
 
-+ CogVideoX-2B LoRA: 1 * A100
-+ CogVideoX-2B SFT:  8 * A100
-+ CogVideoX-5B/5B-I2V is not supported yet.
++ CogVideoX-2B / 5B LoRA: 1 * A100 (5B need to use `--use_8bit_adam`)
++ CogVideoX-2B SFT:  8 * A100 (Working)
++ CogVideoX-5B-I2V is not supported yet.
 
 ## Install Dependencies
 
@@ -20,8 +20,7 @@ diffusers branch. Please follow the steps below to install dependencies:
 
 ```shell
 git clone https://github.com/huggingface/diffusers.git
-cd diffusers
-git checkout cogvideox-lora-and-training
+cd diffusers # Now in Main branch
 pip install -e .
 ```
 
@@ -124,13 +123,13 @@ accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gp
 Single GPU fine-tuning:
 
 ```shell
-bash finetune_single_gpu.sh
+bash finetune_single_rank.sh
 ```
 
 Multi-GPU fine-tuning:
 
 ```shell
-bash finetune_multi_gpus_1.sh # Needs to be run on each node
+bash finetune_multi_rank.sh # Needs to be run on each node
 ```
 
 ## Loading the Fine-tuned Model
