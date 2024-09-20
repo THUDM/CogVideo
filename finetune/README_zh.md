@@ -8,9 +8,9 @@
 
 ## 硬件要求
 
-+ CogVideoX-2B LORA: 1 * A100
-+ CogVideoX-2B SFT:  8 * A100
-+ CogVideoX-5B/5B-I2V 暂未支持
++ CogVideoX-2B / 5B T2V LORA: 1 * A100  (5B need to use `--use_8bit_adam`)
++ CogVideoX-2B SFT:  8 * A100 (制作中)
++ CogVideoX-5B-I2V 暂未支持
 
 ## 安装依赖
 
@@ -18,8 +18,7 @@
 
 ```shell
 git clone https://github.com/huggingface/diffusers.git
-cd diffusers
-git checkout cogvideox-lora-and-training
+cd diffusers # Now in Main branch
 pip install -e .
 ```
 
@@ -150,13 +149,13 @@ accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gp
 单卡微调：
 
 ```shell
-bash finetune_single_gpu.sh
+bash finetune_single_rank.sh
 ```
 
 多卡微调：
 
 ```shell
-bash finetune_multi_gpus_1.sh #需要在每个节点运行
+bash finetune_multi_rank.sh #需要在每个节点运行
 ```
 
 ## 载入微调的模型

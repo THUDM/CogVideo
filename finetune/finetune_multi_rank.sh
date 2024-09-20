@@ -9,6 +9,7 @@ export CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES
 
 accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu  --machine_rank 0 \
   train_cogvideox_lora.py \
+  --gradient_checkpointing \
   --pretrained_model_name_or_path $MODEL_PATH \
   --cache_dir $CACHE_PATH \
   --enable_tiling \

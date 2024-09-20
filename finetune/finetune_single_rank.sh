@@ -3,12 +3,17 @@
 export MODEL_PATH="THUDM/CogVideoX-2b"
 export CACHE_PATH="~/.cache"
 export DATASET_PATH="Disney-VideoGeneration-Dataset"
-export OUTPUT_PATH="cogvideox-lora-single-gpu"
+export OUTPUT_PATH="cogvideox-lora-multi-gpu"
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES
 
+
+#  --use_8bit_adam is necessary for CogVideoX-5B-I2V
+# if you are not using wth 8 gus, change `accelerate_config_machine_single.yaml` num_processes as your gpu number
 accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \
   train_cogvideox_lora.py \
+  --gradient_checkpointing \
+  --use_8bit_adam  \
   --pretrained_model_name_or_path $MODEL_PATH \
   --cache_dir $CACHE_PATH \
   --enable_tiling \
