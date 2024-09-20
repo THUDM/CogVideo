@@ -44,115 +44,60 @@ pip install -e .
 + accelerate_config_machine_multi.yaml 适合多GPU使用
 + accelerate_config_machine_single.yaml 适合单GPU使用
 
-`finetune` 脚本配置文件如下:
+`finetune` 脚本配置文件如下：
 
 ```shell
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  
-# 这条命令设置了 PyTorch 的 CUDA 内存分配策略，将显存扩展为段式内存管理，以防止 OOM（Out of Memory）错误。
 
-accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \
-# 使用 Accelerate 启动训练，指定配置文件 `accelerate_config_machine_single.yaml`，并使用多 GPU。
-
-  train_cogvideox_lora.py \
-  # 这是你要执行的训练脚本，用于 LoRA 微调 CogVideoX 模型。
-
-  --pretrained_model_name_or_path THUDM/CogVideoX-2b \
-  # 预训练模型的路径，指向你要微调的 CogVideoX-5b 模型。
-
-  --cache_dir ~/.cache \
-  # 模型缓存的目录，用于存储从 Hugging Face 下载的模型和数据集。
-
-  --enable_tiling \
-  # 启用 VAE tiling 功能，通过将图像划分成更小的区块处理，减少显存占用。
-
-  --enable_slicing \
-  # 启用 VAE slicing 功能，将图像在通道上切片处理，以节省显存。
-
-  --instance_data_root ~/disney/ \
-  # 实例数据的根目录，训练时使用的数据集文件夹。
-
-  --caption_column prompts.txt \
-  # 用于指定包含实例提示（文本描述）的列或文件，在本例中为 `prompts.txt` 文件。
-
-  --video_column videos.txt \
-  # 用于指定包含视频路径的列或文件，在本例中为 `videos.txt` 文件。
-
-  --validation_prompt "Mickey with the captain and friends:::Mickey and the bear" \
-  # 用于验证的提示语，多个提示语用指定分隔符（例如 `:::`）分开。
-
-  --validation_prompt_separator ::: \
-  # 验证提示语的分隔符，在此设置为 `:::`。
-
-  --num_validation_videos 1 \
-  # 验证期间生成的视频数量，设置为 1。
-
-  --validation_epochs 2 \
-  # 每隔多少个 epoch 运行一次验证，设置为每 2 个 epoch 验证一次。
-
-  --seed 3407 \
-  # 设置随机数种子，确保训练的可重复性，设置为 3407。
-
-  --rank 128 \
-  # LoRA 更新矩阵的维度，控制 LoRA 层的参数大小，设置为 128。
-
-  --mixed_precision bf16 \
-  # 使用混合精度训练，设置为 `bf16`（bfloat16），可以减少显存占用并加速训练。
-
-  --output_dir cogvideox-lora-single-gpu \
-  # 输出目录，存放模型预测结果和检查点。
-
-  --height 480 \
-  # 输入视频的高度，所有视频将被调整到 480 像素。
-
-  --width 720 \
-  # 输入视频的宽度，所有视频将被调整到 720 像素。
-
-  --fps 8 \
-  # 输入视频的帧率，所有视频将以每秒 8 帧处理。
-
-  --max_num_frames 49 \
-  # 输入视频的最大帧数，视频将被截取到最多 49 帧。
-
-  --skip_frames_start 0 \
-  # 每个视频从头部开始跳过的帧数，设置为 0，表示不跳过帧。
-
-  --skip_frames_end 0 \
-  # 每个视频从尾部跳过的帧数，设置为 0，表示不跳过尾帧。
-
-  --train_batch_size 1 \
-  # 训练的批次大小，每个设备的训练批次设置为 1。
-
-  --num_train_epochs 10 \
-  # 训练的总 epoch 数，设置为 10。
-
-  --checkpointing_steps 500 \
-  # 每经过 500 步保存一次检查点。
-
-  --gradient_accumulation_steps 1 \
-  # 梯度累积步数，表示每进行 1 步才进行一次梯度更新。
-
-  --learning_rate 1e-4 \
-  # 初始学习率，设置为 1e-4。
-
-  --optimizer AdamW \
-  # 优化器类型，选择 AdamW 优化器。
-
-  --adam_beta1 0.9 \
-  # Adam 优化器的 beta1 参数，设置为 0.9。
-
-  --adam_beta2 0.95 \
-  # Adam 优化器的 beta2 参数，设置为 0.95。
+accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \  # 使用 accelerate 启动多GPU训练，配置文件为 accelerate_config_machine_single.yaml
+  train_cogvideox_lora.py \  # 运行的训练脚本为 train_cogvideox_lora.py，用于在 CogVideoX 模型上进行 LoRA 微调
+  --gradient_checkpointing \  # 启用梯度检查点功能，以减少显存使用
+  --pretrained_model_name_or_path $MODEL_PATH \  # 预训练模型路径，通过 $MODEL_PATH 指定
+  --cache_dir $CACHE_PATH \  # 模型缓存路径，由 $CACHE_PATH 指定
+  --enable_tiling \  # 启用tiling技术，以分片处理视频，节省显存
+  --enable_slicing \  # 启用slicing技术，将输入切片，以进一步优化内存
+  --instance_data_root $DATASET_PATH \  # 数据集路径，由 $DATASET_PATH 指定
+  --caption_column prompts.txt \  # 指定用于训练的视频描述文件，文件名为 prompts.txt
+  --video_column videos.txt \  # 指定用于训练的视频路径文件，文件名为 videos.txt
+  --validation_prompt "" \  # 验证集的提示语 (prompt)，用于在训练期间生成验证视频
+  --validation_prompt_separator ::: \  # 设置验证提示语的分隔符为 :::
+  --num_validation_videos 1 \  # 每个验证回合生成 1 个视频
+  --validation_epochs 100 \  # 每 100 个训练epoch进行一次验证
+  --seed 42 \  # 设置随机种子为 42，以保证结果的可复现性
+  --rank 128 \  # 设置 LoRA 参数的秩 (rank) 为 128
+  --lora_alpha 64 \  # 设置 LoRA 的 alpha 参数为 64，用于调整LoRA的学习率
+  --mixed_precision bf16 \  # 使用 bf16 混合精度进行训练，减少显存使用
+  --output_dir $OUTPUT_PATH \  # 指定模型输出目录，由 $OUTPUT_PATH 定义
+  --height 480 \  # 视频高度为 480 像素
+  --width 720 \  # 视频宽度为 720 像素
+  --fps 8 \  # 视频帧率设置为 8 帧每秒
+  --max_num_frames 49 \  # 每个视频的最大帧数为 49 帧
+  --skip_frames_start 0 \  # 跳过视频开头的帧数为 0
+  --skip_frames_end 0 \  # 跳过视频结尾的帧数为 0
+  --train_batch_size 4 \  # 训练时的 batch size 设置为 4
+  --num_train_epochs 30 \  # 总训练epoch数为 30
+  --checkpointing_steps 1000 \  # 每 1000 步保存一次模型检查点
+  --gradient_accumulation_steps 1 \  # 梯度累计步数为 1，即每个 batch 后都会更新梯度
+  --learning_rate 1e-3 \  # 学习率设置为 0.001
+  --lr_scheduler cosine_with_restarts \  # 使用带重启的余弦学习率调度器
+  --lr_warmup_steps 200 \  # 在训练的前 200 步进行学习率预热
+  --lr_num_cycles 1 \  # 学习率周期设置为 1
+  --optimizer AdamW \  # 使用 AdamW 优化器
+  --adam_beta1 0.9 \  # 设置 Adam 优化器的 beta1 参数为 0.9
+  --adam_beta2 0.95 \  # 设置 Adam 优化器的 beta2 参数为 0.95
+  --max_grad_norm 1.0 \  # 最大梯度裁剪值设置为 1.0
+  --allow_tf32 \  # 启用 TF32 以加速训练
+  --report_to wandb  # 使用 Weights and Biases 进行训练记录与监控
 ```
 
 ## 运行脚本，开始微调
 
-单卡微调：
+单机(单卡，多卡)微调：
 
 ```shell
 bash finetune_single_rank.sh
 ```
 
-多卡微调：
+多机多卡微调：
 
 ```shell
 bash finetune_multi_rank.sh #需要在每个节点运行
