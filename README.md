@@ -288,6 +288,7 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   techniques.
 + [AutoDL Space](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment Huggingface
   Space image provided by community members.
++ [Interior Design Fine-Tuning Model](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba): is a fine-tuned model based on CogVideoX, specifically designed for interior design.
 
 ## Project Structure
 
