@@ -8,7 +8,7 @@
 <img src=resources/logo.svg width="50%"/>
 </div>
 <p align="center">
-Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> or <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a>
+Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B" target="_blank"> 🤗 Huggingface Space</a> or <a href="https://modelscope.cn/studios/ZhipuAI/CogVideoX-5b-demo" target="_blank"> 🤖 ModelScope Space</a> or <a href="https://replicate.com/chenxwh/cogvideox" target="_blank"> Replicate</a>
 </p>
 <p align="center">
 📚 View the <a href="https://arxiv.org/abs/2408.06072" target="_blank">paper</a> and <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">user guide</a>
