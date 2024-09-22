@@ -309,7 +309,6 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
 
     def position_embedding_forward(self, position_ids, **kwargs):
         if self.pos_embedding is not None:
-            print(self.pos_embedding)
             return self.pos_embedding[:, :self.text_length + kwargs["seq_length"]]
         else:
             return None
