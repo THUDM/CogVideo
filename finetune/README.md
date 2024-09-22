@@ -51,82 +51,57 @@ The `accelerate` configuration files are as follows:
 
 The configuration for the `finetune` script is as follows:
 
-```shell
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  
-# This command sets the PyTorch CUDA memory allocation strategy to expandable segments to prevent OOM (Out of Memory) errors.
-
-accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu # Launch training using Accelerate with the specified config file for multi-GPU.
-
-  train_cogvideox_lora.py   # This is the training script for LoRA fine-tuning of the CogVideoX model.
-
-  --pretrained_model_name_or_path THUDM/CogVideoX-2b   # Path to the pretrained model you want to fine-tune, pointing to the CogVideoX-2b model.
-
-  --cache_dir ~/.cache   # Directory for caching models downloaded from Hugging Face.
-
-  --enable_tiling   # Enable VAE tiling to reduce memory usage by processing images in smaller chunks.
-
-  --enable_slicing   # Enable VAE slicing to split the image into slices along the channel to save memory.
-
-  --instance_data_root ~/disney/   # Root directory for instance data, i.e., the dataset used for training.
-
-  --caption_column prompts.txt   # Specify the column or file containing instance prompts (text descriptions), in this case, the `prompts.txt` file.
-
-  --video_column videos.txt   # Specify the column or file containing video paths, in this case, the `videos.txt` file.
-
-  --validation_prompt "Mickey with the captain and friends:::Mickey and the bear"   # Validation prompts; multiple prompts are separated by the specified delimiter (e.g., `:::`).
-
-  --validation_prompt_separator :::   # The separator for validation prompts, set to `:::` here.
-
-  --num_validation_videos 1   # Number of videos to generate during validation, set to 1.
-
-  --validation_epochs 2   # Number of epochs after which validation will be run, set to every 2 epochs.
-
-  --seed 3407   # Set a random seed to ensure reproducibility, set to 3407.
-
-  --rank 128   # Dimension of the LoRA update matrix, controls the size of the LoRA layers, set to 128.
-
-  --mixed_precision bf16   # Use mixed precision training, set to `bf16` (bfloat16) to reduce memory usage and speed up training.
-
-  --output_dir cogvideox-lora-single-gpu   # Output directory for storing model predictions and checkpoints.
-
-  --height 480   # Height of the input videos, all videos will be resized to 480 pixels.
-
-  --width 720   # Width of the input videos, all videos will be resized to 720 pixels.
-
-  --fps 8   # Frame rate of the input videos, all videos will be processed at 8 frames per second.
-
-  --max_num_frames 49   # Maximum number of frames per input video, videos will be truncated to 49 frames.
-
-  --skip_frames_start 0   # Number of frames to skip from the start of each video, set to 0 to not skip any frames.
-
-  --skip_frames_end 0   # Number of frames to skip from the end of each video, set to 0 to not skip any frames.
-
-  --train_batch_size 1   # Training batch size per device, set to 1.
-
-  --num_train_epochs 10   # Total number of training epochs, set to 10.
-
-  --checkpointing_steps 500   # Save checkpoints every 500 steps.
-
-  --gradient_accumulation_steps 1   # Gradient accumulation steps, perform an update every 1 step.
-
-  --learning_rate 1e-4   # Initial learning rate, set to 1e-4.
-
-  --optimizer AdamW   # Optimizer type, using AdamW optimizer.
-
-  --adam_beta1 0.9   # Beta1 parameter for the Adam optimizer, set to 0.9.
-
-  --adam_beta2 0.95   # Beta2 parameter for the Adam optimizer, set to 0.95.
+```
+accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \  # Use accelerate to launch multi-GPU training with the config file accelerate_config_machine_single.yaml
+  train_cogvideox_lora.py \  # Training script train_cogvideox_lora.py for LoRA fine-tuning on CogVideoX model
+  --gradient_checkpointing \  # Enable gradient checkpointing to reduce memory usage
+  --pretrained_model_name_or_path $MODEL_PATH \  # Path to the pretrained model, specified by $MODEL_PATH
+  --cache_dir $CACHE_PATH \  # Cache directory for model files, specified by $CACHE_PATH
+  --enable_tiling \  # Enable tiling technique to process videos in chunks, saving memory
+  --enable_slicing \  # Enable slicing to further optimize memory by slicing inputs
+  --instance_data_root $DATASET_PATH \  # Dataset path specified by $DATASET_PATH
+  --caption_column prompts.txt \  # Specify the file prompts.txt for video descriptions used in training
+  --video_column videos.txt \  # Specify the file videos.txt for video paths used in training
+  --validation_prompt "" \  # Prompt used for generating validation videos during training
+  --validation_prompt_separator ::: \  # Set ::: as the separator for validation prompts
+  --num_validation_videos 1 \  # Generate 1 validation video per validation round
+  --validation_epochs 100 \  # Perform validation every 100 training epochs
+  --seed 42 \  # Set random seed to 42 for reproducibility
+  --rank 128 \  # Set the rank for LoRA parameters to 128
+  --lora_alpha 64 \  # Set the alpha parameter for LoRA to 64, adjusting LoRA learning rate
+  --mixed_precision bf16 \  # Use bf16 mixed precision for training to save memory
+  --output_dir $OUTPUT_PATH \  # Specify the output directory for the model, defined by $OUTPUT_PATH
+  --height 480 \  # Set video height to 480 pixels
+  --width 720 \  # Set video width to 720 pixels
+  --fps 8 \  # Set video frame rate to 8 frames per second
+  --max_num_frames 49 \  # Set the maximum number of frames per video to 49
+  --skip_frames_start 0 \  # Skip 0 frames at the start of the video
+  --skip_frames_end 0 \  # Skip 0 frames at the end of the video
+  --train_batch_size 4 \  # Set training batch size to 4
+  --num_train_epochs 30 \  # Total number of training epochs set to 30
+  --checkpointing_steps 1000 \  # Save model checkpoint every 1000 steps
+  --gradient_accumulation_steps 1 \  # Accumulate gradients for 1 step, updating after each batch
+  --learning_rate 1e-3 \  # Set learning rate to 0.001
+  --lr_scheduler cosine_with_restarts \  # Use cosine learning rate scheduler with restarts
+  --lr_warmup_steps 200 \  # Warm up the learning rate for the first 200 steps
+  --lr_num_cycles 1 \  # Set the number of learning rate cycles to 1
+  --optimizer AdamW \  # Use the AdamW optimizer
+  --adam_beta1 0.9 \  # Set Adam optimizer beta1 parameter to 0.9
+  --adam_beta2 0.95 \  # Set Adam optimizer beta2 parameter to 0.95
+  --max_grad_norm 1.0 \  # Set maximum gradient clipping value to 1.0
+  --allow_tf32 \  # Enable TF32 to speed up training
+  --report_to wandb  # Use Weights and Biases (wandb) for logging and monitoring the training
 ```
 
 ## Running the Script to Start Fine-tuning
 
-Single GPU fine-tuning:
+Single Node (One GPU or Multi GPU) fine-tuning:
 
 ```shell
 bash finetune_single_rank.sh
 ```
 
-Multi-GPU fine-tuning:
+Multi-Node fine-tuning:
 
 ```shell
 bash finetune_multi_rank.sh # Needs to be run on each node
@@ -147,5 +122,5 @@ bash finetune_multi_rank.sh # Needs to be run on each node
   but regular fine-tuning without such tokens also works.
 + The original repository used `lora_alpha` set to 1. We found this value ineffective across multiple runs, likely due
   to differences in the backend and training setup. Our recommendation is to set `lora_alpha` equal to rank or rank //
-  2.
+    2.
 + We recommend using a rank of 64 or higher.

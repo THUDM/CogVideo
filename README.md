@@ -277,7 +277,10 @@ pipe.vae.enable_tiling()
 We highly welcome contributions from the community and actively contribute to the open-source community. The following
 works have already been adapted for CogVideoX, and we invite everyone to use them:
 
-+ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun): CogVideoX-Fun is a modified pipeline based on the CogVideoX architecture, supporting flexible resolutions and multiple launch methods.
++ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun): CogVideoX-Fun is a modified pipeline based on the
+  CogVideoX architecture, supporting flexible resolutions and multiple launch methods.
++ [CogStudio](https://github.com/pinokiofactory/cogstudio): A separate repository for CogVideo's Gradio Web UI, which
+  supports more functional Web UIs.
 + [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
   framework, allowing you to easily deploy your own models or the latest cutting-edge open-source models with just one
   click.
@@ -288,7 +291,8 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   techniques.
 + [AutoDL Space](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): A one-click deployment Huggingface
   Space image provided by community members.
-+ [Interior Design Fine-Tuning Model](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba): is a fine-tuned model based on CogVideoX, specifically designed for interior design.
++ [Interior Design Fine-Tuning Model](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba):
+  is a fine-tuned model based on CogVideoX, specifically designed for interior design.
 
 ## Project Structure
 

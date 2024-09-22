@@ -47,82 +47,57 @@ pip install -e .
 
 `finetune` スクリプト設定ファイルの例：
 
-```shell
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  
-# このコマンドは、OOM（メモリ不足）エラーを防ぐために、CUDAメモリ割り当てを拡張セグメントに設定します。
-
-accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu # 複数のGPUで `accelerate` を使用してトレーニングを開始します。指定された設定ファイルを使用します。
-
-  train_cogvideox_lora.py   # LoRA微調整用に CogVideoX モデルをトレーニングするスクリプトです。
-
-  --pretrained_model_name_or_path THUDM/CogVideoX-2b   # 事前学習済みモデルのパスです。
-
-  --cache_dir ~/.cache   # Hugging Faceからダウンロードされたモデルとデータセットのキャッシュディレクトリです。
-
-  --enable_tiling   # VAEタイル化機能を有効にし、メモリ使用量を削減します。
-
-  --enable_slicing   # VAEスライス機能を有効にして、チャネルでのスライス処理を行い、メモリを節約します。
-
-  --instance_data_root ~/disney/   # インスタンスデータのルートディレクトリです。
-
-  --caption_column prompts.txt   # テキストプロンプトが含まれているファイルや列を指定します。
-
-  --video_column videos.txt   # ビデオパスが含まれているファイルや列を指定します。
-
-  --validation_prompt "Mickey with the captain and friends:::Mickey and the bear"   # 検証用のプロンプトを指定します。複数のプロンプトを指定するには `:::` 区切り文字を使用します。
-
-  --validation_prompt_separator :::   # 検証プロンプトの区切り文字を `:::` に設定します。
-
-  --num_validation_videos 1   # 検証中に生成するビデオの数を1に設定します。
-
-  --validation_epochs 2   # 何エポックごとに検証を行うかを2に設定します。
-
-  --seed 3407   # ランダムシードを3407に設定し、トレーニングの再現性を確保します。
-
-  --rank 128   # LoRAの更新マトリックスの次元を128に設定します。
-
-  --mixed_precision bf16   # 混合精度トレーニングを `bf16` (bfloat16) に設定します。
-
-  --output_dir cogvideox-lora-single-gpu   # 出力ディレクトリを指定します。
-
-  --height 480   # 入力ビデオの高さを480ピクセルに設定します。
-
-  --width 720   # 入力ビデオの幅を720ピクセルに設定します。
-
-  --fps 8   # 入力ビデオのフレームレートを8 fpsに設定します。
-
-  --max_num_frames 49   # 入力ビデオの最大フレーム数を49に設定します。
-
-  --skip_frames_start 0   # 各ビデオの最初のフレームをスキップしません。
-
-  --skip_frames_end 0   # 各ビデオの最後のフレームをスキップしません。
-
-  --train_batch_size 1   # トレーニングバッチサイズを1に設定します。
-
-  --num_train_epochs 10   # トレーニングのエポック数を10に設定します。
-
-  --checkpointing_steps 500   # 500ステップごとにチェックポイントを保存します。
-
-  --gradient_accumulation_steps 1   # 1ステップごとに勾配を蓄積して更新します。
-
-  --learning_rate 1e-4   # 初期学習率を1e-4に設定します。
-
-  --optimizer AdamW   # AdamWオプティマイザーを使用します。
-
-  --adam_beta1 0.9   # Adamのbeta1パラメータを0.9に設定します。
-
-  --adam_beta2 0.95   # Adamのbeta2パラメータを0.95に設定します。
+```
+accelerate launch --config_file accelerate_config_machine_single.yaml --multi_gpu \  # accelerateを使用してmulti-GPUトレーニングを起動、設定ファイルはaccelerate_config_machine_single.yaml
+  train_cogvideox_lora.py \  # LoRAの微調整用のトレーニングスクリプトtrain_cogvideox_lora.pyを実行
+  --gradient_checkpointing \  # メモリ使用量を減らすためにgradient checkpointingを有効化
+  --pretrained_model_name_or_path $MODEL_PATH \  # 事前学習済みモデルのパスを$MODEL_PATHで指定
+  --cache_dir $CACHE_PATH \  # モデルファイルのキャッシュディレクトリを$CACHE_PATHで指定
+  --enable_tiling \  # メモリ節約のためにタイル処理を有効化し、動画をチャンク分けして処理
+  --enable_slicing \  # 入力をスライスしてさらにメモリ最適化
+  --instance_data_root $DATASET_PATH \  # データセットのパスを$DATASET_PATHで指定
+  --caption_column prompts.txt \  # トレーニングで使用する動画の説明ファイルをprompts.txtで指定
+  --video_column videos.txt \  # トレーニングで使用する動画のパスファイルをvideos.txtで指定
+  --validation_prompt "" \  # トレーニング中に検証用の動画を生成する際のプロンプト
+  --validation_prompt_separator ::: \  # 検証プロンプトの区切り文字を:::に設定
+  --num_validation_videos 1 \  # 各検証ラウンドで1本の動画を生成
+  --validation_epochs 100 \  # 100エポックごとに検証を実施
+  --seed 42 \  # 再現性を保証するためにランダムシードを42に設定
+  --rank 128 \  # LoRAのパラメータのランクを128に設定
+  --lora_alpha 64 \  # LoRAのalphaパラメータを64に設定し、LoRAの学習率を調整
+  --mixed_precision bf16 \  # bf16混合精度でトレーニングし、メモリを節約
+  --output_dir $OUTPUT_PATH \  # モデルの出力ディレクトリを$OUTPUT_PATHで指定
+  --height 480 \  # 動画の高さを480ピクセルに設定
+  --width 720 \  # 動画の幅を720ピクセルに設定
+  --fps 8 \  # 動画のフレームレートを1秒あたり8フレームに設定
+  --max_num_frames 49 \  # 各動画の最大フレーム数を49に設定
+  --skip_frames_start 0 \  # 動画の最初のフレームを0スキップ
+  --skip_frames_end 0 \  # 動画の最後のフレームを0スキップ
+  --train_batch_size 4 \  # トレーニングのバッチサイズを4に設定
+  --num_train_epochs 30 \  # 総トレーニングエポック数を30に設定
+  --checkpointing_steps 1000 \  # 1000ステップごとにモデルのチェックポイントを保存
+  --gradient_accumulation_steps 1 \  # 1ステップの勾配累積を行い、各バッチ後に更新
+  --learning_rate 1e-3 \  # 学習率を0.001に設定
+  --lr_scheduler cosine_with_restarts \  # リスタート付きのコサイン学習率スケジューラを使用
+  --lr_warmup_steps 200 \  # トレーニングの最初の200ステップで学習率をウォームアップ
+  --lr_num_cycles 1 \  # 学習率のサイクル数を1に設定
+  --optimizer AdamW \  # AdamWオプティマイザーを使用
+  --adam_beta1 0.9 \  # Adamオプティマイザーのbeta1パラメータを0.9に設定
+  --adam_beta2 0.95 \  # Adamオプティマイザーのbeta2パラメータを0.95に設定
+  --max_grad_norm 1.0 \  # 勾配クリッピングの最大値を1.0に設定
+  --allow_tf32 \  # トレーニングを高速化するためにTF32を有効化
+  --report_to wandb  # Weights and Biasesを使用してトレーニングの記録とモニタリングを行う
 ```
 
 ## 微調整を開始
 
-単一GPU微調整：
+単一マシン (シングルGPU、マルチGPU) での微調整:
 
 ```shell
 bash finetune_single_rank.sh
 ```
 
-複数GPU微調整：
+複数マシン・マルチGPUでの微調整：
 
 ```shell
 bash finetune_multi_rank.sh # 各ノードで実行する必要があります。
