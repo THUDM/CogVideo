@@ -308,7 +308,10 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
         return t * freqs_cos + rotate_half(t) * freqs_sin
 
     def position_embedding_forward(self, position_ids, **kwargs):
-        return None
+        if self.pos_embedding is not None:
+            return self.pos_embedding[:, :self.text_length + kwargs["seq_length"]]
+        else:
+            return None
 
     def attention_fn(
         self,
