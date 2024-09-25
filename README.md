@@ -22,6 +22,7 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Project Updates
 
+- 🔥🔥 **News**: ```2024/9/25```: CogVideoX web demo is available on Replicate. Try the text-to-video model **CogVideoX-5B** here [![Replicate](https://replicate.com/chenxwh/cogvideox-t2v/badge)](https://replicate.com/chenxwh/cogvideox-t2v) and image-to-video model **CogVideoX-5B-I2V** here [![Replicate](https://replicate.com/chenxwh/cogvideox-i2v/badge)](https://replicate.com/chenxwh/cogvideox-i2v).
 - 🔥🔥 **News**: ```2024/9/19```: We have open-sourced the CogVideoX series image-to-video model **CogVideoX-5B-I2V**.
   This model can take an image as a background input and generate a video combined with prompt words, offering greater
   controllability. With this, the CogVideoX series models now support three tasks: text-to-video generation, video
