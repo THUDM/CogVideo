@@ -358,6 +358,9 @@ This folder contains some tools for model conversion / caption generation, etc.
   Adapter.
 + [llm_flux_cogvideox](tools/llm_flux_cogvideox/llm_flux_cogvideox.py): Automatically generate videos using an
   open-source local large language model + Flux + CogVideoX.
++ [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py):
+Supported by [xDiT](https://github.com/xdit-project/xDiT), parallelize the
+  video generation process on multiple GPUs.
 
 ## CogVideo(ICLR'23)
 
