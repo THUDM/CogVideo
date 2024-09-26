@@ -312,6 +312,9 @@ pipe.vae.enable_tiling()
 + [load_cogvideox_lora](tools/load_cogvideox_lora.py): 载入diffusers版微调Lora Adapter的工具代码。
 + [llm_flux_cogvideox](tools/llm_flux_cogvideox/llm_flux_cogvideox.py): 使用开源本地大语言模型 + Flux +
   CogVideoX实现自动化生成视频。
++ [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py):
+在多个 GPU 上并行化视频生成过程，
+  由[xDiT](https://github.com/xdit-project/xDiT)提供支持。
 
 ## CogVideo(ICLR'23)
 
