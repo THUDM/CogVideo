@@ -7,15 +7,19 @@ https://github.com/xdit-project/xDiT/blob/main/examples/cogvideox_example.py
 By using this code, the inference process is parallelized on multiple GPUs,
 and thus speeded up.
 
-You can also use the run.sh file in the same folder to automate running this
-code for batch generation of videos.
-
 Usage:
 1. pip install xfuser
-2. run the following command to generate video
-torchrun --nproc_per_node=4 cogvideox_xdit.py --model <cogvideox-model-path> \
-    --ring_degree 2 --use_cfg_parallel --height 480 --width 720 --num_frames 9 \
+2. mkdir results
+3. run the following command to generate video
+torchrun --nproc_per_node=4 parallel_inference_xdit.py \
+    --model <cogvideox-model-path> --ulysses_degree 1 --ring_degree 2 \
+    --use_cfg_parallel --height 480 --width 720 --num_frames 9 \
     --prompt 'A small dog.'
+
+You can also use the run.sh file in the same folder to automate running this
+code for batch generation of videos, by running:
+
+sh ./run.sh
 
 """
 
