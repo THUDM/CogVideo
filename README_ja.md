@@ -329,6 +329,9 @@ pipe.vae.enable_tiling()
   をロードするためのツールコード。
 + [llm_flux_cogvideox](tools/llm_flux_cogvideox/llm_flux_cogvideox.py): オープンソースのローカル大規模言語モデル +
   Flux + CogVideoX を使用して自動的に動画を生成します。
++ [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py)：
+[xDiT](https://github.com/xdit-project/xDiT)
+  によってサポートされ、ビデオ生成プロセスを複数の GPU で並列化します。
 
 ## CogVideo(ICLR'23)
 
