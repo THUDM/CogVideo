@@ -271,6 +271,7 @@ pipe.vae.enable_tiling()
 + [AutoDLイメージ](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): コミュニティメンバーが提供するHuggingface
   Spaceイメージのワンクリックデプロイメント。
 + [インテリアデザイン微調整モデル](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba): は、CogVideoXを基盤にした微調整モデルで、インテリアデザイン専用に設計されています。
++ [xDiT](https://github.com/xdit-project/xDiT): xDiTは、複数のGPUクラスター上でDiTsを並列推論するためのエンジンです。xDiTはリアルタイムの画像およびビデオ生成サービスをサポートしています。
 
 ## プロジェクト構造
 

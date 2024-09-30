@@ -256,6 +256,8 @@ pipe.vae.enable_tiling()
 + [AutoDL镜像](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): 由社区成员提供的一键部署Huggingface
   Space镜像。
 + [室内设计微调模型](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba) 基于 CogVideoX的微调模型，它专为室内设计而设计
++ [xDiT](https://github.com/xdit-project/xDiT): xDiT是一个用于在多GPU集群上对DiTs并行推理的引擎。xDiT支持实时图像和视频生成服务。
+
 
 ## 完整项目代码结构
 

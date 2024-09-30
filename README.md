@@ -294,6 +294,8 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   Space image provided by community members.
 + [Interior Design Fine-Tuning Model](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba):
   is a fine-tuned model based on CogVideoX, specifically designed for interior design.
++ [xDiT](https://github.com/xdit-project/xDiT): xDiT is a scalable inference engine for Diffusion Transformers (DiTs) 
+   on multiple GPU Clusters. xDiT supports real-time image and video generations services.
 
 ## Project Structure
 
