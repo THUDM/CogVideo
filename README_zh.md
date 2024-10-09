@@ -19,10 +19,16 @@
 </p>
 <p align="center">
 📍 前往<a href="https://chatglm.cn/video?fr=osm_cogvideox"> 清影</a> 和 <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9"> API平台</a> 体验更大规模的商业版视频生成模型。
+
+我们在飞书<a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh">技术文档</a>公开CogVideoX微调指导，以进一步增加分发自由度，公开文档中所有示例可以完全复现
+
+CogVideoX微调方式分为SFT和lora微调，在我们公开的数据处理的脚本上，你可以更加便捷的在垂类的场景上完成某些风格对齐，我们提供了人物形象（IP）和场景风格的消融实验指导，进一步减少复现微调任务的难度
+我们期待更加有创意探索加入[新月脸]
 </p>
 
 ## 项目更新
 
+- 🔥🔥 **News**: ```2024/10/09```: 我们在飞书[技术文档](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh")公开CogVideoX微调指导，以进一步增加分发自由度，公开文档中所有示例可以完全复现
 - 🔥🔥 **News**: ```2024/9/19```: 我们开源 CogVideoX 系列图生视频模型 **CogVideoX-5B-I2V**
   。该模型可以将一张图像作为背景输入，结合提示词一起生成视频，具有更强的可控性。
   至此，CogVideoX系列模型已经支持文本生成视频，视频续写，图片生成视频三种任务。欢迎前往在线[体验](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)。

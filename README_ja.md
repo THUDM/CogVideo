@@ -17,10 +17,14 @@
     👋 <a href="resources/WECHAT.md" target="_blank">WeChat</a> と <a href="https://discord.gg/dCGfUsagrD" target="_blank">Discord</a> に参加
 </p>
 <p align="center">
-📍 <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験
+📍 <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験.
+CogVideoXの動画生成に関連するエコシステムコミュニティをさらに活性化させるためには、生成モデルの最適化が非常に重要な方向性です。私たちは、CogVideoXの微調整シナリ飛書オを<a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh">技術文書</a>で公開し、分配の自由度をさらに高めるために、公開されている全てのサンプルを完全に再現可能にしています。
+
+CogVideoXの微調整方法は、SFTとLoRA微調整に分かれており、公開されているデータ処理スクリプトを使用することで、特定の分野においてスタイルの一致をより手軽に達成できます。また、キャラクターイメージ（IP）やシーンスタイルのアブレーション実験のガイドも提供しており、微調整タスクの再現の難易度をさらに低減します。 私たちは、さらに創造的な探索が加わることを期待しています。
 </p>
 
 ## 更新とニュース
+- 🔥🔥 **ニュース**: ```2024/10/09```: 飛書の[技術ドキュメント](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh)でCogVideoXの微調整ガイドを公開しています。分配の自由度をさらに高めるため、公開されているドキュメント内のすべての例が完全に再現可能です。
 
 - 🔥🔥 **ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
   をオープンソース化しました。このモデルは、画像を背景入力として使用し、プロンプトワードと組み合わせてビデオを生成することができ、より高い制御性を提供します。これにより、CogVideoXシリーズのモデルは、テキストからビデオ生成、ビデオの継続、画像からビデオ生成の3つのタスクをサポートするようになりました。オンラインでの[体験](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)
