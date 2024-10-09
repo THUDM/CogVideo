@@ -401,9 +401,68 @@ def get_args():
             ' (default), `"wandb"` and `"comet_ml"`. Use `"all"` to report to all integrations.'
         ),
     )
+    parser.add_argument(
+        "--offload_to_cpu",
+        action="store_true",
+        help="Whether or not to offload the model to the CPU.",
+    )
+    parser.add_argument(
+        "--cache_preprocessed_data",
+        action="store_true",
+        help="Whether or not to cache preprocessed data.",
+    )
 
-    return parser.parse_args()
+    parsed_args = parser.parse_args()
+    
+    return parsed_args
 
+
+class CachedVideoList:
+    ACCELERATOR_DEVICE = 'cpu'
+    CACHE_ENABLED = False
+    VAE = None
+    OUTPUT_DIR = None
+    
+    @classmethod
+    def is_cached(cls, video_name):
+        if cls.CACHE_ENABLED:
+            return os.path.exists(os.path.join(cls.cache_dir(), f'{video_name}.pt'))
+        return False
+    
+    @classmethod
+    def cache_dir(cls):
+        result = os.path.join(cls.OUTPUT_DIR, "cached_videos")
+        if not os.path.exists(result):
+            os.makedirs(result)
+        return result
+    
+    def __init__(self):
+        if not self.CACHE_ENABLED:
+            raise ValueError("CachedVideoList is not enabled. Please enable the cache before using it.")
+        if self.OUTPUT_DIR is None:
+            raise ValueError("Output directory not set. Please set the output directory before using the CachedVideoList.")
+        if self.VAE is None:
+            raise ValueError("VAE model not set. Please set the VAE model before using the CachedVideoList.")
+
+        self.video_names = []
+
+
+    def __len__(self):
+        return len(self.video_names)
+    
+    def append(self, video: Tuple[str, torch.Tensor]):
+        self.video_names.append(video[0])
+        if video[1] is not None:
+            torch.save(video[1], os.path.join(CachedVideoList.cache_dir(), f'{video[0]}.pt'))
+
+    def __getitem__(self, index):
+        if index >= len(self.video_names):
+            raise IndexError("Index out of bounds")
+        pt_path = os.path.join(self.cache_dir, f'{video_names[index]}.pt')
+        if not os.path.exists(pt_path):
+            raise FileNotFoundError(f"Video {pt_path} not found in cache.")
+        return torch.load(pt_path)
+     
 
 class VideoDataset(Dataset):
     def __init__(
@@ -533,6 +592,17 @@ class VideoDataset(Dataset):
             )
 
         return instance_prompts, instance_videos
+    
+    def encode_videos(self, vae, device):
+        if not CachedVideoList.CACHE_ENABLED:
+            self.instance_videos = [self.encode_video(video, vae, device) for video in self.instance_videos]
+        
+    def encode_video(self, video, vae, device):
+        video = video.to(device, dtype=vae.dtype).unsqueeze(0)
+        video = video.permute(0, 2, 1, 3, 4)  # [B, C, F, H, W]
+        vae.to(device)
+        latent_dist = vae.encode(video.to(device)).latent_dist
+        return latent_dist
 
     def _preprocess_data(self):
         try:
@@ -544,7 +614,7 @@ class VideoDataset(Dataset):
 
         decord.bridge.set_bridge("torch")
 
-        videos = []
+        videos = CachedVideoList() if CachedVideoList.CACHE_ENABLED else []
         train_transforms = transforms.Compose(
             [
                 transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0),
@@ -552,6 +622,11 @@ class VideoDataset(Dataset):
         )
 
         for filename in self.instance_video_paths:
+            if CachedVideoList.CACHE_ENABLED and videos.is_cached(filename.stem):
+                videos.append((filename.stem, None))
+                continue
+            if CachedVideoList.CACHE_ENABLED:
+                print(f"Pre-processing video {filename.as_posix()}")
             video_reader = decord.VideoReader(uri=filename.as_posix(), width=self.width, height=self.height)
             video_num_frames = len(video_reader)
 
@@ -580,7 +655,17 @@ class VideoDataset(Dataset):
             # Training transforms
             frames = frames.float()
             frames = torch.stack([train_transforms(frame) for frame in frames], dim=0)
-            videos.append(frames.permute(0, 3, 1, 2).contiguous())  # [F, C, H, W]
+            frames = frames.permute(0, 3, 1, 2).contiguous()  # [F, C, H, W]
+            
+            if CachedVideoList.CACHE_ENABLED:
+                print(f"Encoding video  {filename.stem} device {CachedVideoList.ACCELERATOR_DEVICE}")
+                
+            if CachedVideoList.CACHE_ENABLED:
+                videos.append((filename.stem, self.encode_video(frames, CachedVideoList.VAE, CachedVideoList.ACCELERATOR_DEVICE)))
+            else:
+                videos.append(frames)  # [F, C, H, W]
+            if CachedVideoList.CACHE_ENABLED:
+                print(f"Video Encoded {filename.stem}")
 
         return videos
 
@@ -1054,11 +1139,18 @@ def main(args):
             "Mixed precision training with bfloat16 is not supported on MPS. Please use fp16 (recommended) or fp32 instead."
         )
 
-    text_encoder.to(accelerator.device, dtype=weight_dtype)
-    transformer.to(accelerator.device, dtype=weight_dtype)
-    vae.to(accelerator.device, dtype=weight_dtype)
+    if args.offload_to_cpu:
+        text_encoder.to('cpu', dtype=weight_dtype)
+        transformer.to('cpu', dtype=weight_dtype)
+        vae.to('cpu', dtype=weight_dtype)
+        from accelerate import cpu_offload
+        cpu_offload(transformer, accelerator.device, offload_buffers=False)
+    else:
+        text_encoder.to(accelerator.device, dtype=weight_dtype)
+        transformer.to(accelerator.device, dtype=weight_dtype)
+        vae.to(accelerator.device, dtype=weight_dtype)
 
-    if args.gradient_checkpointing:
+    if args.gradient_checkpointing or args.offload_to_cpu:
         transformer.enable_gradient_checkpointing()
 
     # now we will add new LoRA weights to the attention layers
@@ -1162,6 +1254,12 @@ def main(args):
     )
 
     optimizer = get_optimizer(args, params_to_optimize, use_deepspeed=use_deepspeed_optimizer)
+    
+    if args.cache_preprocessed_data: 
+        CachedVideoList.OUTPUT_DIR = args.output_dir
+        CachedVideoList.CACHE_ENABLED = True
+        CachedVideoList.VAE = vae
+        CachedVideoList.ACCELERATOR_DEVICE = accelerator.device
 
     # Dataset and DataLoader
     train_dataset = VideoDataset(
@@ -1180,13 +1278,13 @@ def main(args):
         id_token=args.id_token,
     )
 
-    def encode_video(video):
-        video = video.to(accelerator.device, dtype=vae.dtype).unsqueeze(0)
-        video = video.permute(0, 2, 1, 3, 4)  # [B, C, F, H, W]
-        latent_dist = vae.encode(video).latent_dist
-        return latent_dist
-
-    train_dataset.instance_videos = [encode_video(video) for video in train_dataset.instance_videos]
+    if args.offload_to_cpu:
+        vae.to('cuda')
+        
+    train_dataset.encode_videos(vae, accelerator.device)
+    
+    if args.offload_to_cpu:
+        vae.to('cpu')
 
     def collate_fn(examples):
         videos = [example["instance_video"].sample() * vae.config.scaling_factor for example in examples]

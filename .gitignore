@@ -8,3 +8,5 @@ logs/
 .idea
 output*
 test*
+finetune/cogvideox-lora-single-node/
+venv/
