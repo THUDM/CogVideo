@@ -18,9 +18,17 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 </p>
 <p align="center">
 📍 Visit <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">QingYing</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
+
+We have publicly shared the feishu <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh">technical documentation</a> on CogVideoX fine-tuning scenarios, aiming to further increase the flexibility of distribution. All examples in the public documentation can be fully replicated.
+
+CogVideoX fine-tuning is divided into SFT and LoRA fine-tuning. Based on our publicly available data processing scripts, you can more easily align specific styles in vertical scenarios. We provide guidance for ablation experiments on character image (IP) and scene style, further reducing the difficulty of replicating fine-tuning tasks.
+
+We look forward to creative explorations and contributions.
 </p>
 
 ## Project Updates
+
+- 🔥🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
 
 - 🔥🔥 **News**: ```2024/9/25```: CogVideoX web demo is available on Replicate. Try the text-to-video model **CogVideoX-5B** here [![Replicate](https://replicate.com/chenxwh/cogvideox-t2v/badge)](https://replicate.com/chenxwh/cogvideox-t2v) and image-to-video model **CogVideoX-5B-I2V** here [![Replicate](https://replicate.com/chenxwh/cogvideox-i2v/badge)](https://replicate.com/chenxwh/cogvideox-i2v).
 - 🔥🔥 **News**: ```2024/9/19```: We have open-sourced the CogVideoX series image-to-video model **CogVideoX-5B-I2V**.
