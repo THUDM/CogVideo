@@ -28,6 +28,8 @@ We look forward to creative explorations and contributions.
 
 ## Project Updates
 
+- 🔥🔥 **News**: ```2024/10/10```: We have updated our technical report, including more training details and demos.
+
 - 🔥🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
 
 - 🔥🔥 **News**: ```2024/9/25```: CogVideoX web demo is available on Replicate. Try the text-to-video model **CogVideoX-5B** here [![Replicate](https://replicate.com/chenxwh/cogvideox-t2v/badge)](https://replicate.com/chenxwh/cogvideox-t2v) and image-to-video model **CogVideoX-5B-I2V** here [![Replicate](https://replicate.com/chenxwh/cogvideox-i2v/badge)](https://replicate.com/chenxwh/cogvideox-i2v).
