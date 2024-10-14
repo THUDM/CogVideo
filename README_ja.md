@@ -18,36 +18,26 @@
 </p>
 <p align="center">
 📍 <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">清影</a> と <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">APIプラットフォーム</a> を訪問して、より大規模な商用ビデオ生成モデルを体験.
-CogVideoXの動画生成に関連するエコシステムコミュニティをさらに活性化させるためには、生成モデルの最適化が非常に重要な方向性です。私たちは、CogVideoXの微調整シナリ飛書オを<a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh">技術文書</a>で公開し、分配の自由度をさらに高めるために、公開されている全てのサンプルを完全に再現可能にしています。
-
-CogVideoXの微調整方法は、SFTとLoRA微調整に分かれており、公開されているデータ処理スクリプトを使用することで、特定の分野においてスタイルの一致をより手軽に達成できます。また、キャラクターイメージ（IP）やシーンスタイルのアブレーション実験のガイドも提供しており、微調整タスクの再現の難易度をさらに低減します。 私たちは、さらに創造的な探索が加わることを期待しています。
 </p>
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/10/10```: 技術報告書を更新し、より詳細なトレーニング情報とデモを追加しました。
-
-- 🔥🔥 **ニュース**: ```2024/10/09```: 飛書の[技術ドキュメント](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh)でCogVideoXの微調整ガイドを公開しています。分配の自由度をさらに高めるため、公開されているドキュメント内のすべての例が完全に再現可能です。
-
-- 🔥🔥 **ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
+- 🔥🔥 **ニュース**: ```2024/10/13```: コスト削減のため、単一の4090 GPUで`CogVideoX-5B`を微調整できるフレームワーク [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory) がリリースされました。複数の解像度での微調整に対応しています。ぜひご利用ください！- 🔥**ニュース**: ```2024/10/10```: 技術報告書を更新し、より詳細なトレーニング情報とデモを追加しました。
+- 🔥**ニュース**: ```2024/10/09```: 飛書の[技術ドキュメント](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh)でCogVideoXの微調整ガイドを公開しています。分配の自由度をさらに高めるため、公開されているドキュメント内のすべての例が完全に再現可能です。
+- 🔥**ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
   をオープンソース化しました。このモデルは、画像を背景入力として使用し、プロンプトワードと組み合わせてビデオを生成することができ、より高い制御性を提供します。これにより、CogVideoXシリーズのモデルは、テキストからビデオ生成、ビデオの継続、画像からビデオ生成の3つのタスクをサポートするようになりました。オンラインでの[体験](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)
   をお楽しみください。
-
 - 🔥🔥 **ニュース**: ```2024/9/19```:
   CogVideoXのトレーニングプロセスでビデオデータをテキスト記述に変換するために使用されるキャプションモデル [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
   をオープンソース化しました。ダウンロードしてご利用ください。
-
 - 🔥 ```2024/8/27```: CogVideoXシリーズのより大きなモデル **CogVideoX-5B**
   をオープンソース化しました。モデルの推論性能を大幅に最適化し、推論のハードルを大幅に下げました。`GTX 1080TI` などの旧型GPUで
   **CogVideoX-2B** を、`RTX 3060` などのデスクトップGPUで **CogVideoX-5B**
   モデルを実行できます。依存関係を更新・インストールするために、[要件](requirements.txt)
   を厳守し、推論コードは [cli_demo](inference/cli_demo.py) を参照してください。さらに、**CogVideoX-2B** モデルのオープンソースライセンスが
   **Apache 2.0 ライセンス** に変更されました。
-
 - 🔥 ```2024/8/6```: **CogVideoX-2B** 用の **3D Causal VAE** をオープンソース化しました。これにより、ビデオをほぼ無損失で再構築することができます。
-
 - 🔥 ```2024/8/6```: CogVideoXシリーズのビデオ生成モデルの最初のモデル、**CogVideoX-2B** をオープンソース化しました。
-
 - 🌱 **ソース**: ```2022/5/19```: CogVideoビデオ生成モデルをオープンソース化しました（現在、`CogVideo`
   ブランチで確認できます）。これは、トランスフォーマーに基づく初のオープンソース大規模テキスト生成ビデオモデルです。技術的な詳細については、[ICLR'23論文](https://arxiv.org/abs/2205.15868)
   をご覧ください。
@@ -340,6 +330,8 @@ pipe.vae.enable_tiling()
 + [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py)：
 [xDiT](https://github.com/xdit-project/xDiT)
   によってサポートされ、ビデオ生成プロセスを複数の GPU で並列化します。
++ [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): CogVideoXの低コスト微調整フレームワークで、
+`diffusers`バージョンのモデルに適応しています。より多くの解像度に対応し、単一の4090 GPUでCogVideoX-5Bの微調整が可能です。
 
 ## CogVideo(ICLR'23)
 
