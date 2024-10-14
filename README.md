@@ -23,14 +23,13 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 ## Project Updates
 
 - 🔥🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single 4090 GPU, [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory), has been released. It supports fine-tuning with multiple resolutions. Feel free to use it!
-- 🔥 **News**: ```2024/10/10```: We have updated our technical report, including more training details and demos.
-- 🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
+- 🔥 **News**: ```2024/10/10```: We have updated our technical report. Please click [here](https://arxiv.org/pdf/2408.06072) to view it. More training details and a demo have been added. To see the demo, click [here](https://yzy-thu.github.io/CogVideoX-demo/).- 🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
 - 🔥 **News**: ```2024/9/19```: We have open-sourced the CogVideoX series image-to-video model **CogVideoX-5B-I2V**.
   This model can take an image as a background input and generate a video combined with prompt words, offering greater
   controllability. With this, the CogVideoX series models now support three tasks: text-to-video generation, video
   continuation, and image-to-video generation. Welcome to try it online
   at [Experience](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space).
-- 🔥🔥 **News**: ```2024/9/19```: The Caption
+- 🔥 ```2024/9/19```: The Caption
   model [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption), used in the training process of
   CogVideoX to convert video data into text descriptions, has been open-sourced. Welcome to download and use it.
 - 🔥 ```2024/8/27```: We have open-sourced a larger model in the CogVideoX series, **CogVideoX-5B**. We have
