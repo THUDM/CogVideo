@@ -39,7 +39,7 @@ from diffusers.optimization import get_scheduler
 from diffusers.pipelines.cogvideo.pipeline_cogvideox import get_resize_crop_region_for_grid
 from diffusers.training_utils import (
     cast_training_params,
-    clear_objs_and_retain_memory,
+    free_memory,
 )
 from diffusers.utils import check_min_version, convert_unet_state_dict_to_peft, export_to_video, is_wandb_available
 from diffusers.utils.hub_utils import load_or_create_model_card, populate_model_card
@@ -725,7 +725,7 @@ def log_validation(
                 }
             )
 
-    clear_objs_and_retain_memory([pipe])
+    free_memory()
 
     return videos
 

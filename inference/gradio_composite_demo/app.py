@@ -37,13 +37,15 @@ from huggingface_hub import hf_hub_download, snapshot_download
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+MODEL = "THUDM/CogVideoX-5b"
+
 hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran")
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
-pipe = CogVideoXPipeline.from_pretrained("/share/official_pretrains/hf_home/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
+pipe = CogVideoXPipeline.from_pretrained(MODEL, torch_dtype=torch.bfloat16).to(device)
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
-    "/share/official_pretrains/hf_home/CogVideoX-5b",
+    MODEL,
     transformer=pipe.transformer,
     vae=pipe.vae,
     scheduler=pipe.scheduler,
@@ -53,9 +55,9 @@ pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
 ).to(device)
 
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
-    "/share/official_pretrains/hf_home/CogVideoX-5b-I2V",
+    MODEL,
     transformer=CogVideoXTransformer3DModel.from_pretrained(
-        "/share/official_pretrains/hf_home/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
+        MODEL, subfolder="transformer", torch_dtype=torch.bfloat16
     ),
     vae=pipe.vae,
     scheduler=pipe.scheduler,
@@ -315,7 +317,7 @@ with gr.Blocks() as demo:
             "></a>
            </div>
            <div style="text-align: center; font-size: 15px; font-weight: bold; color: red; margin-bottom: 20px;">
-            ⚠️ This demo is for academic research and experiential use only. 
+            ⚠️ This demo is for academic research and experimental use only. 
             </div>
            """)
     with gr.Row():
