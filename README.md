@@ -18,22 +18,14 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 </p>
 <p align="center">
 📍 Visit <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">QingYing</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
-
-We have publicly shared the feishu <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh">technical documentation</a> on CogVideoX fine-tuning scenarios, aiming to further increase the flexibility of distribution. All examples in the public documentation can be fully replicated.
-
-CogVideoX fine-tuning is divided into SFT and LoRA fine-tuning. Based on our publicly available data processing scripts, you can more easily align specific styles in vertical scenarios. We provide guidance for ablation experiments on character image (IP) and scene style, further reducing the difficulty of replicating fine-tuning tasks.
-
-We look forward to creative explorations and contributions.
 </p>
 
 ## Project Updates
 
-- 🔥🔥 **News**: ```2024/10/10```: We have updated our technical report, including more training details and demos.
-
-- 🔥🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
-
-- 🔥🔥 **News**: ```2024/9/25```: CogVideoX web demo is available on Replicate. Try the text-to-video model **CogVideoX-5B** here [![Replicate](https://replicate.com/chenxwh/cogvideox-t2v/badge)](https://replicate.com/chenxwh/cogvideox-t2v) and image-to-video model **CogVideoX-5B-I2V** here [![Replicate](https://replicate.com/chenxwh/cogvideox-i2v/badge)](https://replicate.com/chenxwh/cogvideox-i2v).
-- 🔥🔥 **News**: ```2024/9/19```: We have open-sourced the CogVideoX series image-to-video model **CogVideoX-5B-I2V**.
+- 🔥🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single 4090 GPU, [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory), has been released. It supports fine-tuning with multiple resolutions. Feel free to use it!- 🔥 **News**: ```2024/10/10```: We have updated our technical report, including more training details and demos.
+- 🔥 **News**: ```2024/10/10```: We have updated our technical report, including more training details and demos.
+- 🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
+- 🔥 **News**: ```2024/9/19```: We have open-sourced the CogVideoX series image-to-video model **CogVideoX-5B-I2V**.
   This model can take an image as a background input and generate a video combined with prompt words, offering greater
   controllability. With this, the CogVideoX series models now support three tasks: text-to-video generation, video
   continuation, and image-to-video generation. Welcome to try it online
@@ -306,6 +298,8 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   is a fine-tuned model based on CogVideoX, specifically designed for interior design.
 + [xDiT](https://github.com/xdit-project/xDiT): xDiT is a scalable inference engine for Diffusion Transformers (DiTs) 
    on multiple GPU Clusters. xDiT supports real-time image and video generations services.
+[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): A cost-effective 
+   fine-tuning framework for CogVideoX, compatible with the `diffusers` version model. Supports more resolutions, and fine-tuning CogVideoX-5B can be done with a single 4090 GPU.
 
 ## Project Structure
 
