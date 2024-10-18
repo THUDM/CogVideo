@@ -22,8 +22,15 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Project Updates
 
-- 🔥🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single 4090 GPU, [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory), has been released. It supports fine-tuning with multiple resolutions. Feel free to use it!
-- 🔥 **News**: ```2024/10/10```: We have updated our technical report. Please click [here](https://arxiv.org/pdf/2408.06072) to view it. More training details and a demo have been added. To see the demo, click [here](https://yzy-thu.github.io/CogVideoX-demo/).- 🔥 **News**: ```2024/10/09```: We have publicly released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be fully reproduced.
+- 🔥🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single
+  4090 GPU, [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory), has been released. It supports
+  fine-tuning with multiple resolutions. Feel free to use it!
+- 🔥 **News**: ```2024/10/10```: We have updated our technical report. Please
+  click [here](https://arxiv.org/pdf/2408.06072) to view it. More training details and a demo have been added. To see
+  the demo, click [here](https://yzy-thu.github.io/CogVideoX-demo/).- 🔥 **News**: ```2024/10/09```: We have publicly
+  released the [technical documentation](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh) for CogVideoX
+  fine-tuning on Feishu, further increasing distribution flexibility. All examples in the public documentation can be
+  fully reproduced.
 - 🔥 **News**: ```2024/9/19```: We have open-sourced the CogVideoX series image-to-video model **CogVideoX-5B-I2V**.
   This model can take an image as a background input and generate a video combined with prompt words, offering greater
   controllability. With this, the CogVideoX series models now support three tasks: text-to-video generation, video
@@ -295,10 +302,16 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   Space image provided by community members.
 + [Interior Design Fine-Tuning Model](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba):
   is a fine-tuned model based on CogVideoX, specifically designed for interior design.
-+ [xDiT](https://github.com/xdit-project/xDiT): xDiT is a scalable inference engine for Diffusion Transformers (DiTs) 
-   on multiple GPU Clusters. xDiT supports real-time image and video generations services.
-[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): A cost-effective 
-   fine-tuning framework for CogVideoX, compatible with the `diffusers` version model. Supports more resolutions, and fine-tuning CogVideoX-5B can be done with a single 4090 GPU.
++ [xDiT](https://github.com/xdit-project/xDiT): xDiT is a scalable inference engine for Diffusion Transformers (DiTs)
+  on multiple GPU Clusters. xDiT supports real-time image and video generations services.
+  [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): A cost-effective
+  fine-tuning framework for CogVideoX, compatible with the `diffusers` version model. Supports more resolutions, and
+  fine-tuning CogVideoX-5B can be done with a single 4090 GPU.
++ [CogVideoX-Interpolation](https://github.com/feizc/CogvideX-Interpolation): A pipeline based on the modified CogVideoX
+  structure, aimed at providing greater flexibility for keyframe interpolation generation.
++ [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth Studio is a diffusion engine. It has
+  restructured the architecture, including text encoders, UNet, VAE, etc., enhancing computational performance while
+  maintaining compatibility with open-source community models. The framework has been adapted for CogVideoX.
 
 ## Project Structure
 
@@ -365,7 +378,7 @@ This folder contains some tools for model conversion / caption generation, etc.
 + [llm_flux_cogvideox](tools/llm_flux_cogvideox/llm_flux_cogvideox.py): Automatically generate videos using an
   open-source local large language model + Flux + CogVideoX.
 + [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py):
-Supported by [xDiT](https://github.com/xdit-project/xDiT), parallelize the
+  Supported by [xDiT](https://github.com/xdit-project/xDiT), parallelize the
   video generation process on multiple GPUs.
 
 ## CogVideo(ICLR'23)

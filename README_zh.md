@@ -23,9 +23,12 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2024/10/13```: 成本更低，单卡4090可微调`CogVideoX-5B`的微调框架[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)已经推出，多种分辨率微调，欢迎使用。
-- 🔥 **News**: ```2024/10/10```: 我们更新了我们的技术报告,请点击 [这里](https://arxiv.org/pdf/2408.06072) 查看，附上了更多的训练细节和demo，关于demo，点击[这里](https://yzy-thu.github.io/CogVideoX-demo/) 查看。
-- 🔥 **News**: ```2024/10/09```: 我们在飞书[技术文档](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh")公开CogVideoX微调指导，以进一步增加分发自由度，公开文档中所有示例可以完全复现
+- 🔥🔥 **News**: ```2024/10/13```: 成本更低，单卡4090可微调`CogVideoX-5B`
+  的微调框架[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)已经推出，多种分辨率微调，欢迎使用。
+- 🔥 **News**: ```2024/10/10```: 我们更新了我们的技术报告,请点击 [这里](https://arxiv.org/pdf/2408.06072)
+  查看，附上了更多的训练细节和demo，关于demo，点击[这里](https://yzy-thu.github.io/CogVideoX-demo/) 查看。
+- 🔥 **News**: ```2024/10/09```: 我们在飞书[技术文档](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh")
+  公开CogVideoX微调指导，以进一步增加分发自由度，公开文档中所有示例可以完全复现
 - 🔥 **News**: ```2024/9/19```: 我们开源 CogVideoX 系列图生视频模型 **CogVideoX-5B-I2V**
   。该模型可以将一张图像作为背景输入，结合提示词一起生成视频，具有更强的可控性。
   至此，CogVideoX系列模型已经支持文本生成视频，视频续写，图片生成视频三种任务。欢迎前往在线[体验](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)。
@@ -251,16 +254,21 @@ pipe.vae.enable_tiling()
 ## 友情链接
 
 我们非常欢迎来自社区的贡献，并积极的贡献开源社区。以下作品已经对CogVideoX进行了适配，欢迎大家使用:
-+ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun): CogVideoX-Fun是一个基于CogVideoX结构修改后的的pipeline，支持自由的分辨率，多种启动方式。
+
++ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun):
+  CogVideoX-Fun是一个基于CogVideoX结构修改后的的pipeline，支持自由的分辨率，多种启动方式。
 + [CogStudio](https://github.com/pinokiofactory/cogstudio): CogVideo 的 Gradio Web UI单独实现仓库，支持更多功能的 Web UI。
 + [Xorbits Inference](https://github.com/xorbitsai/inference): 性能强大且功能全面的分布式推理框架，轻松一键部署你自己的模型或内置的前沿开源模型。
 + [ComfyUI-CogVideoXWrapper](https://github.com/kijai/ComfyUI-CogVideoXWrapper) 使用ComfyUI框架，将CogVideoX加入到你的工作流中。
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSys 提供了易用且高性能的视频生成基础设施，支持完整的管道，并持续集成最新的模型和技术。
 + [AutoDL镜像](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): 由社区成员提供的一键部署Huggingface
   Space镜像。
-+ [室内设计微调模型](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba) 基于 CogVideoX的微调模型，它专为室内设计而设计
++ [室内设计微调模型](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba) 基于
+  CogVideoX的微调模型，它专为室内设计而设计
 + [xDiT](https://github.com/xdit-project/xDiT): xDiT是一个用于在多GPU集群上对DiTs并行推理的引擎。xDiT支持实时图像和视频生成服务。
-
++ [CogVideoX-Interpolation](https://github.com/feizc/CogvideX-Interpolation): 基于 CogVideoX 结构修改的管道，旨在为关键帧插值生成提供更大的灵活性。
++ [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth 工作室是一款扩散引擎。重构了架构，包括文本编码器、UNet、VAE
+  等，在保持与开源社区模型兼容性的同时，提升了计算性能。该框架已经适配 CogVideoX。
 
 ## 完整项目代码结构
 
@@ -318,9 +326,10 @@ pipe.vae.enable_tiling()
 + [llm_flux_cogvideox](tools/llm_flux_cogvideox/llm_flux_cogvideox.py): 使用开源本地大语言模型 + Flux +
   CogVideoX实现自动化生成视频。
 + [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py):
-在多个 GPU 上并行化视频生成过程，
+  在多个 GPU 上并行化视频生成过程，
   由[xDiT](https://github.com/xdit-project/xDiT)提供支持。
-+ [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): CogVideoX低成文微调框架，适配`diffusers`版本模型。支持更多分辨率，单卡4090即可微调 CogVideoX-5B 。
++ [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): CogVideoX低成文微调框架，适配`diffusers`
+  版本模型。支持更多分辨率，单卡4090即可微调 CogVideoX-5B 。
 
 ## CogVideo(ICLR'23)
 
