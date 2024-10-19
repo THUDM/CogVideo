@@ -297,7 +297,7 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   is a fine-tuned model based on CogVideoX, specifically designed for interior design.
 + [xDiT](https://github.com/xdit-project/xDiT): xDiT is a scalable inference engine for Diffusion Transformers (DiTs) 
    on multiple GPU Clusters. xDiT supports real-time image and video generations services.
-[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): A cost-effective 
++ [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): A cost-effective 
    fine-tuning framework for CogVideoX, compatible with the `diffusers` version model. Supports more resolutions, and fine-tuning CogVideoX-5B can be done with a single 4090 GPU.
 
 ## Project Structure
