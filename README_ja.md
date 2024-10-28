@@ -22,9 +22,15 @@
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/10/13```: コスト削減のため、単一の4090 GPUで`CogVideoX-5B`を微調整できるフレームワーク [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory) がリリースされました。複数の解像度での微調整に対応しています。ぜひご利用ください！- 🔥**ニュース**: ```2024/10/10```: 技術報告書を更新し、より詳細なトレーニング情報とデモを追加しました。
-- 🔥 **ニュース**: ```2024/10/10```: 技術報告書を更新しました。[こちら](https://arxiv.org/pdf/2408.06072) をクリックしてご覧ください。さらにトレーニングの詳細とデモを追加しました。デモを見るには[こちら](https://yzy-thu.github.io/CogVideoX-demo/)をクリックしてください。
-- 🔥**ニュース**: ```2024/10/09```: 飛書の[技術ドキュメント](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh)でCogVideoXの微調整ガイドを公開しています。分配の自由度をさらに高めるため、公開されているドキュメント内のすべての例が完全に再現可能です。
+- 🔥🔥 **ニュース**: ```2024/10/13```: コスト削減のため、単一の4090 GPUで`CogVideoX-5B`
+  を微調整できるフレームワーク [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)
+  がリリースされました。複数の解像度での微調整に対応しています。ぜひご利用ください！- 🔥**ニュース**: ```2024/10/10```:
+  技術報告書を更新し、より詳細なトレーニング情報とデモを追加しました。
+- 🔥 **ニュース**: ```2024/10/10```: 技術報告書を更新しました。[こちら](https://arxiv.org/pdf/2408.06072)
+  をクリックしてご覧ください。さらにトレーニングの詳細とデモを追加しました。デモを見るには[こちら](https://yzy-thu.github.io/CogVideoX-demo/)
+  をクリックしてください。
+- 🔥**ニュース**: ```2024/10/09```: 飛書の[技術ドキュメント](https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh)
+  でCogVideoXの微調整ガイドを公開しています。分配の自由度をさらに高めるため、公開されているドキュメント内のすべての例が完全に再現可能です。
 - 🔥**ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
   をオープンソース化しました。このモデルは、画像を背景入力として使用し、プロンプトワードと組み合わせてビデオを生成することができ、より高い制御性を提供します。これにより、CogVideoXシリーズのモデルは、テキストからビデオ生成、ビデオの継続、画像からビデオ生成の3つのタスクをサポートするようになりました。オンラインでの[体験](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)
   をお楽しみください。
@@ -259,8 +265,10 @@ pipe.vae.enable_tiling()
 
 コミュニティからの貢献を大歓迎し、私たちもオープンソースコミュニティに積極的に貢献しています。以下の作品はすでにCogVideoXに対応しており、ぜひご利用ください：
 
-+ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun): CogVideoX-Funは、CogVideoXアーキテクチャを基にした改良パイプラインで、自由な解像度と複数の起動方法をサポートしています。
-+ [CogStudio](https://github.com/pinokiofactory/cogstudio): CogVideo の Gradio Web UI の別のリポジトリ。より高機能な Web UI をサポートします。
++ [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun):
+  CogVideoX-Funは、CogVideoXアーキテクチャを基にした改良パイプラインで、自由な解像度と複数の起動方法をサポートしています。
++ [CogStudio](https://github.com/pinokiofactory/cogstudio): CogVideo の Gradio Web UI の別のリポジトリ。より高機能な Web
+  UI をサポートします。
 + [Xorbits Inference](https://github.com/xorbitsai/inference):
   強力で包括的な分散推論フレームワークであり、ワンクリックで独自のモデルや最新のオープンソースモデルを簡単にデプロイできます。
 + [ComfyUI-CogVideoXWrapper](https://github.com/kijai/ComfyUI-CogVideoXWrapper)
@@ -268,8 +276,14 @@ pipe.vae.enable_tiling()
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSysは、使いやすく高性能なビデオ生成インフラを提供し、最新のモデルや技術を継続的に統合しています。
 + [AutoDLイメージ](https://www.codewithgpu.com/i/THUDM/CogVideo/CogVideoX-5b-demo): コミュニティメンバーが提供するHuggingface
   Spaceイメージのワンクリックデプロイメント。
-+ [インテリアデザイン微調整モデル](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba): は、CogVideoXを基盤にした微調整モデルで、インテリアデザイン専用に設計されています。
-+ [xDiT](https://github.com/xdit-project/xDiT): xDiTは、複数のGPUクラスター上でDiTsを並列推論するためのエンジンです。xDiTはリアルタイムの画像およびビデオ生成サービスをサポートしています。
++ [インテリアデザイン微調整モデル](https://huggingface.co/collections/bertjiazheng/koolcogvideox-66e4762f53287b7f39f8f3ba):
+  は、CogVideoXを基盤にした微調整モデルで、インテリアデザイン専用に設計されています。
++ [xDiT](https://github.com/xdit-project/xDiT):
+  xDiTは、複数のGPUクラスター上でDiTsを並列推論するためのエンジンです。xDiTはリアルタイムの画像およびビデオ生成サービスをサポートしています。
++ [CogVideoX-Interpolation](https://github.com/feizc/CogvideX-Interpolation):
+  キーフレーム補間生成において、より大きな柔軟性を提供することを目的とした、CogVideoX構造を基にした修正版のパイプライン。
++ [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth
+  Studioは、拡散エンジンです。テキストエンコーダー、UNet、VAEなどを含むアーキテクチャを再構築し、オープンソースコミュニティモデルとの互換性を維持しつつ、計算性能を向上させました。このフレームワークはCogVideoXに適応しています。
 
 ## プロジェクト構造
 
@@ -329,10 +343,10 @@ pipe.vae.enable_tiling()
 + [llm_flux_cogvideox](tools/llm_flux_cogvideox/llm_flux_cogvideox.py): オープンソースのローカル大規模言語モデル +
   Flux + CogVideoX を使用して自動的に動画を生成します。
 + [parallel_inference_xdit](tools/parallel_inference/parallel_inference_xdit.py)：
-[xDiT](https://github.com/xdit-project/xDiT)
+  [xDiT](https://github.com/xdit-project/xDiT)
   によってサポートされ、ビデオ生成プロセスを複数の GPU で並列化します。
 + [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory): CogVideoXの低コスト微調整フレームワークで、
-`diffusers`バージョンのモデルに適応しています。より多くの解像度に対応し、単一の4090 GPUでCogVideoX-5Bの微調整が可能です。
+  `diffusers`バージョンのモデルに適応しています。より多くの解像度に対応し、単一の4090 GPUでCogVideoX-5Bの微調整が可能です。
 
 ## CogVideo(ICLR'23)
 
