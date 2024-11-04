@@ -1,22 +1,15 @@
 """
-This script demonstrates how to convert and generate video from a text prompt
-using CogVideoX with 🤗Huggingface Diffusers Pipeline.
-This script requires the `diffusers>=0.30.2` library to be installed.
 
-Functions:
-    - reassign_query_key_value_inplace: Reassigns the query, key, and value weights in-place.
-    - reassign_query_key_layernorm_inplace: Reassigns layer normalization for query and key in-place.
-    - reassign_adaln_norm_inplace: Reassigns adaptive layer normalization in-place.
-    - remove_keys_inplace: Removes specified keys from the state_dict in-place.
-    - replace_up_keys_inplace: Replaces keys in the "up" block in-place.
-    - get_state_dict: Extracts the state_dict from a saved checkpoint.
-    - update_state_dict_inplace: Updates the state_dict with new key assignments in-place.
-    - convert_transformer: Converts a transformer checkpoint to the CogVideoX format.
-    - convert_vae: Converts a VAE checkpoint to the CogVideoX format.
-    - get_args: Parses command-line arguments for the script.
-    - generate_video: Generates a video from a text prompt using the CogVideoX pipeline.
+The script demonstrates how to convert the weights of the CogVideoX model from SAT to Hugging Face format.
+This script supports the conversion of the following models:
+- CogVideoX-2B
+- CogVideoX-5B, CogVideoX-5B-I2V
+- CogVideoX1.1-5B, CogVideoX1.1-5B-I2V
+
+Original Script:
+https://github.com/huggingface/diffusers/blob/main/scripts/convert_cogvideox_to_diffusers.py
+
 """
-
 import argparse
 from typing import Any, Dict
 
@@ -153,12 +146,12 @@ def update_state_dict_inplace(state_dict: Dict[str, Any], old_key: str, new_key:
 
 
 def convert_transformer(
-    ckpt_path: str,
-    num_layers: int,
-    num_attention_heads: int,
-    use_rotary_positional_embeddings: bool,
-    i2v: bool,
-    dtype: torch.dtype,
+        ckpt_path: str,
+        num_layers: int,
+        num_attention_heads: int,
+        use_rotary_positional_embeddings: bool,
+        i2v: bool,
+        dtype: torch.dtype,
 ):
     PREFIX_KEY = "model.diffusion_model."
 
@@ -172,7 +165,7 @@ def convert_transformer(
     ).to(dtype=dtype)
 
     for key in list(original_state_dict.keys()):
-        new_key = key[len(PREFIX_KEY) :]
+        new_key = key[len(PREFIX_KEY):]
         for replace_key, rename_key in TRANSFORMER_KEYS_RENAME_DICT.items():
             new_key = new_key.replace(replace_key, rename_key)
         update_state_dict_inplace(original_state_dict, key, new_key)
@@ -209,7 +202,8 @@ def convert_vae(ckpt_path: str, scaling_factor: float, dtype: torch.dtype):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--transformer_ckpt_path", type=str, default=None, help="Path to original transformer checkpoint")
+        "--transformer_ckpt_path", type=str, default=None, help="Path to original transformer checkpoint"
+    )
     parser.add_argument("--vae_ckpt_path", type=str, default=None, help="Path to original vae checkpoint")
     parser.add_argument("--output_path", type=str, required=True, help="Path where converted model should be saved")
     parser.add_argument("--fp16", action="store_true", default=False, help="Whether to save the model weights in fp16")
@@ -259,9 +253,10 @@ if __name__ == "__main__":
     if args.vae_ckpt_path is not None:
         vae = convert_vae(args.vae_ckpt_path, args.scaling_factor, dtype)
 
-    text_encoder_id = "google/t5-v1_1-xxl"
+    text_encoder_id = "/share/official_pretrains/hf_home/t5-v1_1-xxl"
     tokenizer = T5Tokenizer.from_pretrained(text_encoder_id, model_max_length=TOKENIZER_MAX_LENGTH)
     text_encoder = T5EncoderModel.from_pretrained(text_encoder_id, cache_dir=args.text_encoder_cache_dir)
+
     # Apparently, the conversion does not work anymore without this :shrug:
     for param in text_encoder.parameters():
         param.data = param.data.contiguous()
@@ -301,4 +296,7 @@ if __name__ == "__main__":
     # We don't use variant here because the model must be run in fp16 (2B) or bf16 (5B). It would be weird
     # for users to specify variant when the default is not fp32 and they want to run with the correct default (which
     # is either fp16/bf16 here).
-    pipe.save_pretrained(args.output_path, safe_serialization=True, push_to_hub=args.push_to_hub)
+
+    # This is necessary This is necessary for users with insufficient memory,
+    # such as those using Colab and notebooks, as it can save some memory used for model loading.
+    pipe.save_pretrained(args.output_path, safe_serialization=True, max_shard_size="5GB", push_to_hub=args.push_to_hub)

@@ -185,7 +185,12 @@ class SATVideoDiffusionEngine(nn.Module):
                     kwargs = {"timesteps": len(z[n * n_samples : (n + 1) * n_samples])}
                 else:
                     kwargs = {}
-                out = self.first_stage_model.decode(z[n * n_samples : (n + 1) * n_samples], **kwargs)
+                frame = z.shape[2] * 4 - 3
+                if frame <= 9:
+                    use_cp = False
+                else:
+                    use_cp = True
+                out = self.first_stage_model.decode(z[n * n_samples : (n + 1) * n_samples], use_cp=use_cp, **kwargs)
                 all_out.append(out)
         out = torch.cat(all_out, dim=0)
         return out
@@ -218,6 +223,7 @@ class SATVideoDiffusionEngine(nn.Module):
         shape: Union[None, Tuple, List] = None,
         prefix=None,
         concat_images=None,
+        ofs=None,
         **kwargs,
     ):
         randn = torch.randn(batch_size, *shape).to(torch.float32).to(self.device)
@@ -241,7 +247,7 @@ class SATVideoDiffusionEngine(nn.Module):
             self.model, input, sigma, c, concat_images=concat_images, **addtional_model_inputs
         )
 
-        samples = self.sampler(denoiser, randn, cond, uc=uc, scale=scale, scale_emb=scale_emb)
+        samples = self.sampler(denoiser, randn, cond, uc=uc, scale=scale, scale_emb=scale_emb, ofs=ofs)
         samples = samples.to(self.dtype)
         return samples
 

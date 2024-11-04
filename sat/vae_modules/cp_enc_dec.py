@@ -5,8 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-from beartype import beartype
-from beartype.typing import Union, Tuple, Optional, List
+from beartype.typing import Union, Tuple
 from einops import rearrange
 
 from sgm.util import (
@@ -16,11 +15,7 @@ from sgm.util import (
     get_context_parallel_group_rank,
 )
 
-# try:
 from vae_modules.utils import SafeConv3d as Conv3d
-# except:
-#     # Degrade to normal Conv3d if SafeConv3d is not available
-#     from torch.nn import Conv3d
 
 
 def cast_tuple(t, length=1):
@@ -81,7 +76,6 @@ def _split(input_, dim):
 
     cp_rank = get_context_parallel_rank()
 
-    # print('in _split, cp_rank:', cp_rank, 'input_size:', input_.shape)
 
     inpu_first_frame_ = input_.transpose(0, dim)[:1].transpose(0, dim).contiguous()
     input_ = input_.transpose(0, dim)[1:].transpose(0, dim).contiguous()
@@ -94,7 +88,6 @@ def _split(input_, dim):
         output = torch.cat([inpu_first_frame_, output], dim=dim)
     output = output.contiguous()
 
-    # print('out _split, cp_rank:', cp_rank, 'output_size:', output.shape)
 
     return output
 
@@ -382,19 +375,6 @@ class ContextParallelCausalConv3d(nn.Module):
         self.cache_padding = None
 
     def forward(self, input_, clear_cache=True):
-        # if input_.shape[2] == 1: # handle image
-        #     # first frame padding
-        #     input_parallel = torch.cat([input_] * self.time_kernel_size, dim=2)
-        # else:
-        #     input_parallel = conv_pass_from_last_rank(input_, self.temporal_dim, self.time_kernel_size)
-
-        # padding_2d = (self.width_pad, self.width_pad, self.height_pad, self.height_pad)
-        # input_parallel = F.pad(input_parallel, padding_2d, mode = 'constant', value = 0)
-
-        # output_parallel = self.conv(input_parallel)
-        # output = output_parallel
-        # return output
-
         input_parallel = fake_cp_pass_from_previous_rank(
             input_, self.temporal_dim, self.time_kernel_size, self.cache_padding
         )
@@ -464,7 +444,6 @@ class SpatialNorm3D(nn.Module):
             self.norm_layer = ContextParallelGroupNorm(num_channels=f_channels, **norm_layer_params)
         else:
             self.norm_layer = torch.nn.GroupNorm(num_channels=f_channels, **norm_layer_params)
-        # self.norm_layer = norm_layer(num_channels=f_channels, **norm_layer_params)
         if freeze_norm_layer:
             for p in self.norm_layer.parameters:
                 p.requires_grad = False
@@ -543,21 +522,29 @@ class Upsample3D(nn.Module):
 
     def forward(self, x):
         if self.compress_time and x.shape[2] > 1:
-            if x.shape[2] % 2 == 1:
-                # split first frame
-                x_first, x_rest = x[:, :, 0], x[:, :, 1:]
-
-                x_first = torch.nn.functional.interpolate(x_first, scale_factor=2.0, mode="nearest")
-                x_rest = torch.nn.functional.interpolate(x_rest, scale_factor=2.0, mode="nearest")
-                x = torch.cat([x_first[:, :, None, :, :], x_rest], dim=2)
-            else:
-                x = torch.nn.functional.interpolate(x, scale_factor=2.0, mode="nearest")
+            # Process the time dimension first as x_first
+            x_first, x_rest = x[:, :, 0], x[:, :, 1:]
+            # print(x_first.shape)
+            x_first = torch.nn.functional.interpolate(x_first, scale_factor=2.0, mode="nearest")
+            # split the rest of the frames to avoid MAX_INT overflow in Pytorch
+            splits = torch.split(x_rest, 16, dim=1)
+            interpolated_splits = [
+                torch.nn.functional.interpolate(split, scale_factor=2.0, mode="nearest") for split in splits
+            ]
+            x_rest = torch.cat(interpolated_splits, dim=1)
+            # concatenate the first frame with the rest
+            x = torch.cat([x_first[:, :, None, :, :], x_rest], dim=2)
 
         else:
-            # only interpolate 2D
             t = x.shape[2]
             x = rearrange(x, "b c t h w -> (b t) c h w")
-            x = torch.nn.functional.interpolate(x, scale_factor=2.0, mode="nearest")
+
+            splits = torch.split(x, 16, dim=1)
+            interpolated_splits = [
+                torch.nn.functional.interpolate(split, scale_factor=2.0, mode="nearest") for split in splits
+            ]
+            x = torch.cat(interpolated_splits, dim=1)
+
             x = rearrange(x, "(b t) c h w -> b c t h w", t=t)
 
         if self.with_conv:
@@ -585,15 +572,21 @@ class DownSample3D(nn.Module):
             x = rearrange(x, "b c t h w -> (b h w) c t")
 
             if x.shape[-1] % 2 == 1:
-                # split first frame
                 x_first, x_rest = x[..., 0], x[..., 1:]
-
                 if x_rest.shape[-1] > 0:
-                    x_rest = torch.nn.functional.avg_pool1d(x_rest, kernel_size=2, stride=2)
+                    splits = torch.split(x_rest, 16, dim=1)
+                    interpolated_splits = [
+                        torch.nn.functional.avg_pool1d(split, kernel_size=2, stride=2) for split in splits
+                    ]
+                    x_rest = torch.cat(interpolated_splits, dim=1)
                 x = torch.cat([x_first[..., None], x_rest], dim=-1)
                 x = rearrange(x, "(b h w) c t -> b c t h w", h=h, w=w)
             else:
-                x = torch.nn.functional.avg_pool1d(x, kernel_size=2, stride=2)
+                splits = torch.split(x, 16, dim=1)
+                interpolated_splits = [
+                    torch.nn.functional.avg_pool1d(split, kernel_size=2, stride=2) for split in splits
+                ]
+                x = torch.cat(interpolated_splits, dim=1)
                 x = rearrange(x, "(b h w) c t -> b c t h w", h=h, w=w)
 
         if self.with_conv:
@@ -675,31 +668,19 @@ class ContextParallelResnetBlock3D(nn.Module):
 
     def forward(self, x, temb, zq=None, clear_fake_cp_cache=True):
         h = x
-
-        # if isinstance(self.norm1, torch.nn.GroupNorm):
-        #     h = conv_gather_from_context_parallel_region(h, dim=2, kernel_size=1)
         if zq is not None:
             h = self.norm1(h, zq, clear_fake_cp_cache=clear_fake_cp_cache)
         else:
             h = self.norm1(h)
-        # if isinstance(self.norm1, torch.nn.GroupNorm):
-        #     h = conv_scatter_to_context_parallel_region(h, dim=2, kernel_size=1)
-
         h = nonlinearity(h)
         h = self.conv1(h, clear_cache=clear_fake_cp_cache)
 
         if temb is not None:
             h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None, None]
-
-        # if isinstance(self.norm2, torch.nn.GroupNorm):
-        #     h = conv_gather_from_context_parallel_region(h, dim=2, kernel_size=1)
         if zq is not None:
             h = self.norm2(h, zq, clear_fake_cp_cache=clear_fake_cp_cache)
         else:
             h = self.norm2(h)
-        # if isinstance(self.norm2, torch.nn.GroupNorm):
-        #     h = conv_scatter_to_context_parallel_region(h, dim=2, kernel_size=1)
-
         h = nonlinearity(h)
         h = self.dropout(h)
         h = self.conv2(h, clear_cache=clear_fake_cp_cache)
@@ -826,10 +807,7 @@ class ContextParallelEncoder3D(nn.Module):
         h = self.mid.block_2(h, temb)
 
         # end
-        # h = conv_gather_from_context_parallel_region(h, dim=2, kernel_size=1)
         h = self.norm_out(h)
-        # h = conv_scatter_to_context_parallel_region(h, dim=2, kernel_size=1)
-
         h = nonlinearity(h)
         h = self.conv_out(h)
 
@@ -934,10 +912,10 @@ class ContextParallelDecoder3D(nn.Module):
             up.block = block
             up.attn = attn
             if i_level != 0:
-                if i_level < self.num_resolutions - self.temporal_compress_level:
-                    up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=False)
-                else:
+                if i_level <= self.temporal_compress_level:
                     up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=True)
+                else:
+                    up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=False)
             self.up.insert(0, up)
 
         self.norm_out = Normalize3D(block_in, zq_ch, add_conv=add_conv, gather=gather_norm)
@@ -954,9 +932,7 @@ class ContextParallelDecoder3D(nn.Module):
         # timestep embedding
         temb = None
 
-        t = z.shape[2]
         # z to block_in
-
         zq = z
         h = self.conv_in(z, clear_cache=clear_fake_cp_cache)
 

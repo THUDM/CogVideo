@@ -1,5 +1,7 @@
 from functools import partial
 from einops import rearrange, repeat
+from functools import reduce
+from operator import mul
 import numpy as np
 
 import torch
@@ -13,38 +15,34 @@ from sat.mpu.layers import ColumnParallelLinear
 from sgm.util import instantiate_from_config
 
 from sgm.modules.diffusionmodules.openaimodel import Timestep
-from sgm.modules.diffusionmodules.util import (
-    linear,
-    timestep_embedding,
-)
+from sgm.modules.diffusionmodules.util import linear, timestep_embedding
 from sat.ops.layernorm import LayerNorm, RMSNorm
 
 
 class ImagePatchEmbeddingMixin(BaseMixin):
-    def __init__(
-        self,
-        in_channels,
-        hidden_size,
-        patch_size,
-        bias=True,
-        text_hidden_size=None,
-    ):
+    def __init__(self, in_channels, hidden_size, patch_size, text_hidden_size=None):
         super().__init__()
-        self.proj = nn.Conv2d(in_channels, hidden_size, kernel_size=patch_size, stride=patch_size, bias=bias)
+        self.patch_size = patch_size
+        self.proj = nn.Linear(in_channels * reduce(mul, patch_size), hidden_size)
         if text_hidden_size is not None:
             self.text_proj = nn.Linear(text_hidden_size, hidden_size)
         else:
             self.text_proj = None
 
     def word_embedding_forward(self, input_ids, **kwargs):
-        # now is 3d patch
         images = kwargs["images"]  # (b,t,c,h,w)
-        B, T = images.shape[:2]
-        emb = images.view(-1, *images.shape[2:])
-        emb = self.proj(emb)  # ((b t),d,h/2,w/2)
-        emb = emb.view(B, T, *emb.shape[1:])
-        emb = emb.flatten(3).transpose(2, 3)  # (b,t,n,d)
-        emb = rearrange(emb, "b t n d -> b (t n) d")
+        emb = rearrange(images, "b t c h w -> b (t h w) c")
+        emb = rearrange(
+            emb,
+            "b (t o h p w q) c -> b (t h w) (c o p q)",
+            t=kwargs["rope_T"],
+            h=kwargs["rope_H"],
+            w=kwargs["rope_W"],
+            o=self.patch_size[0],
+            p=self.patch_size[1],
+            q=self.patch_size[2],
+        )
+        emb = self.proj(emb)
 
         if self.text_proj is not None:
             text_emb = self.text_proj(kwargs["encoder_outputs"])
@@ -74,7 +72,8 @@ def get_3d_sincos_pos_embed(
     grid_size: int of the grid height and width
     t_size: int of the temporal size
     return:
-    pos_embed: [t_size*grid_size*grid_size, embed_dim] or [1+t_size*grid_size*grid_size, embed_dim] (w/ or w/o cls_token)
+    pos_embed: [t_size*grid_size * grid_size, embed_dim] or [1+t_size*grid_size * grid_size, embed_dim]
+    (w/ or w/o cls_token)
     """
     assert embed_dim % 4 == 0
     embed_dim_spatial = embed_dim // 4 * 3
@@ -100,7 +99,6 @@ def get_3d_sincos_pos_embed(
     pos_embed_spatial = np.repeat(pos_embed_spatial, t_size, axis=0)  # [T, H*W, D // 4 * 3]
 
     pos_embed = np.concatenate([pos_embed_temporal, pos_embed_spatial], axis=-1)
-    # pos_embed = pos_embed.reshape([-1, embed_dim])  # [T*H*W, D]
 
     return pos_embed  # [T, H*W, D]
 
@@ -259,6 +257,9 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
         text_length,
         theta=10000,
         rot_v=False,
+        height_interpolation=1.0,
+        width_interpolation=1.0,
+        time_interpolation=1.0,
         learnable_pos_embed=False,
     ):
         super().__init__()
@@ -285,14 +286,10 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
         freqs_w = repeat(freqs_w, "... n -> ... (n r)", r=2)
 
         freqs = broadcat((freqs_t[:, None, None, :], freqs_h[None, :, None, :], freqs_w[None, None, :, :]), dim=-1)
-        freqs = rearrange(freqs, "t h w d -> (t h w) d")
 
         freqs = freqs.contiguous()
-        freqs_sin = freqs.sin()
-        freqs_cos = freqs.cos()
-        self.register_buffer("freqs_sin", freqs_sin)
-        self.register_buffer("freqs_cos", freqs_cos)
-
+        self.freqs_sin = freqs.sin().cuda()
+        self.freqs_cos = freqs.cos().cuda()
         self.text_length = text_length
         if learnable_pos_embed:
             num_patches = height * width * compressed_num_frames + text_length
@@ -301,15 +298,20 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
             self.pos_embedding = None
 
     def rotary(self, t, **kwargs):
-        seq_len = t.shape[2]
-        freqs_cos = self.freqs_cos[:seq_len].unsqueeze(0).unsqueeze(0)
-        freqs_sin = self.freqs_sin[:seq_len].unsqueeze(0).unsqueeze(0)
+        def reshape_freq(freqs):
+            freqs = freqs[: kwargs["rope_T"], : kwargs["rope_H"], : kwargs["rope_W"]].contiguous()
+            freqs = rearrange(freqs, "t h w d -> (t h w) d")
+            freqs = freqs.unsqueeze(0).unsqueeze(0)
+            return freqs
+
+        freqs_cos = reshape_freq(self.freqs_cos).to(t.dtype)
+        freqs_sin = reshape_freq(self.freqs_sin).to(t.dtype)
 
         return t * freqs_cos + rotate_half(t) * freqs_sin
 
     def position_embedding_forward(self, position_ids, **kwargs):
         if self.pos_embedding is not None:
-            return self.pos_embedding[:, :self.text_length + kwargs["seq_length"]]
+            return self.pos_embedding[:, : self.text_length + kwargs["seq_length"]]
         else:
             return None
 
@@ -326,10 +328,61 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
     ):
         attention_fn_default = HOOKS_DEFAULT["attention_fn"]
 
-        query_layer[:, :, self.text_length :] = self.rotary(query_layer[:, :, self.text_length :])
-        key_layer[:, :, self.text_length :] = self.rotary(key_layer[:, :, self.text_length :])
+        query_layer = torch.cat(
+            (
+                query_layer[
+                    :,
+                    :,
+                    : kwargs["text_length"],
+                ],
+                self.rotary(
+                    query_layer[
+                        :,
+                        :,
+                        kwargs["text_length"] :,
+                    ],
+                    **kwargs,
+                ),
+            ),
+            dim=2,
+        )
+        key_layer = torch.cat(
+            (
+                key_layer[
+                    :,
+                    :,
+                    : kwargs["text_length"],
+                ],
+                self.rotary(
+                    key_layer[
+                        :,
+                        :,
+                        kwargs["text_length"] :,
+                    ],
+                    **kwargs,
+                ),
+            ),
+            dim=2,
+        )
         if self.rot_v:
-            value_layer[:, :, self.text_length :] = self.rotary(value_layer[:, :, self.text_length :])
+            value_layer = torch.cat(
+                (
+                    value_layer[
+                        :,
+                        :,
+                        : kwargs["text_length"],
+                    ],
+                    self.rotary(
+                        value_layer[
+                            :,
+                            :,
+                            kwargs["text_length"] :,
+                        ],
+                        **kwargs,
+                    ),
+                ),
+                dim=2,
+            )
 
         return attention_fn_default(
             query_layer,
@@ -347,21 +400,25 @@ def modulate(x, shift, scale):
     return x * (1 + scale.unsqueeze(1)) + shift.unsqueeze(1)
 
 
-def unpatchify(x, c, p, w, h, rope_position_ids=None, **kwargs):
+def unpatchify(x, c, patch_size, w, h, **kwargs):
     """
     x: (N, T/2 * S, patch_size**3 * C)
     imgs: (N, T, H, W, C)
+
+    patch_size 被拆解为三个不同的维度 (o, p, q)，分别对应了深度（o）、高度（p）和宽度（q）。这使得 patch 大小在不同维度上可以不相等，增加了灵活性。
     """
-    if rope_position_ids is not None:
-        assert NotImplementedError
-        # do pix2struct unpatchify
-        L = x.shape[1]
-        x = x.reshape(shape=(x.shape[0], L, p, p, c))
-        x = torch.einsum("nlpqc->ncplq", x)
-        imgs = x.reshape(shape=(x.shape[0], c, p, L * p))
-    else:
-        b = x.shape[0]
-        imgs = rearrange(x, "b (t h w) (c p q) -> b t c (h p) (w q)", b=b, h=h, w=w, c=c, p=p, q=p)
+
+    imgs = rearrange(
+        x,
+        "b (t h w) (c o p q) -> b (t o) c (h p) (w q)",
+        c=c,
+        o=patch_size[0],
+        p=patch_size[1],
+        q=patch_size[2],
+        t=kwargs["rope_T"],
+        h=kwargs["rope_H"],
+        w=kwargs["rope_W"],
+    )
 
     return imgs
 
@@ -382,27 +439,17 @@ class FinalLayerMixin(BaseMixin):
         self.patch_size = patch_size
         self.out_channels = out_channels
         self.norm_final = nn.LayerNorm(hidden_size, elementwise_affine=elementwise_affine, eps=1e-6)
-        self.linear = nn.Linear(hidden_size, patch_size * patch_size * out_channels, bias=True)
+        self.linear = nn.Linear(hidden_size, reduce(mul, patch_size) * out_channels, bias=True)
         self.adaLN_modulation = nn.Sequential(nn.SiLU(), nn.Linear(time_embed_dim, 2 * hidden_size, bias=True))
 
-        self.spatial_length = latent_width * latent_height // patch_size**2
-        self.latent_width = latent_width
-        self.latent_height = latent_height
-
     def final_forward(self, logits, **kwargs):
-        x, emb = logits[:, kwargs["text_length"] :, :], kwargs["emb"]  # x:(b,(t n),d)
+        x, emb = logits[:, kwargs["text_length"] :, :], kwargs["emb"]  # x:(b,(t n),d),只取了x中后面images的部分
         shift, scale = self.adaLN_modulation(emb).chunk(2, dim=1)
         x = modulate(self.norm_final(x), shift, scale)
         x = self.linear(x)
 
         return unpatchify(
-            x,
-            c=self.out_channels,
-            p=self.patch_size,
-            w=self.latent_width // self.patch_size,
-            h=self.latent_height // self.patch_size,
-            rope_position_ids=kwargs.get("rope_position_ids", None),
-            **kwargs,
+            x, c=self.out_channels, patch_size=self.patch_size, w=kwargs["rope_W"], h=kwargs["rope_H"], **kwargs
         )
 
     def reinit(self, parent_model=None):
@@ -440,8 +487,6 @@ class SwiGLUMixin(BaseMixin):
 class AdaLNMixin(BaseMixin):
     def __init__(
         self,
-        width,
-        height,
         hidden_size,
         num_layers,
         time_embed_dim,
@@ -452,8 +497,6 @@ class AdaLNMixin(BaseMixin):
     ):
         super().__init__()
         self.num_layers = num_layers
-        self.width = width
-        self.height = height
         self.compressed_num_frames = compressed_num_frames
 
         self.adaLN_modulations = nn.ModuleList(
@@ -611,7 +654,8 @@ class DiffusionTransformer(BaseModel):
         time_interpolation=1.0,
         use_SwiGLU=False,
         use_RMSNorm=False,
-        zero_init_y_embed=False,
+        cfg_embed_dim=None,
+        ofs_embed_dim=None,
         **kwargs,
     ):
         self.latent_width = latent_width
@@ -619,12 +663,14 @@ class DiffusionTransformer(BaseModel):
         self.patch_size = patch_size
         self.num_frames = num_frames
         self.time_compressed_rate = time_compressed_rate
-        self.spatial_length = latent_width * latent_height // patch_size**2
+        self.spatial_length = latent_width * latent_height // reduce(mul, patch_size[1:])
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.hidden_size = hidden_size
         self.model_channels = hidden_size
         self.time_embed_dim = time_embed_dim if time_embed_dim is not None else hidden_size
+        self.cfg_embed_dim = cfg_embed_dim
+        self.ofs_embed_dim = ofs_embed_dim
         self.num_classes = num_classes
         self.adm_in_channels = adm_in_channels
         self.input_time = input_time
@@ -636,7 +682,6 @@ class DiffusionTransformer(BaseModel):
         self.width_interpolation = width_interpolation
         self.time_interpolation = time_interpolation
         self.inner_hidden_size = hidden_size * 4
-        self.zero_init_y_embed = zero_init_y_embed
         try:
             self.dtype = str_to_dtype[kwargs.pop("dtype")]
         except:
@@ -669,13 +714,26 @@ class DiffusionTransformer(BaseModel):
 
     def _build_modules(self, module_configs):
         model_channels = self.hidden_size
-        # time_embed_dim = model_channels * 4
         time_embed_dim = self.time_embed_dim
         self.time_embed = nn.Sequential(
             linear(model_channels, time_embed_dim),
             nn.SiLU(),
             linear(time_embed_dim, time_embed_dim),
         )
+
+        if self.ofs_embed_dim is not None:
+            self.ofs_embed = nn.Sequential(
+                linear(self.ofs_embed_dim, self.ofs_embed_dim),
+                nn.SiLU(),
+                linear(self.ofs_embed_dim, self.ofs_embed_dim),
+            )
+
+        if self.cfg_embed_dim is not None:
+            self.cfg_embed = nn.Sequential(
+                linear(self.cfg_embed_dim, self.cfg_embed_dim),
+                nn.SiLU(),
+                linear(self.cfg_embed_dim, self.cfg_embed_dim),
+            )
 
         if self.num_classes is not None:
             if isinstance(self.num_classes, int):
@@ -701,9 +759,6 @@ class DiffusionTransformer(BaseModel):
                         linear(time_embed_dim, time_embed_dim),
                     )
                 )
-                if self.zero_init_y_embed:
-                    nn.init.constant_(self.label_emb[0][2].weight, 0)
-                    nn.init.constant_(self.label_emb[0][2].bias, 0)
             else:
                 raise ValueError()
 
@@ -712,10 +767,13 @@ class DiffusionTransformer(BaseModel):
             "pos_embed",
             instantiate_from_config(
                 pos_embed_config,
-                height=self.latent_height // self.patch_size,
-                width=self.latent_width // self.patch_size,
+                height=self.latent_height // self.patch_size[1],
+                width=self.latent_width // self.patch_size[2],
                 compressed_num_frames=(self.num_frames - 1) // self.time_compressed_rate + 1,
                 hidden_size=self.hidden_size,
+                height_interpolation=self.height_interpolation,
+                width_interpolation=self.width_interpolation,
+                time_interpolation=self.time_interpolation,
             ),
             reinit=True,
         )
@@ -737,8 +795,6 @@ class DiffusionTransformer(BaseModel):
                 "adaln_layer",
                 instantiate_from_config(
                     adaln_layer_config,
-                    height=self.latent_height // self.patch_size,
-                    width=self.latent_width // self.patch_size,
                     hidden_size=self.hidden_size,
                     num_layers=self.num_layers,
                     compressed_num_frames=(self.num_frames - 1) // self.time_compressed_rate + 1,
@@ -749,7 +805,6 @@ class DiffusionTransformer(BaseModel):
             )
         else:
             raise NotImplementedError
-
         final_layer_config = module_configs["final_layer_config"]
         self.add_mixin(
             "final_layer",
@@ -766,25 +821,18 @@ class DiffusionTransformer(BaseModel):
             reinit=True,
         )
 
-        if "lora_config" in module_configs:
-            lora_config = module_configs["lora_config"]
-            self.add_mixin("lora", instantiate_from_config(lora_config, layer_num=self.num_layers), reinit=True)
-
         return
 
     def forward(self, x, timesteps=None, context=None, y=None, **kwargs):
         b, t, d, h, w = x.shape
         if x.dtype != self.dtype:
             x = x.to(self.dtype)
-
-        # This is not use in inference
         if "concat_images" in kwargs and kwargs["concat_images"] is not None:
             if kwargs["concat_images"].shape[0] != x.shape[0]:
                 concat_images = kwargs["concat_images"].repeat(2, 1, 1, 1, 1)
             else:
                 concat_images = kwargs["concat_images"]
             x = torch.cat([x, concat_images], dim=2)
-
         assert (y is not None) == (
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
@@ -792,16 +840,32 @@ class DiffusionTransformer(BaseModel):
         emb = self.time_embed(t_emb)
 
         if self.num_classes is not None:
-            # assert y.shape[0] == x.shape[0]
             assert x.shape[0] % y.shape[0] == 0
             y = y.repeat_interleave(x.shape[0] // y.shape[0], dim=0)
             emb = emb + self.label_emb(y)
 
-        kwargs["seq_length"] = t * h * w // (self.patch_size**2)
+        if self.ofs_embed_dim is not None:
+            ofs_emb = timestep_embedding(kwargs["ofs"], self.ofs_embed_dim, repeat_only=False, dtype=self.dtype)
+            ofs_emb = self.ofs_embed(ofs_emb)
+            emb = emb + ofs_emb
+        if self.cfg_embed_dim is not None:
+            cfg_emb = kwargs["scale_emb"]
+            cfg_emb = self.cfg_embed(cfg_emb)
+            emb = emb + cfg_emb
+
+        if "ofs" in kwargs.keys():
+            ofs_emb = timestep_embedding(kwargs["ofs"], self.ofs_embed_dim, repeat_only=False, dtype=self.dtype)
+            ofs_emb = self.ofs_embed(ofs_emb)
+
+        kwargs["seq_length"] = t * h * w // reduce(mul, self.patch_size)
         kwargs["images"] = x
         kwargs["emb"] = emb
         kwargs["encoder_outputs"] = context
         kwargs["text_length"] = context.shape[1]
+
+        kwargs["rope_T"] = t // self.patch_size[0]
+        kwargs["rope_H"] = h // self.patch_size[1]
+        kwargs["rope_W"] = w // self.patch_size[2]
 
         kwargs["input_ids"] = kwargs["position_ids"] = kwargs["attention_mask"] = torch.ones((1, 1)).to(x.dtype)
         output = super().forward(**kwargs)[0]

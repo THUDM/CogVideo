@@ -17,23 +17,20 @@ class EDMSampling:
 
 
 class DiscreteSampling:
-    def __init__(self, discretization_config, num_idx, do_append_zero=False, flip=True, uniform_sampling=False):
+    def __init__(self, discretization_config, num_idx, do_append_zero=False, flip=True, uniform_sampling=False, group_num=0):
         self.num_idx = num_idx
-        self.sigmas = instantiate_from_config(discretization_config)(num_idx, do_append_zero=do_append_zero, flip=flip)
+        self.sigmas = instantiate_from_config(discretization_config)(
+            num_idx, do_append_zero=do_append_zero, flip=flip
+        )
         world_size = mpu.get_data_parallel_world_size()
+        if world_size <= 8:
+            uniform_sampling = False
         self.uniform_sampling = uniform_sampling
+        self.group_num = group_num
         if self.uniform_sampling:
-            i = 1
-            while True:
-                if world_size % i != 0 or num_idx % (world_size // i) != 0:
-                    i += 1
-                else:
-                    self.group_num = world_size // i
-                    break
-
             assert self.group_num > 0
-            assert world_size % self.group_num == 0
-            self.group_width = world_size // self.group_num  # the number of rank in one group
+            assert world_size % group_num == 0
+            self.group_width = world_size // group_num # the number of rank in one group
             self.sigma_interval = self.num_idx // self.group_num
 
     def idx_to_sigma(self, idx):
@@ -45,9 +42,7 @@ class DiscreteSampling:
             group_index = rank // self.group_width
             idx = default(
                 rand,
-                torch.randint(
-                    group_index * self.sigma_interval, (group_index + 1) * self.sigma_interval, (n_samples,)
-                ),
+                torch.randint(group_index * self.sigma_interval, (group_index + 1) * self.sigma_interval, (n_samples,)),
             )
         else:
             idx = default(
@@ -58,7 +53,6 @@ class DiscreteSampling:
             return self.idx_to_sigma(idx), idx
         else:
             return self.idx_to_sigma(idx)
-
 
 class PartialDiscreteSampling:
     def __init__(self, discretization_config, total_num_idx, partial_num_idx, do_append_zero=False, flip=True):

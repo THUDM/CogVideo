@@ -36,6 +36,7 @@ def add_sampling_config_args(parser):
     group.add_argument("--input-dir", type=str, default=None)
     group.add_argument("--input-type", type=str, default="cli")
     group.add_argument("--input-file", type=str, default="input.txt")
+    group.add_argument("--sampling-image-size", type=list, default=[768, 1360])
     group.add_argument("--final-size", type=int, default=2048)
     group.add_argument("--sdedit", action="store_true")
     group.add_argument("--grid-num-rows", type=int, default=1)
