@@ -960,10 +960,10 @@ class ContextParallelDecoder3D(nn.Module):
                     up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=True)
                 else:
                     up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=False)
-                # if i_level < self.num_resolutions - self.temporal_compress_level:
-                #     up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=False)
-                # else:
-                #     up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=True)
+                if i_level < self.num_resolutions - self.temporal_compress_level:
+                    up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=False)
+                else:
+                    up.upsample = Upsample3D(block_in, with_conv=resamp_with_conv, compress_time=True)
             self.up.insert(0, up)
 
         self.norm_out = Normalize3D(block_in, zq_ch, add_conv=add_conv, gather=gather_norm)
