@@ -654,7 +654,6 @@ class DiffusionTransformer(BaseModel):
         time_interpolation=1.0,
         use_SwiGLU=False,
         use_RMSNorm=False,
-        cfg_embed_dim=None,
         ofs_embed_dim=None,
         **kwargs,
     ):
@@ -669,7 +668,6 @@ class DiffusionTransformer(BaseModel):
         self.hidden_size = hidden_size
         self.model_channels = hidden_size
         self.time_embed_dim = time_embed_dim if time_embed_dim is not None else hidden_size
-        self.cfg_embed_dim = cfg_embed_dim
         self.ofs_embed_dim = ofs_embed_dim
         self.num_classes = num_classes
         self.adm_in_channels = adm_in_channels
@@ -726,13 +724,6 @@ class DiffusionTransformer(BaseModel):
                 linear(self.ofs_embed_dim, self.ofs_embed_dim),
                 nn.SiLU(),
                 linear(self.ofs_embed_dim, self.ofs_embed_dim),
-            )
-
-        if self.cfg_embed_dim is not None:
-            self.cfg_embed = nn.Sequential(
-                linear(self.cfg_embed_dim, self.cfg_embed_dim),
-                nn.SiLU(),
-                linear(self.cfg_embed_dim, self.cfg_embed_dim),
             )
 
         if self.num_classes is not None:
@@ -848,14 +839,6 @@ class DiffusionTransformer(BaseModel):
             ofs_emb = timestep_embedding(kwargs["ofs"], self.ofs_embed_dim, repeat_only=False, dtype=self.dtype)
             ofs_emb = self.ofs_embed(ofs_emb)
             emb = emb + ofs_emb
-        if self.cfg_embed_dim is not None:
-            cfg_emb = kwargs["scale_emb"]
-            cfg_emb = self.cfg_embed(cfg_emb)
-            emb = emb + cfg_emb
-
-        if "ofs" in kwargs.keys():
-            ofs_emb = timestep_embedding(kwargs["ofs"], self.ofs_embed_dim, repeat_only=False, dtype=self.dtype)
-            ofs_emb = self.ofs_embed(ofs_emb)
 
         kwargs["seq_length"] = t * h * w // reduce(mul, self.patch_size)
         kwargs["images"] = x

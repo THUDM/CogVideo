@@ -135,14 +135,14 @@ def sampling_main(args, model_cls):
     sample_func = model.sample
     num_samples = [1]
     force_uc_zero_embeddings = ["txt"]
-
+    T, C = args.sampling_num_frames, args.latent_channels
     with torch.no_grad():
         for text, cnt in tqdm(data_iter):
             if args.image2video:
                 # use with input image shape
-                text, image_path = text.split('@@')
+                text, image_path = text.split("@@")
                 assert os.path.exists(image_path), image_path
-                image = Image.open(image_path).convert('RGB')
+                image = Image.open(image_path).convert("RGB")
                 (img_W, img_H) = image.size
 
                 def nearest_multiple_of_16(n):
@@ -163,7 +163,7 @@ def sampling_main(args, model_cls):
                 chained_trainsforms.append(TT.Resize(size=[int(H * 8), int(W * 8)], interpolation=1))
                 chained_trainsforms.append(TT.ToTensor())
                 transform = TT.Compose(chained_trainsforms)
-                image = transform(image).unsqueeze(0).to('cuda')
+                image = transform(image).unsqueeze(0).to("cuda")
                 image = image * 2.0 - 1.0
                 image = image.unsqueeze(2).to(torch.bfloat16)
                 image = model.encode_first_stage(image, None)
@@ -173,7 +173,7 @@ def sampling_main(args, model_cls):
                 image = torch.concat([image, torch.zeros(pad_shape).to(image.device).to(image.dtype)], dim=1)
             else:
                 image_size = args.sampling_image_size
-                T, H, W, C = args.sampling_num_frames, image_size[0], image_size[1], args.latent_channels
+                H, W = image_size[0], image_size[1]
                 F = 8  # 8x downsampled
                 image = None
 
@@ -183,11 +183,7 @@ def sampling_main(args, model_cls):
             src = global_rank * mp_size
             torch.distributed.broadcast_object_list(text_cast, src=src, group=mpu.get_model_parallel_group())
             text = text_cast[0]
-            value_dict = {
-                'prompt': text,
-                'negative_prompt': '',
-                'num_frames': torch.tensor(T).unsqueeze(0)
-            }
+            value_dict = {"prompt": text, "negative_prompt": "", "num_frames": torch.tensor(T).unsqueeze(0)}
 
             batch, batch_uc = get_batch(
                 get_unique_embedder_keys_from_conditioner(model.conditioner), value_dict, num_samples
@@ -216,11 +212,7 @@ def sampling_main(args, model_cls):
             for index in range(args.batch_size):
                 if args.image2video:
                     samples_z = sample_func(
-                        c,
-                        uc=uc,
-                        batch_size=1,
-                        shape=(T, C, H, W),
-                        ofs=torch.tensor([2.0]).to('cuda')
+                        c, uc=uc, batch_size=1, shape=(T, C, H, W), ofs=torch.tensor([2.0]).to("cuda")
                     )
                 else:
                     samples_z = sample_func(
@@ -228,7 +220,7 @@ def sampling_main(args, model_cls):
                         uc=uc,
                         batch_size=1,
                         shape=(T, C, H // F, W // F),
-                    ).to('cuda')
+                    ).to("cuda")
 
                 samples_z = samples_z.permute(0, 2, 1, 3, 4).contiguous()
                 if args.only_save_latents:
@@ -250,11 +242,12 @@ def sampling_main(args, model_cls):
                     if mpu.get_model_parallel_rank() == 0:
                         save_video_as_grid_and_mp4(samples, save_path, fps=args.sampling_fps)
 
-if __name__ == '__main__':
-    if 'OMPI_COMM_WORLD_LOCAL_RANK' in os.environ:
-        os.environ['LOCAL_RANK'] = os.environ['OMPI_COMM_WORLD_LOCAL_RANK']
-        os.environ['WORLD_SIZE'] = os.environ['OMPI_COMM_WORLD_SIZE']
-        os.environ['RANK'] = os.environ['OMPI_COMM_WORLD_RANK']
+
+if __name__ == "__main__":
+    if "OMPI_COMM_WORLD_LOCAL_RANK" in os.environ:
+        os.environ["LOCAL_RANK"] = os.environ["OMPI_COMM_WORLD_LOCAL_RANK"]
+        os.environ["WORLD_SIZE"] = os.environ["OMPI_COMM_WORLD_SIZE"]
+        os.environ["RANK"] = os.environ["OMPI_COMM_WORLD_RANK"]
     py_parser = argparse.ArgumentParser(add_help=False)
     known, args_list = py_parser.parse_known_args()
 
