@@ -1,6 +1,6 @@
 # CogVideo & CogVideoX
 
-[Read this in English](./README_zh.md)
+[Read this in English](./README.md)
 
 [中文阅读](./README_zh.md)
 
@@ -22,9 +22,14 @@
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/10/13```: コスト削減のため、単一の4090 GPUで`CogVideoX-5B`
+- 🔥🔥 ニュース: ```2024/11/08```: `CogVideoX1.5` モデルをリリースしました。CogVideoX1.5 は CogVideoX オープンソースモデルのアップグレードバージョンです。
+CogVideoX1.5-5B シリーズモデルは、10秒 長の動画とより高い解像度をサポートしており、`CogVideoX1.5-5B-I2V` は任意の解像度での動画生成に対応しています。
+SAT コードはすでに更新されており、`diffusers` バージョンは現在適応中です。
+SAT バージョンのコードは [こちら](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT) からダウンロードできます。
+- 🔥 **ニュース**: ```2024/10/13```: コスト削減のため、単一の4090 GPUで`CogVideoX-5B`
   を微調整できるフレームワーク [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)
-  がリリースされました。複数の解像度での微調整に対応しています。ぜひご利用ください！- 🔥**ニュース**: ```2024/10/10```:
+  がリリースされました。複数の解像度での微調整に対応しています。ぜひご利用ください！
+- 🔥**ニュース**: ```2024/10/10```:
   技術報告書を更新し、より詳細なトレーニング情報とデモを追加しました。
 - 🔥 **ニュース**: ```2024/10/10```: 技術報告書を更新しました。[こちら](https://arxiv.org/pdf/2408.06072)
   をクリックしてご覧ください。さらにトレーニングの詳細とデモを追加しました。デモを見るには[こちら](https://yzy-thu.github.io/CogVideoX-demo/)
@@ -34,7 +39,7 @@
 - 🔥**ニュース**: ```2024/9/19```: CogVideoXシリーズの画像生成ビデオモデル **CogVideoX-5B-I2V**
   をオープンソース化しました。このモデルは、画像を背景入力として使用し、プロンプトワードと組み合わせてビデオを生成することができ、より高い制御性を提供します。これにより、CogVideoXシリーズのモデルは、テキストからビデオ生成、ビデオの継続、画像からビデオ生成の3つのタスクをサポートするようになりました。オンラインでの[体験](https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space)
   をお楽しみください。
-- 🔥🔥 **ニュース**: ```2024/9/19```:
+- 🔥 **ニュース**: ```2024/9/19```:
   CogVideoXのトレーニングプロセスでビデオデータをテキスト記述に変換するために使用されるキャプションモデル [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption)
   をオープンソース化しました。ダウンロードしてご利用ください。
 - 🔥 ```2024/8/27```: CogVideoXシリーズのより大きなモデル **CogVideoX-5B**
@@ -63,11 +68,10 @@
 - [プロジェクト構造](#プロジェクト構造)
     - [推論](#推論)
     - [sat](#sat)
-    - [ツール](#ツール)
-- [プロジェクト計画](#プロジェクト計画)
-- [モデルライセンス](#モデルライセンス)
+    - [ツール](#ツール)=
 - [CogVideo(ICLR'23)モデル紹介](#CogVideoICLR23)
 - [引用](#引用)
+- [ライセンス契約](#ライセンス契約)
 
 ## クイックスタート
 
@@ -156,67 +160,77 @@ pip install -r requirements.txt
 CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源のオープンソース版ビデオ生成モデルです。
 以下の表に、提供しているビデオ生成モデルの基本情報を示します:
 
-<table  style="border-collapse: collapse; width: 100%;">
+<table style="border-collapse: collapse; width: 100%;">
   <tr>
     <th style="text-align: center;">モデル名</th>
     <th style="text-align: center;">CogVideoX-2B</th>
     <th style="text-align: center;">CogVideoX-5B</th>
-    <th style="text-align: center;">CogVideoX-5B-I2V </th>
+    <th style="text-align: center;">CogVideoX-5B-I2V</th>
+    <th style="text-align: center;">CogVideoX1.5-5B</th>
+    <th style="text-align: center;">CogVideoX1.5-5B-I2V</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">リリース日</td>
+    <th style="text-align: center;">2024年8月6日</th>
+    <th style="text-align: center;">2024年8月27日</th>
+    <th style="text-align: center;">2024年9月19日</th>
+    <th style="text-align: center;">2024年11月8日</th>
+    <th style="text-align: center;">2024年11月8日</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">ビデオ解像度</td>
+    <td colspan="3" style="text-align: center;">720 * 480</td>
+    <td colspan="1" style="text-align: center;">1360 * 768</td>
+    <td colspan="1" style="text-align: center;">256 <= W <=1360<br>256 <= H <=768<br> W,H % 16 == 0</td>
   </tr>
   <tr>
     <td style="text-align: center;">推論精度</td>
     <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32, FP8*, INT8, INT4は非対応</td>
     <td colspan="2" style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32, FP8*, INT8, INT4は非対応</td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">単一GPUのメモリ消費<br></td>
-    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: 4GBから* </b><br><b>diffusers INT8(torchao): 3.6GBから*</b></td>
-    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16 : 5GBから* </b><br><b>diffusers INT8(torchao): 4.4GBから* </b></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">マルチGPUのメモリ消費</td>
-    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
-    <td colspan="2" style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">推論速度<br>(ステップ = 50, FP/BF16)</td>
-    <td style="text-align: center;">単一A100: 約90秒<br>単一H100: 約45秒</td>
-    <td colspan="2" style="text-align: center;">単一A100: 約180秒<br>単一H100: 約90秒</td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">ファインチューニング精度</td>
-    <td style="text-align: center;"><b>FP16</b></td>
     <td colspan="2" style="text-align: center;"><b>BF16</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">ファインチューニング時のメモリ消費</td>
-    <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
-    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)<br></td>
-    <td style="text-align: center;">78 GB (bs=1, LORA)<br> 75GB (bs=1, SFT, 16GPU)<br></td>
+    <td style="text-align: center;">シングルGPUメモリ消費</td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB<br><b>diffusers FP16: 4GBから*</b><br><b>diffusers INT8(torchao): 3.6GBから*</b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB<br><b>diffusers BF16: 5GBから*</b><br><b>diffusers INT8(torchao): 4.4GBから*</b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB<br></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">マルチGPUメモリ消費</td>
+    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
+    <td colspan="2" style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
+    <td colspan="2" style="text-align: center;"><b>サポートなし</b><br></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">推論速度<br>(ステップ数 = 50, FP/BF16)</td>
+    <td style="text-align: center;">単一A100: 約90秒<br>単一H100: 約45秒</td>
+    <td colspan="2" style="text-align: center;">単一A100: 約180秒<br>単一H100: 約90秒</td>
+    <td colspan="2" style="text-align: center;">単一A100: 約1000秒(5秒動画)<br>単一H100: 約550秒(5秒動画)</td>
   </tr>
   <tr>
     <td style="text-align: center;">プロンプト言語</td>
-    <td colspan="3" style="text-align: center;">英語*</td>
+    <td colspan="5" style="text-align: center;">英語*</td>
   </tr>
   <tr>
-    <td style="text-align: center;">プロンプトの最大トークン数</td>
+    <td style="text-align: center;">プロンプトトークン制限</td>
     <td colspan="3" style="text-align: center;">226トークン</td>
+    <td colspan="2" style="text-align: center;">224トークン</td>
   </tr>
   <tr>
     <td style="text-align: center;">ビデオの長さ</td>
     <td colspan="3" style="text-align: center;">6秒</td>
+    <td colspan="2" style="text-align: center;">5秒または10秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">フレームレート</td>
-    <td colspan="3" style="text-align: center;">8フレーム/秒</td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">ビデオ解像度</td>
-    <td colspan="3" style="text-align: center;">720 * 480、他の解像度は非対応(ファインチューニング含む)</td>
+    <td colspan="3" style="text-align: center;">8 フレーム / 秒</td>
+    <td colspan="2" style="text-align: center;">16 フレーム / 秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">位置エンコーディング</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
   </tr>
@@ -225,10 +239,12 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b-I2V">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b-I2V">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b-I2V">🟣 WiseModel</a></td>
+    <td colspan="2" style="text-align: center;">近日公開</td>
   </tr>
   <tr>
     <td style="text-align: center;">ダウンロードリンク (SAT)</td>
-    <td colspan="3" style="text-align: center;"><a href="./sat/README_ja.md">SAT</a></td>
+    <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
+    <td colspan="2" style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX1.5-5b-SAT">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🟣 WiseModel</a></td>
   </tr>
 </table>
 

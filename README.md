@@ -22,7 +22,10 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Project Updates
 
-- 🔥🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single
+- 🔥🔥 News: ```2024/11/08```: We have released the CogVideoX1.5 model. CogVideoX1.5 is an upgraded version of the open-source model CogVideoX.
+The CogVideoX1.5-5B series supports 10-second videos with higher resolution, and CogVideoX1.5-5B-I2V supports video generation at any resolution. 
+The SAT code has already been updated, while the diffusers version is still under adaptation. Download the SAT version code [here](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT).
+- 🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single
   4090 GPU, [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory), has been released. It supports
   fine-tuning with multiple resolutions. Feel free to use it!
 - 🔥 **News**: ```2024/10/10```: We have updated our technical report. Please
@@ -68,7 +71,6 @@ Jump to a specific section:
     - [Tools](#tools)
 - [Introduction to CogVideo(ICLR'23) Model](#cogvideoiclr23)
 - [Citations](#Citation)
-- [Open Source Project Plan](#Open-Source-Project-Plan)
 - [Model License](#Model-License)
 
 ## Quick Start
@@ -172,67 +174,71 @@ models we currently offer, along with their foundational information.
     <th style="text-align: center;">CogVideoX-2B</th>
     <th style="text-align: center;">CogVideoX-5B</th>
     <th style="text-align: center;">CogVideoX-5B-I2V</th>
+    <th style="text-align: center;">CogVideoX1.5-5B</th>
+    <th style="text-align: center;">CogVideoX1.5-5B-I2V</th>
   </tr>
   <tr>
-    <td style="text-align: center;">Model Description</td>
-    <td style="text-align: center;">Entry-level model, balancing compatibility. Low cost for running and secondary development.</td>
-    <td style="text-align: center;">Larger model with higher video generation quality and better visual effects.</td>
-    <td style="text-align: center;">CogVideoX-5B image-to-video version.</td>
+    <td style="text-align: center;">Release Date</td>
+    <th style="text-align: center;">August 6, 2024</th>
+    <th style="text-align: center;">August 27, 2024</th>
+    <th style="text-align: center;">September 19, 2024</th>
+    <th style="text-align: center;">November 8, 2024</th>
+    <th style="text-align: center;">November 8, 2024</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">Video Resolution</td>
+    <td colspan="3" style="text-align: center;">720 * 480</td>
+    <td colspan="1" style="text-align: center;">1360 * 768</td>
+    <td colspan="1" style="text-align: center;">256 <= W <=1360<br>256 <= H <=768<br> W,H % 16 == 0</td>
   </tr>
   <tr>
     <td style="text-align: center;">Inference Precision</td>
     <td style="text-align: center;"><b>FP16*(recommended)</b>, BF16, FP32, FP8*, INT8, not supported: INT4</td>
-    <td colspan="2" style="text-align: center;"><b>BF16 (recommended)</b>, FP16, FP32, FP8*, INT8, not supported: INT4</td>
+    <td colspan="2" style="text-align: center;"><b>BF16(recommended)</b>, FP16, FP32, FP8*, INT8, not supported: INT4</td>
+    <td colspan="2" style="text-align: center;"><b>BF16</b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">Single GPU Memory Usage<br></td>
-    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: from 4GB* </b><br><b>diffusers INT8 (torchao): from 3.6GB*</b></td>
-    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16: from 5GB* </b><br><b>diffusers INT8 (torchao): from 4.4GB*</b></td>
+    <td style="text-align: center;">Single GPU Memory Usage</td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB<br><b>diffusers FP16: from 4GB*</b><br><b>diffusers INT8(torchao): from 3.6GB*</b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB<br><b>diffusers BF16 : from 5GB*</b><br><b>diffusers INT8(torchao): from 4.4GB*</b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB<br></td>
   </tr>
   <tr>
-    <td style="text-align: center;">Multi-GPU Inference Memory Usage</td>
+    <td style="text-align: center;">Multi-GPU Memory Usage</td>
     <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
     <td colspan="2" style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
+    <td colspan="2" style="text-align: center;"><b>Not supported</b><br></td>
   </tr>
   <tr>
     <td style="text-align: center;">Inference Speed<br>(Step = 50, FP/BF16)</td>
     <td style="text-align: center;">Single A100: ~90 seconds<br>Single H100: ~45 seconds</td>
     <td colspan="2" style="text-align: center;">Single A100: ~180 seconds<br>Single H100: ~90 seconds</td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">Fine-tuning Precision</td>
-    <td style="text-align: center;"><b>FP16</b></td>
-    <td colspan="2" style="text-align: center;"><b>BF16</b></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">Fine-tuning Memory Usage</td>
-    <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
-    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)<br></td>
-    <td style="text-align: center;">78 GB (bs=1, LORA)<br> 75GB (bs=1, SFT, 16GPU)<br></td>
+    <td colspan="2" style="text-align: center;">Single A100: ~1000 seconds (5-second video)<br>Single H100: ~550 seconds (5-second video)</td>
   </tr>
   <tr>
     <td style="text-align: center;">Prompt Language</td>
-    <td colspan="3" style="text-align: center;">English*</td>
+    <td colspan="5" style="text-align: center;">English*</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Maximum Prompt Length</td>
+    <td style="text-align: center;">Prompt Token Limit</td>
     <td colspan="3" style="text-align: center;">226 Tokens</td>
+    <td colspan="2" style="text-align: center;">224 Tokens</td>
   </tr>
   <tr>
     <td style="text-align: center;">Video Length</td>
-    <td colspan="3" style="text-align: center;">6 Seconds</td>
+    <td colspan="3" style="text-align: center;">6 seconds</td>
+    <td colspan="2" style="text-align: center;">5 or 10 seconds</td>
   </tr>
   <tr>
     <td style="text-align: center;">Frame Rate</td>
-    <td colspan="3" style="text-align: center;">8 Frames / Second</td>
+    <td colspan="3" style="text-align: center;">8 frames / second</td>
+    <td colspan="2" style="text-align: center;">16 frames / second</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Video Resolution</td>
-    <td colspan="3" style="text-align: center;">720 x 480, no support for other resolutions (including fine-tuning)</td>
-  </tr>
-    <tr>
-    <td style="text-align: center;">Position Encoding</td>
+    <td style="text-align: center;">Positional Encoding</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
   </tr>
@@ -241,10 +247,12 @@ models we currently offer, along with their foundational information.
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b-I2V">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b-I2V">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b-I2V">🟣 WiseModel</a></td>
+    <td colspan="2" style="text-align: center;"> Coming Soon </td>
   </tr>
   <tr>
     <td style="text-align: center;">Download Link (SAT)</td>
-    <td colspan="3" style="text-align: center;"><a href="./sat/README.md">SAT</a></td>
+    <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
+    <td colspan="2" style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX1.5-5b-SAT">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🟣 WiseModel</a></td>
   </tr>
 </table>
 
@@ -422,7 +430,7 @@ hands-on practice on text-to-video generation. *The original input is in Chinese
 
 We welcome your contributions! You can click [here](resources/contribute.md) for more information.
 
-## License Agreement
+## Model-License
 
 The code in this repository is released under the [Apache 2.0 License](LICENSE).
 
