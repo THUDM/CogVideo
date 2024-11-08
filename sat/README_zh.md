@@ -1,6 +1,6 @@
-# SAT CogVideoX-2B
+# SAT CogVideoX
 
-[Read this in English.](./README_zh)
+[Read this in English.](./README.md)
 
 [日本語で読む](./README_ja.md)
 
@@ -20,6 +20,15 @@ pip install -r requirements.txt
 
 首先，前往 SAT 镜像下载模型权重。
 
+#### CogVideoX1.5 模型
+
+```shell
+git lfs install
+git clone https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT
+```
+此操作会下载 Transformers, VAE, T5 Encoder 这三个模型。
+
+#### CogVideoX 模型
 对于 CogVideoX-2B 模型，请按照如下方式下载:
 
 ```shell
@@ -82,11 +91,11 @@ mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 0 directories, 8 files
 ```
 
-### 3. 修改`configs/cogvideox_2b.yaml`中的文件。
+### 3. 修改`configs/cogvideox_*.yaml`中的文件。
 
 ```yaml
 model:
-  scale_factor: 1.15258426
+  scale_factor: 1.55258426
   disable_first_stage_autocast: true
   log_keys:
     - txt
@@ -253,7 +262,7 @@ args:
   batch_size: 1
   input_type: txt #可以选择txt纯文字档作为输入，或者改成cli命令行作为输入
   input_file: configs/test.txt #纯文字档，可以对此做编辑
-  sampling_num_frames: 13  # Must be 13, 11 or 9
+  sampling_num_frames: 13  #CogVideoX1.5-5B 必须是 42 或 22。 CogVideoX-5B / 2B 必须是 13 11 或 9。
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
   #  bf16: True # For CogVideoX-5B
@@ -346,7 +355,7 @@ Encoder 使用。
 
 ```yaml
 model:
-  scale_factor: 1.15258426
+  scale_factor: 1.55258426
   disable_first_stage_autocast: true
   not_trainable_prefixes: [ 'all' ] ## 解除注释
   log_keys:

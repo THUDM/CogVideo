@@ -1,9 +1,8 @@
 # CogVideo & CogVideoX
 
-[Read this in English](./README_zh.md)
+[Read this in English](./README.md)
 
 [日本語で読む](./README_ja.md)
-
 
 <div align="center">
 <img src=resources/logo.svg width="50%"/>
@@ -23,7 +22,9 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2024/10/13```: 成本更低，单卡4090可微调`CogVideoX-5B`
+- 🔥🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。 
+CogVideoX1.5-5B 系列模型支持 **10秒** 长度的视频和更高的分辨率，其中 `CogVideoX1.5-5B-I2V` 支持 **任意分辨率** 的视频生成，SAT代码已经更新。`diffusers`版本还在适配中。SAT版本代码前往 [这里](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT) 下载。
+- 🔥**News**: ```2024/10/13```: 成本更低，单卡4090可微调 `CogVideoX-5B`
   的微调框架[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)已经推出，多种分辨率微调，欢迎使用。
 - 🔥 **News**: ```2024/10/10```: 我们更新了我们的技术报告,请点击 [这里](https://arxiv.org/pdf/2408.06072)
   查看，附上了更多的训练细节和demo，关于demo，点击[这里](https://yzy-thu.github.io/CogVideoX-demo/) 查看。
@@ -58,10 +59,9 @@
     - [Inference](#inference)
     - [SAT](#sat)
     - [Tools](#tools)
-- [开源项目规划](#开源项目规划)
-- [模型协议](#模型协议)
 - [CogVideo(ICLR'23)模型介绍](#cogvideoiclr23)
 - [引用](#引用)
+- [模型协议](#模型协议)
 
 ## 快速开始
 
@@ -157,62 +157,72 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
     <th style="text-align: center;">CogVideoX-2B</th>
     <th style="text-align: center;">CogVideoX-5B</th>
     <th style="text-align: center;">CogVideoX-5B-I2V </th>
+    <th style="text-align: center;">CogVideoX1.5-5B</th>
+    <th style="text-align: center;">CogVideoX1.5-5B-I2V</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">发布时间</td>
+    <th style="text-align: center;">2024年8月6日</th>
+    <th style="text-align: center;">2024年8月27日</th>
+    <th style="text-align: center;">2024年9月19日</th>
+    <th style="text-align: center;">2024年11月8日</th>
+    <th style="text-align: center;">2024年11月8日</th>
+  </tr>
+  <tr>
+    <td style="text-align: center;">视频分辨率</td>
+    <td colspan="3" style="text-align: center;">720 * 480</td>
+    <td colspan="1" style="text-align: center;">1360 * 768</td>
+    <td colspan="1" style="text-align: center;">256 <= W <=1360<br> 256 <= H <=768<br>  W,H % 16 == 0</td>
   </tr>
   <tr>
     <td style="text-align: center;">推理精度</td>
     <td style="text-align: center;"><b>FP16*(推荐)</b>, BF16, FP32，FP8*，INT8，不支持INT4</td>
     <td colspan="2" style="text-align: center;"><b>BF16(推荐)</b>, FP16, FP32，FP8*，INT8，不支持INT4</td>
+    <td colspan="2" style="text-align: center;"><b>BF16</b></td>
   </tr>
   <tr>
     <td style="text-align: center;">单GPU显存消耗<br></td>
     <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: 4GB起* </b><br><b>diffusers INT8(torchao): 3.6G起*</b></td>
     <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16 : 5GB起* </b><br><b>diffusers INT8(torchao): 4.4G起* </b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB <br></td>
   </tr>
   <tr>
     <td style="text-align: center;">多GPU推理显存消耗</td>
     <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
     <td colspan="2" style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
+    <td colspan="2" style="text-align: center;"><b>Not support</b><br></td>
   </tr>
   <tr>
     <td style="text-align: center;">推理速度<br>(Step = 50, FP/BF16)</td>
     <td style="text-align: center;">单卡A100: ~90秒<br>单卡H100: ~45秒</td>
     <td colspan="2" style="text-align: center;">单卡A100: ~180秒<br>单卡H100: ~90秒</td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">微调精度</td>
-    <td style="text-align: center;"><b>FP16</b></td>
-    <td colspan="2" style="text-align: center;"><b>BF16</b></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">微调显存消耗</td>
-    <td style="text-align: center;">47 GB (bs=1, LORA)<br> 61 GB (bs=2, LORA)<br> 62GB (bs=1, SFT)</td>
-    <td style="text-align: center;">63 GB (bs=1, LORA)<br> 80 GB (bs=2, LORA)<br> 75GB (bs=1, SFT)<br></td>
-    <td style="text-align: center;">78 GB (bs=1, LORA)<br> 75GB (bs=1, SFT, 16GPU)<br></td>
+    <td colspan="2" style="text-align: center;">单卡A100: ~1000秒(5秒视频)<br>单卡H100: ~550秒(5秒视频)</td>
   </tr>
   <tr>
     <td style="text-align: center;">提示词语言</td>
-    <td colspan="3" style="text-align: center;">English*</td>
+    <td colspan="5" style="text-align: center;">English*</td>
   </tr>
   <tr>
     <td style="text-align: center;">提示词长度上限</td>
     <td colspan="3" style="text-align: center;">226 Tokens</td>
+    <td colspan="2" style="text-align: center;">224 Tokens</td>
   </tr>
   <tr>
     <td style="text-align: center;">视频长度</td>
     <td colspan="3" style="text-align: center;">6 秒</td>
+    <td colspan="2" style="text-align: center;">5 秒 或 10 秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">帧率</td>
     <td colspan="3" style="text-align: center;">8 帧 / 秒 </td>
+    <td colspan="2" style="text-align: center;">16 帧 / 秒 </td>
   </tr>
   <tr>
-    <td style="text-align: center;">视频分辨率</td>
-    <td colspan="3" style="text-align: center;">720 * 480，不支持其他分辨率(含微调)</td>
-  </tr>
-    <tr>
     <td style="text-align: center;">位置编码</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
-   <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
   </tr>
   <tr>
@@ -220,10 +230,13 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b-I2V">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b-I2V">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b-I2V">🟣 WiseModel</a></td>
+    <td colspan="2" style="text-align: center;"> 即将推出 </td>
   </tr>
   <tr>
     <td style="text-align: center;">下载链接 (SAT)</td>
     <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
+    <td colspan="2" style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX1.5-5b-SAT">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🟣 WiseModel</a></td>
+
   </tr>
 </table>
 

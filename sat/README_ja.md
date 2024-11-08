@@ -1,27 +1,37 @@
-# SAT CogVideoX-2B
+# SAT CogVideoX
 
-[Read this in English.](./README_zh)
+[Read this in English.](./README.md)
 
 [中文阅读](./README_zh.md)
 
-このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer) ウェイトを使用した推論コードと、SAT
-ウェイトのファインチューニングコードが含まれています。
-
-このコードは、チームがモデルをトレーニングするために使用したフレームワークです。コメントが少なく、注意深く研究する必要があります。
+このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer)の重みを使用した推論コードと、SAT重みのファインチューニングコードが含まれています。
+このコードは、チームがモデルを訓練する際に使用したフレームワークです。コメントが少ないため、注意深く確認する必要があります。
 
 ## 推論モデル
 
-### 1. このフォルダに必要な依存関係が正しくインストールされていることを確認してください。
+### 1. このフォルダ内の必要な依存関係がすべてインストールされていることを確認してください
 
-```shell
+```
 pip install -r requirements.txt
 ```
 
-### 2. モデルウェイトをダウンロードします
+### 2. モデルの重みをダウンロード
+ まず、SATミラーからモデルの重みをダウンロードしてください。
 
-まず、SAT ミラーに移動してモデルの重みをダウンロードします。 CogVideoX-2B モデルの場合は、次のようにダウンロードしてください。
+#### CogVideoX1.5 モデル
 
-```shell
+```
+git lfs install
+git clone https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT
+```
+
+これにより、Transformers、VAE、T5 Encoderの3つのモデルがダウンロードされます。
+
+#### CogVideoX モデル
+
+CogVideoX-2B モデルについては、以下のようにダウンロードしてください：
+
+```
 mkdir CogVideoX-2b-sat
 cd CogVideoX-2b-sat
 wget https://cloud.tsinghua.edu.cn/f/fdba7608a49c463ba754/?dl=1
@@ -32,12 +42,12 @@ mv 'index.html?dl=1' transformer.zip
 unzip transformer.zip
 ```
 
-CogVideoX-5B モデルの `transformers` ファイルを以下のリンクからダウンロードしてください （VAE ファイルは 2B と同じです）：
+CogVideoX-5B モデルの `transformers` ファイルをダウンロードしてください（VAEファイルは2Bと同じです）：
 
 + [CogVideoX-5B](https://cloud.tsinghua.edu.cn/d/fcef5b3904294a6885e5/?p=%2F&mode=list)
 + [CogVideoX-5B-I2V](https://cloud.tsinghua.edu.cn/d/5cc62a2d6e7d45c0a2f6/?p=%2F1&mode=list)
 
-次に、モデルファイルを以下の形式にフォーマットする必要があります：
+モデルファイルを以下のように配置してください：
 
 ```
 .
@@ -49,24 +59,24 @@ CogVideoX-5B モデルの `transformers` ファイルを以下のリンクから
     └── 3d-vae.pt
 ```
 
-モデルの重みファイルが大きいため、`git lfs`を使用することをお勧めいたします。`git lfs`
-のインストールについては、[こちら](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)をご参照ください。
+モデルの重みファイルが大きいため、`git lfs`の使用をお勧めします。
+`git lfs`のインストール方法は[こちら](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing)を参照してください。
 
-```shell
+```
 git lfs install
 ```
 
-次に、T5 モデルをクローンします。これはトレーニングやファインチューニングには使用されませんが、使用する必要があります。
-> モデルを複製する際には、[Modelscope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)のモデルファイルの場所もご使用いただけます。
+次に、T5モデルをクローンします。このモデルはEncoderとしてのみ使用され、訓練やファインチューニングは必要ありません。
+> [Modelscope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)上のモデルファイルも使用可能です。
 
-```shell
-git clone https://huggingface.co/THUDM/CogVideoX-2b.git #ハギングフェイス(huggingface.org)からモデルをダウンロードいただきます
-# git clone https://www.modelscope.cn/ZhipuAI/CogVideoX-2b.git #Modelscopeからモデルをダウンロードいただきます
+```
+git clone https://huggingface.co/THUDM/CogVideoX-2b.git # Huggingfaceからモデルをダウンロード
+# git clone https://www.modelscope.cn/ZhipuAI/CogVideoX-2b.git # Modelscopeからダウンロード
 mkdir t5-v1_1-xxl
 mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 ```
 
-上記の方法に従うことで、safetensor 形式の T5 ファイルを取得できます。これにより、Deepspeed でのファインチューニング中にエラーが発生しないようにします。
+これにより、Deepspeedファインチューニング中にエラーなくロードできるsafetensor形式のT5ファイルが作成されます。
 
 ```
 ├── added_tokens.json
@@ -81,11 +91,11 @@ mv CogVideoX-2b/text_encoder/* CogVideoX-2b/tokenizer/* t5-v1_1-xxl
 0 directories, 8 files
 ```
 
-### 3. `configs/cogvideox_2b.yaml` ファイルを変更します。
+### 3. `configs/cogvideox_*.yaml`ファイルを編集
 
 ```yaml
 model:
-  scale_factor: 1.15258426
+  scale_factor: 1.55258426
   disable_first_stage_autocast: true
   log_keys:
     - txt
@@ -123,7 +133,7 @@ model:
       num_attention_heads: 30
 
       transformer_args:
-        checkpoint_activations: True ## グラデーション チェックポイントを使用する
+        checkpoint_activations: True ## using gradient checkpointing
         vocab_size: 1
         max_sequence_length: 64
         layernorm_order: pre
@@ -161,14 +171,14 @@ model:
           ucg_rate: 0.1
           target: sgm.modules.encoders.modules.FrozenT5Embedder
           params:
-            model_dir: "t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxlフォルダの絶対パス
+            model_dir: "t5-v1_1-xxl" # CogVideoX-2b/t5-v1_1-xxl 重みフォルダの絶対パス
             max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
       cp_size: 1
-      ckpt_path: "CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.ptフォルダの絶対パス
+      ckpt_path: "CogVideoX-2b-sat/vae/3d-vae.pt" # CogVideoX-2b-sat/vae/3d-vae.ptファイルの絶対パス
       ignore_keys: [ 'loss' ]
 
       loss_config:
@@ -240,7 +250,7 @@ model:
           num_steps: 50
 ```
 
-### 4. `configs/inference.yaml` ファイルを変更します。
+### 4. `configs/inference.yaml`ファイルを編集
 
 ```yaml
 args:
@@ -250,38 +260,36 @@ args:
   # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
 
   batch_size: 1
-  input_type: txt #TXTのテキストファイルを入力として選択されたり、CLIコマンドラインを入力として変更されたりいただけます
-  input_file: configs/test.txt #テキストファイルのパスで、これに対して編集がさせていただけます
-  sampling_num_frames: 13  # Must be 13, 11 or 9
+  input_type: txt # "txt"でプレーンテキスト入力、"cli"でコマンドライン入力を選択可能
+  input_file: configs/test.txt # プレーンテキストファイル、編集可能
+  sampling_num_frames: 13  # CogVideoX1.5-5Bでは42または22、CogVideoX-5B / 2Bでは13, 11, または9
   sampling_fps: 8
-  fp16: True # For CogVideoX-2B
-  #  bf16: True # For CogVideoX-5B
+  fp16: True # CogVideoX-2B用
+  # bf16: True # CogVideoX-5B用
   output_dir: outputs/
   force_inference: True
 ```
 
-+ 複数のプロンプトを保存するために txt を使用する場合は、`configs/test.txt`
-  を参照して変更してください。1行に1つのプロンプトを記述します。プロンプトの書き方がわからない場合は、最初に [このコード](../inference/convert_demo.py)
-  を使用して LLM によるリファインメントを呼び出すことができます。
-+ コマンドラインを入力として使用する場合は、次のように変更します。
++ 複数のプロンプトを含むテキストファイルを使用する場合、`configs/test.txt`を適宜編集してください。1行につき1プロンプトです。プロンプトの書き方が分からない場合は、[こちらのコード](../inference/convert_demo.py)を使用してLLMで補正できます。
++ コマンドライン入力を使用する場合、以下のように変更します：
 
-```yaml
+```
 input_type: cli
 ```
 
 これにより、コマンドラインからプロンプトを入力できます。
 
-出力ビデオのディレクトリを変更したい場合は、次のように変更できます：
+出力ビデオの保存場所を変更する場合は、以下を編集してください：
 
-```yaml
+```
 output_dir: outputs/
 ```
 
-デフォルトでは `.outputs/` フォルダに保存されます。
+デフォルトでは`.outputs/`フォルダに保存されます。
 
-### 5. 推論コードを実行して推論を開始します。
+### 5. 推論コードを実行して推論を開始
 
-```shell
+```
 bash inference.sh
 ```
 
@@ -289,7 +297,7 @@ bash inference.sh
 
 ### データセットの準備
 
-データセットの形式は次のようになります：
+データセットは以下の構造である必要があります：
 
 ```
 .
@@ -303,123 +311,215 @@ bash inference.sh
     ├── ...
 ```
 
-各 txt ファイルは対応するビデオファイルと同じ名前であり、そのビデオのラベルを含んでいます。各ビデオはラベルと一対一で対応する必要があります。通常、1つのビデオに複数のラベルを持たせることはありません。
+各txtファイルは対応するビデオファイルと同じ名前で、ビデオのラベルを含んでいます。ビデオとラベルは一対一で対応させる必要があります。通常、1つのビデオに複数のラベルを使用することは避けてください。
 
-スタイルファインチューニングの場合、少なくとも50本のスタイルが似たビデオとラベルを準備し、フィッティングを容易にします。
+スタイルのファインチューニングの場合、スタイルが似たビデオとラベルを少なくとも50本準備し、フィッティングを促進します。
 
-### 設定ファイルの変更
+### 設定ファイルの編集
 
-`Lora` とフルパラメータ微調整の2つの方法をサポートしています。両方の微調整方法は、`transformer` 部分のみを微調整し、`VAE`
-部分には変更を加えないことに注意してください。`T5` はエンコーダーとしてのみ使用されます。以下のように `configs/sft.yaml` (
-フルパラメータ微調整用) ファイルを変更してください。
+``` `Lora`と全パラメータのファインチューニングの2種類をサポートしています。どちらも`transformer`部分のみをファインチューニングし、`VAE`部分は変更されず、`T5`はエンコーダーとしてのみ使用されます。
+``` 以下のようにして`configs/sft.yaml`（全量ファインチューニング）ファイルを編集してください：
 
 ```
-  # checkpoint_activations: True ## 勾配チェックポイントを使用する場合 (設定ファイル内の2つの checkpoint_activations を True に設定する必要があります)
+  # checkpoint_activations: True ## using gradient checkpointing (configファイル内の2つの`checkpoint_activations`を両方Trueに設定)
   model_parallel_size: 1 # モデル並列サイズ
-  experiment_name: lora-disney  # 実験名 (変更しないでください)
-  mode: finetune # モード (変更しないでください)
-  load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformer モデルのパス
-  no_load_rng: True # 乱数シードを読み込むかどうか
+  experiment_name: lora-disney  # 実験名（変更不要）
+  mode: finetune # モード（変更不要）
+  load: "{your_CogVideoX-2b-sat_path}/transformer" ## Transformerモデルのパス
+  no_load_rng: True # 乱数シードをロードするかどうか
   train_iters: 1000 # トレーニングイテレーション数
-  eval_iters: 1 # 評価イテレーション数
-  eval_interval: 100    # 評価間隔
-  eval_batch_size: 1  # 評価バッチサイズ
-  save: ckpts # モデル保存パス
-  save_interval: 100 # モデル保存間隔
+  eval_iters: 1 # 検証イテレーション数
+  eval_interval: 100    # 検証間隔
+  eval_batch_size: 1  # 検証バッチサイズ
+  save: ckpts # モデル保存パス 
+  save_interval: 100 # 保存間隔
   log_interval: 20 # ログ出力間隔
   train_data: [ "your train data path" ]
-  valid_data: [ "your val data path" ] # トレーニングデータと評価データは同じでも構いません
-  split: 1,0,0 # トレーニングセット、評価セット、テストセットの割合
-  num_workers: 8 # データローダーのワーカースレッド数
-  force_train: True # チェックポイントをロードするときに欠落したキーを許可 (T5 と VAE は別々にロードされます)
-  only_log_video_latents: True # VAE のデコードによるメモリオーバーヘッドを回避
+  valid_data: [ "your val data path" ] # トレーニングセットと検証セットは同じでも構いません
+  split: 1,0,0 # トレーニングセット、検証セット、テストセットの割合
+  num_workers: 8 # データローダーのワーカー数
+  force_train: True # チェックポイントをロードする際に`missing keys`を許可（T5とVAEは別途ロード）
+  only_log_video_latents: True # VAEのデコードによるメモリ使用量を抑える
   deepspeed:
     bf16:
-      enabled: False # CogVideoX-2B の場合は False に設定し、CogVideoX-5B の場合は True に設定
+      enabled: False # CogVideoX-2B 用は False、CogVideoX-5B 用は True に設定
     fp16:
-      enabled: True  # CogVideoX-2B の場合は True に設定し、CogVideoX-5B の場合は False に設定
+      enabled: True  # CogVideoX-2B 用は True、CogVideoX-5B 用は False に設定
+```
+```yaml
+args:
+  latent_channels: 16
+  mode: inference
+  load: "{absolute_path/to/your}/transformer" # Absolute path to CogVideoX-2b-sat/transformer folder
+  # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
+
+  batch_size: 1
+  input_type: txt # You can choose "txt" for plain text input or change to "cli" for command-line input
+  input_file: configs/test.txt # Plain text file, can be edited
+  sampling_num_frames: 13  # For CogVideoX1.5-5B it must be 42 or 22. For CogVideoX-5B / 2B, it must be 13, 11, or 9.
+  sampling_fps: 8
+  fp16: True # For CogVideoX-2B
+  # bf16: True # For CogVideoX-5B
+  output_dir: outputs/
+  force_inference: True
 ```
 
-Lora 微調整を使用したい場合は、`cogvideox_<model_parameters>_lora` ファイルも変更する必要があります。
-
-ここでは、`CogVideoX-2B` を参考にします。
++ If using a text file to save multiple prompts, modify `configs/test.txt` as needed. One prompt per line. If you are unsure how to write prompts, use [this code](../inference/convert_demo.py) to call an LLM for refinement.
++ To use command-line input, modify:
 
 ```
+input_type: cli
+```
+
+This allows you to enter prompts from the command line.
+
+To modify the output video location, change:
+
+```
+output_dir: outputs/
+```
+
+The default location is the `.outputs/` folder.
+
+### 5. Run the Inference Code to Perform Inference
+
+```
+bash inference.sh
+```
+
+## Fine-tuning the Model
+
+### Preparing the Dataset
+
+The dataset should be structured as follows:
+
+```
+.
+├── labels
+│   ├── 1.txt
+│   ├── 2.txt
+│   ├── ...
+└── videos
+    ├── 1.mp4
+    ├── 2.mp4
+    ├── ...
+```
+
+Each txt file should have the same name as the corresponding video file and contain the label for that video. The videos and labels should correspond one-to-one. Generally, avoid using one video with multiple labels.
+
+For style fine-tuning, prepare at least 50 videos and labels with a similar style to facilitate fitting.
+
+### Modifying the Configuration File
+
+We support two fine-tuning methods: `Lora` and full-parameter fine-tuning. Note that both methods only fine-tune the `transformer` part. The `VAE` part is not modified, and `T5` is only used as an encoder.
+Modify the files in `configs/sft.yaml` (full fine-tuning) as follows:
+
+```yaml
+  # checkpoint_activations: True ## using gradient checkpointing (both `checkpoint_activations` in the config file need to be set to True)
+  model_parallel_size: 1 # Model parallel size
+  experiment_name: lora-disney  # Experiment name (do not change)
+  mode: finetune # Mode (do not change)
+  load: "{your_CogVideoX-2b-sat_path}/transformer" ## Path to Transformer model
+  no_load_rng: True # Whether to load random number seed
+  train_iters: 1000 # Training iterations
+  eval_iters: 1 # Evaluation iterations
+  eval_interval: 100    # Evaluation interval
+  eval_batch_size: 1  # Evaluation batch size
+  save: ckpts # Model save path 
+  save_interval: 100 # Save interval
+  log_interval: 20 # Log output interval
+  train_data: [ "your train data path" ]
+  valid_data: [ "your val data path" ] # Training and validation sets can be the same
+  split: 1,0,0 # Proportion for training, validation, and test sets
+  num_workers: 8 # Number of data loader workers
+  force_train: True # Allow missing keys when loading checkpoint (T5 and VAE loaded separately)
+  only_log_video_latents: True # Avoid memory usage from VAE decoding
+  deepspeed:
+    bf16:
+      enabled: False # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
+    fp16:
+      enabled: True  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
+```
+
+``` To use Lora fine-tuning, you also need to modify `cogvideox_<model parameters>_lora` file:
+
+Here's an example using `CogVideoX-2B`:
+
+```yaml
 model:
-  scale_factor: 1.15258426
+  scale_factor: 1.55258426
   disable_first_stage_autocast: true
-  not_trainable_prefixes: [ 'all' ] ## コメントを解除
+  not_trainable_prefixes: [ 'all' ] ## Uncomment to unlock
   log_keys:
-    - txt'
+    - txt
 
-  lora_config: ## コメントを解除
+  lora_config: ## Uncomment to unlock
     target: sat.model.finetune.lora2.LoraMixin
     params:
       r: 256
 ```
 
-### 実行スクリプトの変更
+### Modify the Run Script
 
-設定ファイルを選択するために `finetune_single_gpu.sh` または `finetune_multi_gpus.sh` を編集します。以下に2つの例を示します。
+Edit `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` and select the config file. Below are two examples:
 
-1. `CogVideoX-2B` モデルを使用し、`Lora` 手法を利用する場合は、`finetune_single_gpu.sh` または `finetune_multi_gpus.sh`
-   を変更する必要があります。
+1. If you want to use the `CogVideoX-2B` model with `Lora`, modify `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` as follows:
 
 ```
 run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b_lora.yaml configs/sft.yaml --seed $RANDOM"
 ```
 
-2. `CogVideoX-2B` モデルを使用し、`フルパラメータ微調整` 手法を利用する場合は、`finetune_single_gpu.sh`
-   または `finetune_multi_gpus.sh` を変更する必要があります。
+2. If you want to use the `CogVideoX-2B` model with full fine-tuning, modify `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` as follows:
 
 ```
 run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b.yaml configs/sft.yaml --seed $RANDOM"
 ```
 
-### 微調整と評価
+### Fine-tuning and Validation
 
-推論コードを実行して微調整を開始します。
-
-```
-bash finetune_single_gpu.sh # シングルGPU
-bash finetune_multi_gpus.sh # マルチGPU
-```
-
-### 微調整後のモデルの使用
-
-微調整されたモデルは統合できません。ここでは、推論設定ファイル `inference.sh` を変更する方法を示します。
+Run the inference code to start fine-tuning.
 
 ```
-run_cmd="$environs python sample_video.py --base configs/cogvideox_<model_parameters>_lora.yaml configs/inference.yaml --seed 42"
+bash finetune_single_gpu.sh # Single GPU
+bash finetune_multi_gpus.sh # Multi GPUs
 ```
 
-その後、次のコードを実行します。
+### Using the Fine-tuned Model
+
+The fine-tuned model cannot be merged. Here’s how to modify the inference configuration file `inference.sh`
+
+```
+run_cmd="$environs python sample_video.py --base configs/cogvideox_<model parameters>_lora.yaml configs/inference.yaml --seed 42"
+```
+
+Then, run the code:
 
 ```
 bash inference.sh 
 ```
 
-### Huggingface Diffusers サポートのウェイトに変換
+### Converting to Huggingface Diffusers-compatible Weights
 
-SAT ウェイト形式は Huggingface のウェイト形式と異なり、変換が必要です。次のコマンドを実行してください：
+The SAT weight format is different from Huggingface’s format and requires conversion. Run
 
-```shell
+```
 python ../tools/convert_weight_sat2hf.py
 ```
 
-### SATチェックポイントからHuggingface Diffusers lora LoRAウェイトをエクスポート
+### Exporting Lora Weights from SAT to Huggingface Diffusers
 
-上記のステップを完了すると、LoRAウェイト付きのSATチェックポイントが得られます。ファイルは `{args.save}/1000/1000/mp_rank_00_model_states.pt` にあります。
+Support is provided for exporting Lora weights from SAT to Huggingface Diffusers format.
+After training with the above steps, you’ll find the SAT model with Lora weights in {args.save}/1000/1000/mp_rank_00_model_states.pt
 
-LoRAウェイトをエクスポートするためのスクリプトは、CogVideoXリポジトリの `tools/export_sat_lora_weight.py` にあります。エクスポート後、`load_cogvideox_lora.py` を使用して推論を行うことができます。
+The export script `export_sat_lora_weight.py` is located in the CogVideoX repository under `tools/`. After exporting, use `load_cogvideox_lora.py` for inference.
 
-エクスポートコマンド:
+Export command:
 
-```bash
-python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory {args.save}/export_hf_lora_weights_1/
+```
+python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory   {args.save}/export_hf_lora_weights_1/
 ```
 
-このトレーニングでは主に以下のモデル構造が変更されました。以下の表は、HF (Hugging Face) 形式のLoRA構造に変換する際の対応関係を示しています。ご覧の通り、LoRAはモデルの注意メカニズムに低ランクの重みを追加しています。
+The following model structures were modified during training. Here is the mapping between SAT and HF Lora structures. Lora adds a low-rank weight to the attention structure of the model.
 
 ```
 'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
@@ -431,8 +531,6 @@ python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_nam
 'attention.dense.matrix_A.0': 'attn1.to_out.0.lora_A.weight',
 'attention.dense.matrix_B.0': 'attn1.to_out.0.lora_B.weight'
 ```
-  
-export_sat_lora_weight.py を使用して、SATチェックポイントをHF LoRA形式に変換できます。
 
-
+Using `export_sat_lora_weight.py` will convert these to the HF format Lora structure.
 ![alt text](../resources/hf_lora_weights.png)

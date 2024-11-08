@@ -592,8 +592,11 @@ class VideoAutoencoderInferenceWrapper(VideoAutoencodingEngine):
         unregularized: bool = False,
         input_cp: bool = False,
         output_cp: bool = False,
+        use_cp: bool = True,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, dict]]:
-        if self.cp_size > 0 and not input_cp:
+        if self.cp_size <= 1:
+            use_cp = False
+        if self.cp_size > 0 and use_cp and not input_cp:
             if not is_context_parallel_initialized:
                 initialize_context_parallel(self.cp_size)
 
@@ -603,11 +606,11 @@ class VideoAutoencoderInferenceWrapper(VideoAutoencodingEngine):
             x = _conv_split(x, dim=2, kernel_size=1)
 
         if return_reg_log:
-            z, reg_log = super().encode(x, return_reg_log, unregularized)
+            z, reg_log = super().encode(x, return_reg_log, unregularized, use_cp=use_cp)
         else:
-            z = super().encode(x, return_reg_log, unregularized)
+            z = super().encode(x, return_reg_log, unregularized, use_cp=use_cp)
 
-        if self.cp_size > 0 and not output_cp:
+        if self.cp_size > 0 and use_cp and not output_cp:
             z = _conv_gather(z, dim=2, kernel_size=1)
 
         if return_reg_log:
@@ -619,23 +622,24 @@ class VideoAutoencoderInferenceWrapper(VideoAutoencodingEngine):
         z: torch.Tensor,
         input_cp: bool = False,
         output_cp: bool = False,
-        split_kernel_size: int = 1,
+        use_cp: bool = True,
         **kwargs,
     ):
-        if self.cp_size > 0 and not input_cp:
+        if self.cp_size <= 1:
+            use_cp = False
+        if self.cp_size > 0 and use_cp and not input_cp:
             if not is_context_parallel_initialized:
                 initialize_context_parallel(self.cp_size)
 
             global_src_rank = get_context_parallel_group_rank() * self.cp_size
             torch.distributed.broadcast(z, src=global_src_rank, group=get_context_parallel_group())
 
-            z = _conv_split(z, dim=2, kernel_size=split_kernel_size)
+            z = _conv_split(z, dim=2, kernel_size=1)
 
-        x = super().decode(z, **kwargs)
+        x = super().decode(z, use_cp=use_cp, **kwargs)
 
-        if self.cp_size > 0 and not output_cp:
-            x = _conv_gather(x, dim=2, kernel_size=split_kernel_size)
-
+        if self.cp_size > 0 and use_cp and not output_cp:
+            x = _conv_gather(x, dim=2, kernel_size=1)
         return x
 
     def forward(
