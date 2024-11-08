@@ -237,7 +237,7 @@ models we currently offer, along with their foundational information.
   <tr>
     <td style="text-align: center;">Positional Encoding</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed</td>
