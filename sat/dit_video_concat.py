@@ -7,7 +7,6 @@ import numpy as np
 import torch
 from torch import nn
 import torch.nn.functional as F
-
 from sat.model.base_model import BaseModel, non_conflict
 from sat.model.mixins import BaseMixin
 from sat.transformer_defaults import HOOKS_DEFAULT, attention_fn_default
