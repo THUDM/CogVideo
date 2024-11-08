@@ -220,10 +220,10 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
   <tr>
     <td style="text-align: center;">位置编码</td>
     <td style="text-align: center;">3d_sincos_pos_embed</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
+    <td style="text-align: center;">3d_rope_pos_embed</td>
   </tr>
   <tr>
     <td style="text-align: center;">下载链接 (Diffusers)</td>
