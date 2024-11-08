@@ -163,88 +163,87 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
 <table style="border-collapse: collapse; width: 100%;">
   <tr>
     <th style="text-align: center;">モデル名</th>
+    <th style="text-align: center;">CogVideoX1.5-5B (最新)</th>
+    <th style="text-align: center;">CogVideoX1.5-5B-I2V (最新)</th>
     <th style="text-align: center;">CogVideoX-2B</th>
     <th style="text-align: center;">CogVideoX-5B</th>
     <th style="text-align: center;">CogVideoX-5B-I2V</th>
-    <th style="text-align: center;">CogVideoX1.5-5B</th>
-    <th style="text-align: center;">CogVideoX1.5-5B-I2V</th>
   </tr>
   <tr>
-    <td style="text-align: center;">リリース日</td>
+    <td style="text-align: center;">公開日</td>
+    <th style="text-align: center;">2024年11月8日</th>
+    <th style="text-align: center;">2024年11月8日</th>
     <th style="text-align: center;">2024年8月6日</th>
     <th style="text-align: center;">2024年8月27日</th>
     <th style="text-align: center;">2024年9月19日</th>
-    <th style="text-align: center;">2024年11月8日</th>
-    <th style="text-align: center;">2024年11月8日</th>
   </tr>
   <tr>
     <td style="text-align: center;">ビデオ解像度</td>
-    <td colspan="3" style="text-align: center;">720 * 480</td>
     <td colspan="1" style="text-align: center;">1360 * 768</td>
-    <td colspan="1" style="text-align: center;">256 <= W <=1360<br>256 <= H <=768<br> W,H % 16 == 0</td>
+    <td colspan="1" style="text-align: center;">256 <= W <=1360<br> 256 <= H <=768<br>  W,H % 16 == 0</td>
+    <td colspan="3" style="text-align: center;">720 * 480</td>
   </tr>
   <tr>
     <td style="text-align: center;">推論精度</td>
-    <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32, FP8*, INT8, INT4は非対応</td>
-    <td colspan="2" style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32, FP8*, INT8, INT4は非対応</td>
     <td colspan="2" style="text-align: center;"><b>BF16</b></td>
+    <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32，FP8*，INT8，INT4非対応</td>
+    <td colspan="2" style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32，FP8*，INT8，INT4非対応</td>
   </tr>
   <tr>
-    <td style="text-align: center;">シングルGPUメモリ消費</td>
-    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB<br><b>diffusers FP16: 4GBから*</b><br><b>diffusers INT8(torchao): 3.6GBから*</b></td>
-    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB<br><b>diffusers BF16: 5GBから*</b><br><b>diffusers INT8(torchao): 4.4GBから*</b></td>
-    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB<br></td>
+    <td style="text-align: center;">単一GPUメモリ消費量<br></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB <br></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: 4GB以上* </b><br><b>diffusers INT8(torchao): 3.6GB以上*</b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16 : 5GB以上* </b><br><b>diffusers INT8(torchao): 4.4GB以上* </b></td>
   </tr>
   <tr>
-    <td style="text-align: center;">マルチGPUメモリ消費</td>
-    <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
-    <td colspan="2" style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
-    <td colspan="2" style="text-align: center;"><b>サポートなし</b><br></td>
+    <td style="text-align: center;">複数GPU推論メモリ消費量</td>
+    <td colspan="2" style="text-align: center;"><b>非対応</b><br></td>
+    <td style="text-align: center;"><b>FP16: 10GB* diffusers使用</b><br></td>
+    <td colspan="2" style="text-align: center;"><b>BF16: 15GB* diffusers使用</b><br></td>
   </tr>
   <tr>
-    <td style="text-align: center;">推論速度<br>(ステップ数 = 50, FP/BF16)</td>
-    <td style="text-align: center;">単一A100: 約90秒<br>単一H100: 約45秒</td>
-    <td colspan="2" style="text-align: center;">単一A100: 約180秒<br>単一H100: 約90秒</td>
-    <td colspan="2" style="text-align: center;">単一A100: 約1000秒(5秒動画)<br>単一H100: 約550秒(5秒動画)</td>
+    <td style="text-align: center;">推論速度<br>(Step = 50, FP/BF16)</td>
+    <td colspan="2" style="text-align: center;">シングルA100: ~1000秒(5秒ビデオ)<br>シングルH100: ~550秒(5秒ビデオ)</td>
+    <td style="text-align: center;">シングルA100: ~90秒<br>シングルH100: ~45秒</td>
+    <td colspan="2" style="text-align: center;">シングルA100: ~180秒<br>シングルH100: ~90秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">プロンプト言語</td>
     <td colspan="5" style="text-align: center;">英語*</td>
   </tr>
   <tr>
-    <td style="text-align: center;">プロンプトトークン制限</td>
-    <td colspan="3" style="text-align: center;">226トークン</td>
+    <td style="text-align: center;">プロンプト長さの上限</td>
     <td colspan="2" style="text-align: center;">224トークン</td>
+    <td colspan="3" style="text-align: center;">226トークン</td>
   </tr>
   <tr>
-    <td style="text-align: center;">ビデオの長さ</td>
-    <td colspan="3" style="text-align: center;">6秒</td>
+    <td style="text-align: center;">ビデオ長さ</td>
     <td colspan="2" style="text-align: center;">5秒または10秒</td>
+    <td colspan="3" style="text-align: center;">6秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">フレームレート</td>
-    <td colspan="3" style="text-align: center;">8 フレーム / 秒</td>
-    <td colspan="2" style="text-align: center;">16 フレーム / 秒</td>
+    <td colspan="2" style="text-align: center;">16フレーム/秒</td>
+    <td colspan="3" style="text-align: center;">8フレーム/秒</td>
   </tr>
   <tr>
     <td style="text-align: center;">位置エンコーディング</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td colspan="2" style="text-align: center;">3d_rope_pos_embed</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td> 
     <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed</td>
   </tr>
   <tr>
     <td style="text-align: center;">ダウンロードリンク (Diffusers)</td>
+    <td colspan="2" style="text-align: center;"> 近日公開 </td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b-I2V">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b-I2V">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b-I2V">🟣 WiseModel</a></td>
-    <td colspan="2" style="text-align: center;">近日公開</td>
   </tr>
   <tr>
     <td style="text-align: center;">ダウンロードリンク (SAT)</td>
-    <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
     <td colspan="2" style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX1.5-5b-SAT">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🟣 WiseModel</a></td>
+    <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
   </tr>
 </table>
 

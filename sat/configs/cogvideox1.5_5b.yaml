@@ -23,7 +23,7 @@ model:
     params:
       time_embed_dim: 512
       elementwise_affine: True
-      num_frames: 81
+      num_frames: 81 # for 5 seconds and 161 for 10 seconds
       time_compressed_rate: 4
       latent_width: 300
       latent_height: 300

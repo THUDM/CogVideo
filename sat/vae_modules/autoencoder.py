@@ -1,17 +1,13 @@
 import logging
 import math
 import re
-import random
 from abc import abstractmethod
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.distributed
-import torch.nn as nn
-from einops import rearrange
 from packaging import version
 
 from vae_modules.ema import LitEma
@@ -56,34 +52,16 @@ class AbstractAutoencoder(pl.LightningModule):
         if version.parse(torch.__version__) >= version.parse("2.0.0"):
             self.automatic_optimization = False
 
-    # def apply_ckpt(self, ckpt: Union[None, str, dict]):
-    #     if ckpt is None:
-    #         return
-    #     if isinstance(ckpt, str):
-    #         ckpt = {
-    #             "target": "sgm.modules.checkpoint.CheckpointEngine",
-    #             "params": {"ckpt_path": ckpt},
-    #         }
-    #     engine = instantiate_from_config(ckpt)
-    #     engine(self)
-
     def apply_ckpt(self, ckpt: Union[None, str, dict]):
         if ckpt is None:
             return
-        self.init_from_ckpt(ckpt)
-
-    def init_from_ckpt(self, path, ignore_keys=list()):
-        sd = torch.load(path, map_location="cpu")["state_dict"]
-        keys = list(sd.keys())
-        for k in keys:
-            for ik in ignore_keys:
-                if k.startswith(ik):
-                    print("Deleting key {} from state_dict.".format(k))
-                    del sd[k]
-        missing_keys, unexpected_keys = self.load_state_dict(sd, strict=False)
-        print("Missing keys: ", missing_keys)
-        print("Unexpected keys: ", unexpected_keys)
-        print(f"Restored from {path}")
+        if isinstance(ckpt, str):
+            ckpt = {
+                "target": "sgm.modules.checkpoint.CheckpointEngine",
+                "params": {"ckpt_path": ckpt},
+            }
+        engine = instantiate_from_config(ckpt)
+        engine(self)
 
     @abstractmethod
     def get_input(self, batch) -> Any:
@@ -119,7 +97,9 @@ class AbstractAutoencoder(pl.LightningModule):
 
     def instantiate_optimizer_from_config(self, params, lr, cfg):
         logpy.info(f"loading >>> {cfg['target']} <<< optimizer from config")
-        return get_obj_from_str(cfg["target"])(params, lr=lr, **cfg.get("params", dict()))
+        return get_obj_from_str(cfg["target"])(
+            params, lr=lr, **cfg.get("params", dict())
+        )
 
     def configure_optimizers(self) -> Any:
         raise NotImplementedError()
@@ -216,12 +196,13 @@ class AutoencodingEngine(AbstractAutoencoder):
         return self.decoder.get_last_layer()
 
     def encode(
-        self,
-        x: torch.Tensor,
-        return_reg_log: bool = False,
-        unregularized: bool = False,
+            self,
+            x: torch.Tensor,
+            return_reg_log: bool = False,
+            unregularized: bool = False,
+            **kwargs,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, dict]]:
-        z = self.encoder(x)
+        z = self.encoder(x, **kwargs)
         if unregularized:
             return z, dict()
         z, reg_log = self.regularization(z)

@@ -192,13 +192,13 @@ class SATVideoDiffusionEngine(nn.Module):
             for i in range(fake_cp_size):
                 end_frame = start_frame + latent_time // fake_cp_size + (1 if i < latent_time % fake_cp_size else 0)
 
-                fake_cp_rank0 = True if i == 0 else False
+                use_cp = True if i == 0 else False
                 clear_fake_cp_cache = True if i == fake_cp_size - 1 else False
                 with torch.no_grad():
                     recon = self.first_stage_model.decode(
                         z_now[:, :, start_frame:end_frame].contiguous(),
                         clear_fake_cp_cache=clear_fake_cp_cache,
-                        fake_cp_rank0=fake_cp_rank0,
+                        use_cp=use_cp,
                     )
                 recons.append(recon)
                 start_frame = end_frame

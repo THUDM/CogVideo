@@ -171,49 +171,49 @@ models we currently offer, along with their foundational information.
 <table style="border-collapse: collapse; width: 100%;">
   <tr>
     <th style="text-align: center;">Model Name</th>
+    <th style="text-align: center;">CogVideoX1.5-5B (Latest)</th>
+    <th style="text-align: center;">CogVideoX1.5-5B-I2V (Latest)</th>
     <th style="text-align: center;">CogVideoX-2B</th>
     <th style="text-align: center;">CogVideoX-5B</th>
     <th style="text-align: center;">CogVideoX-5B-I2V</th>
-    <th style="text-align: center;">CogVideoX1.5-5B</th>
-    <th style="text-align: center;">CogVideoX1.5-5B-I2V</th>
   </tr>
   <tr>
     <td style="text-align: center;">Release Date</td>
+    <th style="text-align: center;">November 8, 2024</th>
+    <th style="text-align: center;">November 8, 2024</th>
     <th style="text-align: center;">August 6, 2024</th>
     <th style="text-align: center;">August 27, 2024</th>
     <th style="text-align: center;">September 19, 2024</th>
-    <th style="text-align: center;">November 8, 2024</th>
-    <th style="text-align: center;">November 8, 2024</th>
   </tr>
   <tr>
     <td style="text-align: center;">Video Resolution</td>
-    <td colspan="3" style="text-align: center;">720 * 480</td>
     <td colspan="1" style="text-align: center;">1360 * 768</td>
-    <td colspan="1" style="text-align: center;">256 <= W <=1360<br>256 <= H <=768<br> W,H % 16 == 0</td>
+    <td colspan="1" style="text-align: center;">256 <= W <=1360<br> 256 <= H <=768<br>  W,H % 16 == 0</td>
+    <td colspan="3" style="text-align: center;">720 * 480</td>
   </tr>
   <tr>
     <td style="text-align: center;">Inference Precision</td>
-    <td style="text-align: center;"><b>FP16*(recommended)</b>, BF16, FP32, FP8*, INT8, not supported: INT4</td>
-    <td colspan="2" style="text-align: center;"><b>BF16(recommended)</b>, FP16, FP32, FP8*, INT8, not supported: INT4</td>
     <td colspan="2" style="text-align: center;"><b>BF16</b></td>
+    <td style="text-align: center;"><b>FP16*(Recommended)</b>, BF16, FP32, FP8*, INT8, Not supported: INT4</td>
+    <td colspan="2" style="text-align: center;"><b>BF16 (Recommended)</b>, FP16, FP32, FP8*, INT8, Not supported: INT4</td>
   </tr>
   <tr>
-    <td style="text-align: center;">Single GPU Memory Usage</td>
-    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB<br><b>diffusers FP16: from 4GB*</b><br><b>diffusers INT8(torchao): from 3.6GB*</b></td>
-    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB<br><b>diffusers BF16 : from 5GB*</b><br><b>diffusers INT8(torchao): from 4.4GB*</b></td>
-    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB<br></td>
+    <td style="text-align: center;">Single GPU Memory Usage<br></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 66GB <br></td>
+    <td style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> FP16: 18GB <br><b>diffusers FP16: 4GB minimum* </b><br><b>diffusers INT8 (torchao): 3.6GB minimum*</b></td>
+    <td colspan="2" style="text-align: center;"><a href="https://github.com/THUDM/SwissArmyTransformer">SAT</a> BF16: 26GB <br><b>diffusers BF16 : 5GB minimum* </b><br><b>diffusers INT8 (torchao): 4.4GB minimum* </b></td>
   </tr>
   <tr>
     <td style="text-align: center;">Multi-GPU Memory Usage</td>
+    <td colspan="2" style="text-align: center;"><b>Not Supported</b><br></td>
     <td style="text-align: center;"><b>FP16: 10GB* using diffusers</b><br></td>
     <td colspan="2" style="text-align: center;"><b>BF16: 15GB* using diffusers</b><br></td>
-    <td colspan="2" style="text-align: center;"><b>Not supported</b><br></td>
   </tr>
   <tr>
     <td style="text-align: center;">Inference Speed<br>(Step = 50, FP/BF16)</td>
+    <td colspan="2" style="text-align: center;">Single A100: ~1000 seconds (5-second video)<br>Single H100: ~550 seconds (5-second video)</td>
     <td style="text-align: center;">Single A100: ~90 seconds<br>Single H100: ~45 seconds</td>
     <td colspan="2" style="text-align: center;">Single A100: ~180 seconds<br>Single H100: ~90 seconds</td>
-    <td colspan="2" style="text-align: center;">Single A100: ~1000 seconds (5-second video)<br>Single H100: ~550 seconds (5-second video)</td>
   </tr>
   <tr>
     <td style="text-align: center;">Prompt Language</td>
@@ -221,38 +221,37 @@ models we currently offer, along with their foundational information.
   </tr>
   <tr>
     <td style="text-align: center;">Prompt Token Limit</td>
-    <td colspan="3" style="text-align: center;">226 Tokens</td>
     <td colspan="2" style="text-align: center;">224 Tokens</td>
+    <td colspan="3" style="text-align: center;">226 Tokens</td>
   </tr>
   <tr>
     <td style="text-align: center;">Video Length</td>
+    <td colspan="2" style="text-align: center;">5 seconds or 10 seconds</td>
     <td colspan="3" style="text-align: center;">6 seconds</td>
-    <td colspan="2" style="text-align: center;">5 or 10 seconds</td>
   </tr>
   <tr>
     <td style="text-align: center;">Frame Rate</td>
-    <td colspan="3" style="text-align: center;">8 frames / second</td>
-    <td colspan="2" style="text-align: center;">16 frames / second</td>
+    <td colspan="2" style="text-align: center;">16 frames / second </td>
+    <td colspan="3" style="text-align: center;">8 frames / second </td>
   </tr>
   <tr>
-    <td style="text-align: center;">Positional Encoding</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td>
+    <td style="text-align: center;">Position Encoding</td>
+    <td colspan="2" style="text-align: center;">3d_rope_pos_embed</td>
+    <td style="text-align: center;">3d_sincos_pos_embed</td> 
     <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed</td>
-    <td style="text-align: center;">3d_rope_pos_embed</td>
   </tr>
   <tr>
     <td style="text-align: center;">Download Link (Diffusers)</td>
+    <td colspan="2" style="text-align: center;"> Coming Soon </td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-2b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-2b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b">🟣 WiseModel</a></td>
     <td style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX-5b-I2V">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX-5b-I2V">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX-5b-I2V">🟣 WiseModel</a></td>
-    <td colspan="2" style="text-align: center;"> Coming Soon </td>
   </tr>
   <tr>
     <td style="text-align: center;">Download Link (SAT)</td>
-    <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
     <td colspan="2" style="text-align: center;"><a href="https://huggingface.co/THUDM/CogVideoX1.5-5b-SAT">🤗 HuggingFace</a><br><a href="https://modelscope.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🤖 ModelScope</a><br><a href="https://wisemodel.cn/models/ZhipuAI/CogVideoX1.5-5b-SAT">🟣 WiseModel</a></td>
+    <td colspan="3" style="text-align: center;"><a href="./sat/README_zh.md">SAT</a></td>
   </tr>
 </table>
 
