@@ -22,7 +22,8 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。 
+- 🔥🔥 **News**: ```2024/11/14```: 我们发布 `CogVideoX1.5` 模型的diffusers版本，仅需调整部分参数仅可沿用之前的代码。
+- 🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。 
 CogVideoX1.5-5B 系列模型支持 **10秒** 长度的视频和更高的分辨率，其中 `CogVideoX1.5-5B-I2V` 支持 **任意分辨率** 的视频生成，SAT代码已经更新。`diffusers`版本还在适配中。SAT版本代码前往 [这里](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT) 下载。
 - 🔥**News**: ```2024/10/13```: 成本更低，单卡4090可微调 `CogVideoX-5B`
   的微调框架[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)已经推出，多种分辨率微调，欢迎使用。
@@ -257,11 +258,9 @@ pipe.vae.enable_tiling()
 + [PytorchAO](https://github.com/pytorch/ao) 和 [Optimum-quanto](https://github.com/huggingface/optimum-quanto/)
   可以用于量化文本编码器、Transformer 和 VAE 模块，以降低 CogVideoX 的内存需求。这使得在免费的 T4 Colab 或更小显存的 GPU
   上运行模型成为可能！同样值得注意的是，TorchAO 量化完全兼容 `torch.compile`，这可以显著提高推理速度。在 `NVIDIA H100`
-  及以上设备上必须使用 `FP8` 精度，这需要源码安装 `torch`、`torchao`、`diffusers` 和 `accelerate` Python
-  包。建议使用 `CUDA 12.4`。
+  及以上设备上必须使用 `FP8` 精度，这需要源码安装 `torch`、`torchao` Python 包。建议使用 `CUDA 12.4`。
 + 推理速度测试同样采用了上述显存优化方案，不采用显存优化的情况下，推理速度提升约10%。 只有`diffusers`版本模型支持量化。
 + 模型仅支持英语输入，其他语言可以通过大模型润色时翻译为英语。
-+ 模型微调所占用的显存是在 `8 * H100` 环境下进行测试，程序已经自动使用`Zero 2` 优化。表格中若有标注具体GPU数量则必须使用大于等于该数量的GPU进行微调。
 
 ## 友情链接
 

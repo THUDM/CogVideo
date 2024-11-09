@@ -22,7 +22,8 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Project Updates
 
-- 🔥🔥 News: ```2024/11/08```: We have released the CogVideoX1.5 model. CogVideoX1.5 is an upgraded version of the open-source model CogVideoX.
+- 🔥🔥 **News**: ```2024/11/14```: We released the `CogVideoX1.5` model in the diffusers version. Only minor parameter adjustments are needed to continue using previous code.
+- 🔥 News: ```2024/11/08```: We have released the CogVideoX1.5 model. CogVideoX1.5 is an upgraded version of the open-source model CogVideoX.
 The CogVideoX1.5-5B series supports 10-second videos with higher resolution, and CogVideoX1.5-5B-I2V supports video generation at any resolution. 
 The SAT code has already been updated, while the diffusers version is still under adaptation. Download the SAT version code [here](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT).
 - 🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single
@@ -279,15 +280,12 @@ pipe.vae.enable_tiling()
   used to quantize the text encoder, transformer, and VAE modules to reduce the memory requirements of CogVideoX. This
   allows the model to run on free T4 Colabs or GPUs with smaller memory! Also, note that TorchAO quantization is fully
   compatible with `torch.compile`, which can significantly improve inference speed. FP8 precision must be used on
-  devices with NVIDIA H100 and above, requiring source installation of `torch`, `torchao`, `diffusers`, and `accelerate`
-  Python packages. CUDA 12.4 is recommended.
+  devices with NVIDIA H100 and above, requiring source installation of `torch`, `torchao` Python packages. CUDA 12.4 is recommended.
 + The inference speed tests also used the above memory optimization scheme. Without memory optimization, inference speed
   increases by about 10%. Only the `diffusers` version of the model supports quantization.
 + The model only supports English input; other languages can be translated into English for use via large model
   refinement.
-+ The memory usage of model fine-tuning is tested in an `8 * H100` environment, and the program automatically
-  uses `Zero 2` optimization. If a specific number of GPUs is marked in the table, that number or more GPUs must be used
-  for fine-tuning.
+
 
 ## Friendly Links
 
