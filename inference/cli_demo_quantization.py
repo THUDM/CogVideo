@@ -3,7 +3,7 @@ This script demonstrates how to generate a video from a text prompt using CogVid
 
 Note:
 
-Must install the `torchao`，`torch`,`diffusers`,`accelerate` library FROM SOURCE to use the quantization feature.
+Must install the `torchao`，`torch` library FROM SOURCE to use the quantization feature.
 Only NVIDIA GPUs like H100 or higher are supported om FP-8 quantization.
 
 ALL quantization schemes must use with NVIDIA GPUs.
@@ -51,6 +51,9 @@ def generate_video(
     num_videos_per_prompt: int = 1,
     quantization_scheme: str = "fp8",
     dtype: torch.dtype = torch.bfloat16,
+    num_frames: int = 81,
+    fps: int = 8,
+    seed: int = 42,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -65,7 +68,6 @@ def generate_video(
     - quantization_scheme (str): The quantization scheme to use ('int8', 'fp8').
     - dtype (torch.dtype): The data type for computation (default is torch.bfloat16).
     """
-
     text_encoder = T5EncoderModel.from_pretrained(model_path, subfolder="text_encoder", torch_dtype=dtype)
     text_encoder = quantize_model(part=text_encoder, quantization_scheme=quantization_scheme)
     transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer", torch_dtype=dtype)
@@ -80,54 +82,38 @@ def generate_video(
         torch_dtype=dtype,
     )
     pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
-
-    # Using with compile will run faster. First time infer will cost ~30min to compile.
-    # pipe.transformer.to(memory_format=torch.channels_last)
-
-    # for FP8 should remove pipe.enable_model_cpu_offload()
     pipe.enable_model_cpu_offload()
-
-    # This is not for FP8 and INT8 and should remove this line
-    # pipe.enable_sequential_cpu_offload()
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
+
     video = pipe(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,
         num_inference_steps=num_inference_steps,
-        num_frames=49,
+        num_frames=num_frames,
         use_dynamic_cfg=True,
         guidance_scale=guidance_scale,
-        generator=torch.Generator(device="cuda").manual_seed(42),
+        generator=torch.Generator(device="cuda").manual_seed(seed),
     ).frames[0]
 
-    export_to_video(video, output_path, fps=8)
+    export_to_video(video, output_path, fps=fps)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate a video from a text prompt using CogVideoX")
     parser.add_argument("--prompt", type=str, required=True, help="The description of the video to be generated")
+    parser.add_argument("--model_path", type=str, default="THUDM/CogVideoX-5b", help="Path of the pre-trained model")
+    parser.add_argument("--output_path", type=str, default="./output.mp4", help="Path to save generated video")
+    parser.add_argument("--num_inference_steps", type=int, default=50, help="Inference steps")
+    parser.add_argument("--guidance_scale", type=float, default=6.0, help="Classifier-free guidance scale")
+    parser.add_argument("--num_videos_per_prompt", type=int, default=1, help="Videos to generate per prompt")
+    parser.add_argument("--dtype", type=str, default="bfloat16", help="Data type (e.g., 'float16', 'bfloat16')")
     parser.add_argument(
-        "--model_path", type=str, default="THUDM/CogVideoX-5b", help="The path of the pre-trained model to be used"
+        "--quantization_scheme", type=str, default="fp8", choices=["int8", "fp8"], help="Quantization scheme"
     )
-    parser.add_argument(
-        "--output_path", type=str, default="./output.mp4", help="The path where the generated video will be saved"
-    )
-    parser.add_argument(
-        "--num_inference_steps", type=int, default=50, help="Number of steps for the inference process"
-    )
-    parser.add_argument("--guidance_scale", type=float, default=6.0, help="The scale for classifier-free guidance")
-    parser.add_argument("--num_videos_per_prompt", type=int, default=1, help="Number of videos to generate per prompt")
-    parser.add_argument(
-        "--dtype", type=str, default="bfloat16", help="The data type for computation (e.g., 'float16', 'bfloat16')"
-    )
-    parser.add_argument(
-        "--quantization_scheme",
-        type=str,
-        default="bf16",
-        choices=["int8", "fp8"],
-        help="The quantization scheme to use (int8, fp8)",
-    )
+    parser.add_argument("--num_frames", type=int, default=81, help="Number of frames in the video")
+    parser.add_argument("--fps", type=int, default=16, help="Frames per second for output video")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
 
     args = parser.parse_args()
     dtype = torch.float16 if args.dtype == "float16" else torch.bfloat16
@@ -140,4 +126,7 @@ if __name__ == "__main__":
         num_videos_per_prompt=args.num_videos_per_prompt,
         quantization_scheme=args.quantization_scheme,
         dtype=dtype,
+        num_frames=args.num_frames,
+        fps=args.fps,
+        seed=args.seed,
     )
