@@ -281,6 +281,7 @@ pipe.vae.enable_tiling()
 + [CogVideoX-Interpolation](https://github.com/feizc/CogvideX-Interpolation): 基于 CogVideoX 结构修改的管道，旨在为关键帧插值生成提供更大的灵活性。
 + [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth 工作室是一款扩散引擎。重构了架构，包括文本编码器、UNet、VAE
   等，在保持与开源社区模型兼容性的同时，提升了计算性能。该框架已经适配 CogVideoX。
++ [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): 一个包含 CogvideoX 模型的简单 Controlnet 模块的代码。
 
 ## 完整项目代码结构
 

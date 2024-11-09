@@ -320,6 +320,7 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
 + [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth Studio is a diffusion engine. It has
   restructured the architecture, including text encoders, UNet, VAE, etc., enhancing computational performance while
   maintaining compatibility with open-source community models. The framework has been adapted for CogVideoX.
++ [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): A simple ControlNet module code that includes the CogVideoX model.
 
 ## Project Structure
 
