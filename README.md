@@ -44,11 +44,11 @@ The SAT code has already been updated, while the diffusers version is still unde
   model [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption), used in the training process of
   CogVideoX to convert video data into text descriptions, has been open-sourced. Welcome to download and use it.
 - 🔥 ```2024/8/27```: We have open-sourced a larger model in the CogVideoX series, **CogVideoX-5B**. We have
-  significantly optimized the model's inference performance, greatly lowering the inference threshold. You can run *
-  *CogVideoX-2B** on older GPUs like `GTX 1080TI`, and **CogVideoX-5B** on desktop GPUs like `RTX 3060`. Please strictly
+  significantly optimized the model's inference performance, greatly lowering the inference threshold. 
+  You can run **CogVideoX-2B** on older GPUs like `GTX 1080TI`, and **CogVideoX-5B** on desktop GPUs like `RTX 3060`. Please strictly
   follow the [requirements](requirements.txt) to update and install dependencies, and refer
-  to [cli_demo](inference/cli_demo.py) for inference code. Additionally, the open-source license for the **CogVideoX-2B
-  ** model has been changed to the **Apache 2.0 License**.
+  to [cli_demo](inference/cli_demo.py) for inference code. Additionally, the open-source license for 
+  the **CogVideoX-2B** model has been changed to the **Apache 2.0 License**.
 - 🔥 ```2024/8/6```: We have open-sourced **3D Causal VAE**, used for **CogVideoX-2B**, which can reconstruct videos with
   almost no loss.
 - 🔥 ```2024/8/6```: We have open-sourced the first model of the CogVideoX series video generation models, **CogVideoX-2B
