@@ -22,7 +22,7 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2024/11/14```: 我们发布 `CogVideoX1.5` 模型的diffusers版本，仅需调整部分参数仅可沿用之前的代码。
+- 🔥🔥 **News**: ```2024/11/15```: 我们发布 `CogVideoX1.5` 模型的diffusers版本，仅需调整部分参数仅可沿用之前的代码。
 - 🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。 
 CogVideoX1.5-5B 系列模型支持 **10秒** 长度的视频和更高的分辨率，其中 `CogVideoX1.5-5B-I2V` 支持 **任意分辨率** 的视频生成，SAT代码已经更新。`diffusers`版本还在适配中。SAT版本代码前往 [这里](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT) 下载。
 - 🔥**News**: ```2024/10/13```: 成本更低，单卡4090可微调 `CogVideoX-5B`
@@ -280,6 +280,8 @@ pipe.vae.enable_tiling()
 + [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth 工作室是一款扩散引擎。重构了架构，包括文本编码器、UNet、VAE
   等，在保持与开源社区模型兼容性的同时，提升了计算性能。该框架已经适配 CogVideoX。
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): 一个包含 CogvideoX 模型的简单 Controlnet 模块的代码。
++ [VideoTuna](https://github.com/VideoVerses/VideoTuna)：VideoTuna 是首个集成多种 AI 视频生成模型的仓库，支持文本转视频、图像转视频、文本转图像生成。
+
 
 ## 完整项目代码结构
 

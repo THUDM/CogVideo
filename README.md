@@ -22,7 +22,7 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Project Updates
 
-- 🔥🔥 **News**: ```2024/11/14```: We released the `CogVideoX1.5` model in the diffusers version. Only minor parameter adjustments are needed to continue using previous code.
+- 🔥🔥 **News**: ```2024/11/15```: We released the `CogVideoX1.5` model in the diffusers version. Only minor parameter adjustments are needed to continue using previous code.
 - 🔥 News: ```2024/11/08```: We have released the CogVideoX1.5 model. CogVideoX1.5 is an upgraded version of the open-source model CogVideoX.
 The CogVideoX1.5-5B series supports 10-second videos with higher resolution, and CogVideoX1.5-5B-I2V supports video generation at any resolution. 
 The SAT code has already been updated, while the diffusers version is still under adaptation. Download the SAT version code [here](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT).
@@ -319,6 +319,7 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   restructured the architecture, including text encoders, UNet, VAE, etc., enhancing computational performance while
   maintaining compatibility with open-source community models. The framework has been adapted for CogVideoX.
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): A simple ControlNet module code that includes the CogVideoX model.
++ [VideoTuna](https://github.com/VideoVerses/VideoTuna): VideoTuna is the first repo that integrates multiple AI video generation models for text-to-video, image-to-video, text-to-image generation.
 
 ## Project Structure
 

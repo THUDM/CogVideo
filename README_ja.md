@@ -22,7 +22,7 @@
 
 ## 更新とニュース
 
-- 🔥🔥 **ニュース**: ```2024/11/14```: `CogVideoX1.5`モデルのdiffusersバージョンをリリースしました。わずかなパラメータ調整で以前のコードをそのまま利用可能です。
+- 🔥🔥 **ニュース**: ```2024/11/15```: `CogVideoX1.5`モデルのdiffusersバージョンをリリースしました。わずかなパラメータ調整で以前のコードをそのまま利用可能です。
 - 🔥 **ニュース**: ```2024/11/08```: `CogVideoX1.5` モデルをリリースしました。CogVideoX1.5 は CogVideoX オープンソースモデルのアップグレードバージョンです。
 CogVideoX1.5-5B シリーズモデルは、10秒 長の動画とより高い解像度をサポートしており、`CogVideoX1.5-5B-I2V` は任意の解像度での動画生成に対応しています。
 SAT コードはすでに更新されており、`diffusers` バージョンは現在適応中です。
@@ -300,6 +300,7 @@ pipe.vae.enable_tiling()
 + [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio): DiffSynth
   Studioは、拡散エンジンです。テキストエンコーダー、UNet、VAEなどを含むアーキテクチャを再構築し、オープンソースコミュニティモデルとの互換性を維持しつつ、計算性能を向上させました。このフレームワークはCogVideoXに適応しています。
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): CogVideoXモデルを含むシンプルなControlNetモジュールのコード。
++ [VideoTuna](https://github.com/VideoVerses/VideoTuna): VideoTuna は、テキストからビデオ、画像からビデオ、テキストから画像生成のための複数のAIビデオ生成モデルを統合した最初のリポジトリです。
 
 ## プロジェクト構造
 
