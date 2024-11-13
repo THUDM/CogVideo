@@ -189,7 +189,7 @@ models we currently offer, along with their foundational information.
   <tr>
     <td style="text-align: center;">Video Resolution</td>
     <td colspan="1" style="text-align: center;">1360 * 768</td>
-    <td colspan="1" style="text-align: center;">256 <= W <=1360<br> 256 <= H <=768<br>  W,H % 16 == 0</td>
+    <td colspan="1" style="text-align: center;"> Min(W, H) = 768 <br> 768 ≤ Max(W, H) ≤ 1360 <br> Max(W, H) % 16 = 0 </td>
     <td colspan="3" style="text-align: center;">720 * 480</td>
   </tr>
   <tr>
