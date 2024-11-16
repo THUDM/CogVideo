@@ -103,16 +103,13 @@ def generate_video(
     # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
     # and enable to("cuda")
 
-    pipe.to("cuda")
-
-    # pipe.enable_sequential_cpu_offload()
-
+    # pipe.to("cuda")
+    pipe.enable_sequential_cpu_offload()
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
 
     # 4. Generate the video frames based on the prompt.
     # `num_frames` is the Number of frames to generate.
-    # This is the default value for 6 seconds video and 8 fps and will plus 1 frame for the first frame and 49 frames.
     if generate_type == "i2v":
         video_generate = pipe(
             height=height,

@@ -194,7 +194,7 @@ models we currently offer, along with their foundational information.
   </tr>
   <tr>
     <td style="text-align: center;">Inference Precision</td>
-    <td colspan="2" style="text-align: center;"><b>BF16</b></td>
+    <td colspan="2" style="text-align: center;"><b>BF16 (Recommended)</b>, FP16, FP32, FP8*, INT8, Not supported: INT4</td>
     <td style="text-align: center;"><b>FP16*(Recommended)</b>, BF16, FP32, FP8*, INT8, Not supported: INT4</td>
     <td colspan="2" style="text-align: center;"><b>BF16 (Recommended)</b>, FP16, FP32, FP8*, INT8, Not supported: INT4</td>
   </tr>

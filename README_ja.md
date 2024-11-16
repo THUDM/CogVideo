@@ -186,7 +186,7 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
   </tr>
   <tr>
     <td style="text-align: center;">推論精度</td>
-    <td colspan="2" style="text-align: center;"><b>BF16</b></td>
+    <td colspan="2" style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32，FP8*，INT8，INT4非対応</td>
     <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32，FP8*，INT8，INT4非対応</td>
     <td colspan="2" style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32，FP8*，INT8，INT4非対応</td>
   </tr>
