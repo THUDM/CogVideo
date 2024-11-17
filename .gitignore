@@ -8,3 +8,4 @@ logs/
 .idea
 output*
 test*
+venv
