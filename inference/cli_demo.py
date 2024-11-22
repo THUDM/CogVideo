@@ -11,7 +11,7 @@ Running the Script:
 To run the script, use the following command with appropriate arguments:
 
 ```bash
-$ python cli_demo.py --prompt "A girl riding a bike." --model_path THUDM/CogVideoX1.5-5b --generate_type "t2v"
+$ python3 cli_demo.py --prompt "A girl riding a bike." --model_path THUDM/CogVideoX1.5-5b --generate_type "t2v"
 ```
 
 Additional options are available to specify the model path, guidance scale, number of inference steps, video generation type, and output paths.
