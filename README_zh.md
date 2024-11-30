@@ -281,6 +281,7 @@ pipe.vae.enable_tiling()
   等，在保持与开源社区模型兼容性的同时，提升了计算性能。该框架已经适配 CogVideoX。
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): 一个包含 CogvideoX 模型的简单 Controlnet 模块的代码。
 + [VideoTuna](https://github.com/VideoVerses/VideoTuna)：VideoTuna 是首个集成多种 AI 视频生成模型的仓库，支持文本转视频、图像转视频、文本转图像生成。
++ [ConsisID](https://github.com/PKU-YuanGroup/ConsisID): 一种身份保持的文本到视频生成模型，基于 CogVideoX-5B，通过频率分解在生成的视频中保持面部一致性。
 
 
 ## 完整项目代码结构

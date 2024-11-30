@@ -320,6 +320,7 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
   maintaining compatibility with open-source community models. The framework has been adapted for CogVideoX.
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): A simple ControlNet module code that includes the CogVideoX model.
 + [VideoTuna](https://github.com/VideoVerses/VideoTuna): VideoTuna is the first repo that integrates multiple AI video generation models for text-to-video, image-to-video, text-to-image generation.
++ [ConsisID](https://github.com/PKU-YuanGroup/ConsisID): An identity-preserving text-to-video generation model, bases on CogVideoX-5B, which keep the face consistent in the generated video by frequency decomposition.
 
 ## Project Structure
 
