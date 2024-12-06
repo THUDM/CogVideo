@@ -1283,7 +1283,7 @@ def main(args):
 
         image_noise_sigma = torch.normal(mean=-3.0, std=0.5, size=(1,), device=image.device)
         image_noise_sigma = torch.exp(image_noise_sigma).to(dtype=image.dtype)
-        noisy_image = torch.randn_like(image) * image_noise_sigma[:, None, None, None, None]
+        noisy_image = image + torch.randn_like(image) * image_noise_sigma[:, None, None, None, None]
         image_latent_dist = vae.encode(noisy_image).latent_dist
 
         return latent_dist, image_latent_dist
