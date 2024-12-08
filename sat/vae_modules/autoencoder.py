@@ -578,7 +578,7 @@ class VideoAutoencoderInferenceWrapper(VideoAutoencodingEngine):
         if self.cp_size <= 1:
             use_cp = False
         if self.cp_size > 0 and use_cp and not input_cp:
-            if not is_context_parallel_initialized:
+            if not is_context_parallel_initialized():
                 initialize_context_parallel(self.cp_size)
 
             global_src_rank = get_context_parallel_group_rank() * self.cp_size
@@ -609,7 +609,7 @@ class VideoAutoencoderInferenceWrapper(VideoAutoencodingEngine):
         if self.cp_size <= 1:
             use_cp = False
         if self.cp_size > 0 and use_cp and not input_cp:
-            if not is_context_parallel_initialized:
+            if not is_context_parallel_initialized():
                 initialize_context_parallel(self.cp_size)
 
             global_src_rank = get_context_parallel_group_rank() * self.cp_size
