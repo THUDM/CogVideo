@@ -1375,7 +1375,7 @@ def main(args):
                         num_frames=num_frames,
                         vae_scale_factor_spatial=vae_scale_factor_spatial,
                         patch_size=model_config.patch_size,
-                        patch_size_t=model_config.patch_size_t,
+                        patch_size_t=model_config.patch_size_t if model_config.patch_size_t is not None else 1,
                         attention_head_dim=model_config.attention_head_dim,
                         device=accelerator.device,
                     )
