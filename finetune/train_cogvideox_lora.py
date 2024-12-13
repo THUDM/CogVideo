@@ -948,6 +948,10 @@ def main(args):
 
     logging_dir = Path(args.output_dir, args.logging_dir)
 
+    expected_midxed_precision = "bf16" if "5b" in args.pretrained_model_name_or_path.lower() else "fp16"
+    if args.mixed_precision != expected_midxed_precision:
+        raise ValueError(f"Mixed precision {args.mixed_precision} does not match the model precision, should be {expected_midxed_precision}")
+
     accelerator_project_config = ProjectConfiguration(project_dir=args.output_dir, logging_dir=logging_dir)
     kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(
@@ -957,6 +961,28 @@ def main(args):
         project_config=accelerator_project_config,
         kwargs_handlers=[kwargs],
     )
+
+    if accelerator.state.deepspeed_plugin:
+        # Set deepspeed config according to args
+        config = {
+            'optimizer': {
+                'type': args.optimizer,
+                'params': {
+                    'lr': args.learning_rate,
+                    'betas': [args.adam_beta1, args.adam_beta2]
+                },
+                'torch_adam': True
+            },
+            'bf16': {
+                'enabled': True if args.mixed_precision == "bf16" else False
+            },
+            'fp16': {
+                'enabled': True if args.mixed_precision == "fp16" else False
+            },
+            'gradient_accumulation_steps': args.gradient_accumulation_steps,
+            'train_batch_size': args.train_batch_size
+        }
+        accelerator.state.deepspeed_plugin.deepspeed_config.update(config)
 
     # Disable AMP for MPS.
     if torch.backends.mps.is_available():
@@ -1045,7 +1071,7 @@ def main(args):
             "bf16" in accelerator.state.deepspeed_plugin.deepspeed_config
             and accelerator.state.deepspeed_plugin.deepspeed_config["bf16"]["enabled"]
         ):
-            weight_dtype = torch.float16
+            weight_dtype = torch.bfloat16
     else:
         if accelerator.mixed_precision == "fp16":
             weight_dtype = torch.float16
@@ -1158,11 +1184,11 @@ def main(args):
 
     use_deepspeed_optimizer = (
         accelerator.state.deepspeed_plugin is not None
-        and accelerator.state.deepspeed_plugin.deepspeed_config.get("optimizer", "none").lower() == "none"
+        and "optimizer" in accelerator.state.deepspeed_plugin.deepspeed_config
     )
     use_deepspeed_scheduler = (
         accelerator.state.deepspeed_plugin is not None
-        and accelerator.state.deepspeed_plugin.deepspeed_config.get("scheduler", "none").lower() == "none"
+        and "scheduler" in accelerator.state.deepspeed_plugin.deepspeed_config
     )
 
     optimizer = get_optimizer(args, params_to_optimize, use_deepspeed=use_deepspeed_optimizer)
@@ -1349,7 +1375,7 @@ def main(args):
                         num_frames=num_frames,
                         vae_scale_factor_spatial=vae_scale_factor_spatial,
                         patch_size=model_config.patch_size,
-                        patch_size_t=model_config.patch_size_t,
+                        patch_size_t=model_config.patch_size_t if model_config.patch_size_t is not None else 1,
                         attention_head_dim=model_config.attention_head_dim,
                         device=accelerator.device,
                     )
