@@ -17,6 +17,7 @@ $ python cli_demo.py --prompt "A girl riding a bike." --model_path THUDM/CogVide
 Additional options are available to specify the model path, guidance scale, number of inference steps, video generation type, and output paths.
 """
 
+import warnings
 import argparse
 from typing import Literal
 
@@ -76,6 +77,11 @@ def generate_video(
 
     image = None
     video = None
+
+    if (width != 1360 or height != 768) and "cogvideox1.5-5b-i2v" in model_path.lower():
+        warnings.warn(f"The width({width}) and height({height}) are not recommended for CogVideoX1.5-5B-I2V. The best resolution for CogVideoX1.5-5B-I2V is 1360x768.")
+    elif (width != 720 or height != 480) and "cogvideox-5b-i2v" in model_path.lower():
+        warnings.warn(f"The width({width}) and height({height}) are not recommended for CogVideo-5B-I2V. The best resolution for CogVideo-5B-I2V is 720x480.")
 
     if generate_type == "i2v":
         pipe = CogVideoXImageToVideoPipeline.from_pretrained(model_path, torch_dtype=dtype)
