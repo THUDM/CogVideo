@@ -62,15 +62,21 @@ SAT バージョンのコードは [こちら](https://huggingface.co/THUDM/CogV
 特定のセクションにジャンプ：
 
 - [クイックスタート](#クイックスタート)
-    - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B ギャラリー](#CogVideoX-2B-ギャラリー)
+  - [プロンプトの最適化](#プロンプトの最適化)
+  - [SAT](#sat)
+  - [Diffusers](#diffusers)
+- [Gallery](#gallery)
+  - [CogVideoX-5B](#cogvideox-5b)
+  - [CogVideoX-2B](#cogvideox-2b)
 - [モデル紹介](#モデル紹介)
+- [友好的リンク](#友好的リンク)
 - [プロジェクト構造](#プロジェクト構造)
-    - [推論](#推論)
-    - [sat](#sat)
-    - [ツール](#ツール)=
-- [CogVideo(ICLR'23)モデル紹介](#CogVideoICLR23)
+  - [Colabでのクイックスタート](#colabでのクイックスタート)
+  - [Inference](#inference)
+  - [finetune](#finetune)
+  - [sat](#sat-1)
+  - [ツール](#ツール)
+- [CogVideo(ICLR'23)](#cogvideoiclr23)
 - [引用](#引用)
 - [ライセンス契約](#ライセンス契約)
 
@@ -302,6 +308,7 @@ pipe.vae.enable_tiling()
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): CogVideoXモデルを含むシンプルなControlNetモジュールのコード。
 + [VideoTuna](https://github.com/VideoVerses/VideoTuna): VideoTuna は、テキストからビデオ、画像からビデオ、テキストから画像生成のための複数のAIビデオ生成モデルを統合した最初のリポジトリです。
 + [ConsisID](https://github.com/PKU-YuanGroup/ConsisID): 一貫性のある顔を保持するために、周波数分解を使用するCogVideoX-5Bに基づいたアイデンティティ保持型テキストから動画生成モデル。
++ [ステップバイステップチュートリアル](https://www.youtube.com/watch?v=5UCkMzP2VLE&ab_channel=SECourses): WindowsおよびクラウドでのCogVideoX1.5-5B-I2Vモデルのインストールと最適化に関するステップバイステップガイド。[FurkanGozukara](https://github.com/FurkanGozukara)氏の尽力とサポートに感謝いたします！
 
 ## プロジェクト構造
 

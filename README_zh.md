@@ -51,15 +51,21 @@ CogVideoX1.5-5B 系列模型支持 **10秒** 长度的视频和更高的分辨�
 跳转到指定部分：
 
 - [快速开始](#快速开始)
-    - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B 视频作品](#cogvideox-2b-视频作品)
-- [CogVideoX模型介绍](#模型介绍)
+  - [提示词优化](#提示词优化)
+  - [SAT](#sat)
+  - [Diffusers](#diffusers)
+- [视频作品](#视频作品)
+  - [CogVideoX-5B](#cogvideox-5b)
+  - [CogVideoX-2B](#cogvideox-2b)
+- [模型介绍](#模型介绍)
+- [友情链接](#友情链接)
 - [完整项目代码结构](#完整项目代码结构)
-    - [Inference](#inference)
-    - [SAT](#sat)
-    - [Tools](#tools)
-- [CogVideo(ICLR'23)模型介绍](#cogvideoiclr23)
+  - [Colab 快速使用](#colab-快速使用)
+  - [inference](#inference)
+  - [finetune](#finetune)
+  - [sat](#sat-1)
+  - [tools](#tools)
+- [CogVideo(ICLR'23)](#cogvideoiclr23)
 - [引用](#引用)
 - [模型协议](#模型协议)
 
@@ -282,6 +288,7 @@ pipe.vae.enable_tiling()
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): 一个包含 CogvideoX 模型的简单 Controlnet 模块的代码。
 + [VideoTuna](https://github.com/VideoVerses/VideoTuna)：VideoTuna 是首个集成多种 AI 视频生成模型的仓库，支持文本转视频、图像转视频、文本转图像生成。
 + [ConsisID](https://github.com/PKU-YuanGroup/ConsisID): 一种身份保持的文本到视频生成模型，基于 CogVideoX-5B，通过频率分解在生成的视频中保持面部一致性。
++ [教程](https://www.youtube.com/watch?v=5UCkMzP2VLE&ab_channel=SECourses): 一个关于在Windows和云环境中安装和优化CogVideoX1.5-5B-I2V模型的分步指南。特别感谢[FurkanGozukara](https://github.com/FurkanGozukara)的努力和支持！
 
 
 ## 完整项目代码结构

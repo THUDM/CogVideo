@@ -61,18 +61,24 @@ The SAT code has already been updated, while the diffusers version is still unde
 
 Jump to a specific section:
 
-- [Quick Start](#Quick-Start)
-    - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B Video Works](#cogvideox-2b-gallery)
-- [Introduction to the CogVideoX Model](#Model-Introduction)
-- [Full Project Structure](#project-structure)
-    - [Inference](#inference)
-    - [SAT](#sat)
-    - [Tools](#tools)
-- [Introduction to CogVideo(ICLR'23) Model](#cogvideoiclr23)
-- [Citations](#Citation)
-- [Model License](#Model-License)
+- [Quick Start](#quick-start)
+  - [Prompt Optimization](#prompt-optimization)
+  - [SAT](#sat)
+  - [Diffusers](#diffusers)
+- [Gallery](#gallery)
+  - [CogVideoX-5B](#cogvideox-5b)
+  - [CogVideoX-2B](#cogvideox-2b)
+- [Model Introduction](#model-introduction)
+- [Friendly Links](#friendly-links)
+- [Project Structure](#project-structure)
+  - [Quick Start with Colab](#quick-start-with-colab)
+  - [Inference](#inference)
+  - [finetune](#finetune)
+  - [sat](#sat-1)
+  - [Tools](#tools)
+- [CogVideo(ICLR'23)](#cogvideoiclr23)
+- [Citation](#citation)
+- [Model-License](#model-license)
 
 ## Quick Start
 
@@ -321,6 +327,7 @@ works have already been adapted for CogVideoX, and we invite everyone to use the
 + [CogVideoX-Controlnet](https://github.com/TheDenk/cogvideox-controlnet): A simple ControlNet module code that includes the CogVideoX model.
 + [VideoTuna](https://github.com/VideoVerses/VideoTuna): VideoTuna is the first repo that integrates multiple AI video generation models for text-to-video, image-to-video, text-to-image generation.
 + [ConsisID](https://github.com/PKU-YuanGroup/ConsisID): An identity-preserving text-to-video generation model, bases on CogVideoX-5B, which keep the face consistent in the generated video by frequency decomposition.
++ [A Step by Step Tutorial](https://www.youtube.com/watch?v=5UCkMzP2VLE&ab_channel=SECourses): A step-by-step guide on installing and optimizing the CogVideoX1.5-5B-I2V model in Windows and cloud environments. Special thanks to the [FurkanGozukara](https://github.com/FurkanGozukara) for his effort and support!
 
 ## Project Structure
 
