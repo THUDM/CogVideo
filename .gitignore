@@ -9,3 +9,16 @@ logs/
 output*
 test*
 venv
+**/.swp
+**/*.log
+**/*.debug
+**/.vscode
+
+**/*debug*
+**/.gitignore
+**/finetune/*-lora-*
+**/finetune/Disney-*
+**/wandb
+**/results
+**/*.mp4
+**/validation_set
