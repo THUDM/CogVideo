@@ -1,11 +1,14 @@
+import torch
+
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Callable
 from typing_extensions import override
 
-import torch
 from accelerate.logging import get_logger
 from torch.utils.data import Dataset
 from torchvision import transforms
+
+from finetune.constants import LOG_NAME, LOG_LEVEL
 
 from .utils import (
     load_prompts, load_videos,
@@ -19,18 +22,30 @@ import decord  # isort:skip
 
 decord.bridge.set_bridge("torch")
 
-logger = get_logger(__name__)
+logger = get_logger(LOG_NAME, LOG_LEVEL)
 
 
 class BaseT2VDataset(Dataset):
     """
+    Base dataset class for Text-to-Video (T2V) training.
 
+    This dataset loads prompts and videos for T2V training.
+
+    Args:
+        data_root (str): Root directory containing the dataset files
+        caption_column (str): Path to file containing text prompts/captions
+        video_column (str): Path to file containing video paths
+        device (torch.device): Device to load the data on
+        encode_video_fn (Callable[[torch.Tensor], torch.Tensor], optional): Function to encode videos
     """
+
     def __init__(
         self,
         data_root: str,
         caption_column: str,
         video_column: str,
+        device: torch.device = None,
+        encode_video_fn: Callable[[torch.Tensor], torch.Tensor] = None,
         *args,
         **kwargs
     ) -> None:
@@ -39,6 +54,8 @@ class BaseT2VDataset(Dataset):
         data_root = Path(data_root)
         self.prompts = load_prompts(data_root / caption_column)
         self.videos = load_videos(data_root / video_column)
+        self.device = device
+        self.encode_video_fn = encode_video_fn
 
         # Check if all video files exist
         if any(not path.is_file() for path in self.videos):
@@ -69,18 +86,36 @@ class BaseT2VDataset(Dataset):
             return index
 
         prompt = self.prompts[index]
+        video = self.videos[index]
 
-        # shape of frames: [F, C, H, W]
-        frames = self.preprocess(self.videos[index])
-        frames = self.video_transform(frames)
+        latent_dir = video.parent / "latent"
+        latent_dir.mkdir(parents=True, exist_ok=True)
+        encoded_video_path = latent_dir / (video.stem + ".pt")
+
+        if encoded_video_path.exists():
+            # shape of encoded_video: [C, F, H, W]
+            encoded_video = torch.load(encoded_video_path, weights_only=True)
+        else:
+            frames = self.preprocess(video)
+            frames = frames.to(self.device)
+            # current shape of frames: [F, C, H, W]
+            frames = self.video_transform(frames)
+            # Convert to [B, C, F, H, W]
+            frames = frames.unsqueeze(0)
+            frames = frames.permute(0, 2, 1, 3, 4).contiguous()
+            encoded_video = self.encode_video_fn(frames)
+            # [B, C, F, H, W] -> [C, F, H, W]
+            encoded_video = encoded_video[0].cpu()
+            torch.save(encoded_video, encoded_video_path)
+            logger.info(f"Saved encoded video to {encoded_video_path}", main_process_only=False)
 
         return {
             "prompt": prompt,
-            "video": frames,
+            "encoded_video": encoded_video,
             "video_metadata": {
-                "num_frames": frames.shape[0],
-                "height": frames.shape[2],
-                "width": frames.shape[3],
+                "num_frames": encoded_video.shape[1],
+                "height": encoded_video.shape[2],
+                "width": encoded_video.shape[3],
             },
         }
 
@@ -113,15 +148,24 @@ class BaseT2VDataset(Dataset):
                 - W is width
 
         Returns:
-            torch.Tensor: The transformed video tensor
+            torch.Tensor: The transformed video tensor with the same shape as the input
         """
         raise NotImplementedError("Subclass must implement this method")
 
 
 class T2VDatasetWithResize(BaseT2VDataset):
     """
+    A dataset class for text-to-video generation that resizes inputs to fixed dimensions.
 
+    This class preprocesses videos by resizing them to specified dimensions:
+    - Videos are resized to max_num_frames x height x width
+
+    Args:
+        max_num_frames (int): Maximum number of frames to extract from videos
+        height (int): Target height for resizing videos
+        width (int): Target width for resizing videos
     """
+
     def __init__(self, max_num_frames: int, height: int, width: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -147,18 +191,28 @@ class T2VDatasetWithResize(BaseT2VDataset):
 
 
 class T2VDatasetWithBuckets(BaseT2VDataset):
-    """
 
-    """
-    def __init__(self, video_resolution_buckets: List[Tuple[int, int, int]], *args, **kwargs) -> None:
+    def __init__(
+        self,
+        video_resolution_buckets: List[Tuple[int, int, int]],
+        vae_temporal_compression_ratio: int,
+        vae_height_compression_ratio: int,
+        vae_width_compression_ratio: int,
+        *args, **kwargs
+    ) -> None:
         """
-        Args:
-            resolution_buckets: List of tuples representing the resolution buckets.
-                Each tuple contains three integers: (max_num_frames, height, width).
+        
         """
         super().__init__(*args, **kwargs)
 
-        self.video_resolution_buckets = video_resolution_buckets
+        self.video_resolution_buckets = [
+            (
+                int(b[0] / vae_temporal_compression_ratio),
+                int(b[1] / vae_height_compression_ratio),
+                int(b[2] / vae_width_compression_ratio),
+            )
+            for b in video_resolution_buckets
+        ]
 
         self.__frame_transform = transforms.Compose(
             [
