@@ -44,7 +44,7 @@ from finetune.utils import (
 
     string_to_filename
 )
-from finetune.datasets import I2VDatasetWithResize, T2VDatasetWithResize, BucketSampler
+from finetune.datasets import I2VDatasetWithResize, T2VDatasetWithResize
 from finetune.datasets.utils import (
     load_prompts, load_images, load_videos,
     preprocess_image_with_resize, preprocess_video_with_resize
@@ -66,7 +66,12 @@ class Trainer:
 
     def __init__(self, args: Args) -> None:
         self.args  = args
-        self.state = State(weight_dtype=self.__get_training_dtype())
+        self.state = State(
+            weight_dtype=self.__get_training_dtype(),
+            train_frames=self.args.train_resolution[0],
+            train_height=self.args.train_resolution[1],
+            train_width=self.args.train_resolution[2]
+        )
 
         self.components = Components()
         self.accelerator: Accelerator = None
@@ -140,6 +145,8 @@ class Trainer:
             if self.args.enable_tiling:
                 self.components.vae.enable_tiling()
 
+        self.state.transformer_config = self.components.transformer.config
+
     def prepare_dataset(self) -> None:
         logger.info("Initializing dataset and dataloader")
 
@@ -147,19 +154,19 @@ class Trainer:
             self.dataset = I2VDatasetWithResize(
                 **(self.args.model_dump()),
                 device=self.accelerator.device,
-                encode_fn=self.encode_video,
-                max_num_frames=self.args.train_resolution[0],
-                height=self.args.train_resolution[1],
-                width=self.args.train_resolution[2]
+                encode_video_fn=self.encode_video,
+                max_num_frames=self.state.train_frames,
+                height=self.state.train_height,
+                width=self.state.train_width
             )
         elif self.args.model_type == "t2v":
             self.dataset = T2VDatasetWithResize(
                 **(self.args.model_dump()),
                 device=self.accelerator.device,
-                encode_fn=self.encode_video,
-                max_num_frames=self.args.train_resolution[0],
-                height=self.args.train_resolution[1],
-                width=self.args.train_resolution[2]
+                encode_video_fn=self.encode_video,
+                max_num_frames=self.state.train_frames,
+                height=self.state.train_height,
+                width=self.state.train_width
             )
         else:
             raise ValueError(f"Invalid model type: {self.args.model_type}")
@@ -474,7 +481,7 @@ class Trainer:
 
             if image is not None:
                 image = preprocess_image_with_resize(
-                    image, self.args.train_resolution[1], self.args.train_resolution[2]
+                    image, self.state.train_height, self.state.train_width
                 )
                 # Convert image tensor (C, H, W) to PIL images
                 image = image.to(torch.uint8)
@@ -483,7 +490,7 @@ class Trainer:
 
             if video is not None:
                 video = preprocess_video_with_resize(
-                    video, self.args.train_resolution[0], self.args.train_resolution[1], self.args.train_resolution[2]
+                    video, self.state.train_frames, self.state.train_height, self.state.train_width
                 )
                 # Convert video tensor (F, C, H, W) to list of PIL images
                 video = (video * 255).round().clamp(0, 255).to(torch.uint8)

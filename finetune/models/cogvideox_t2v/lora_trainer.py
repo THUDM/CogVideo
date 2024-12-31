@@ -2,6 +2,7 @@ import torch
 
 from typing_extensions import override
 from typing import Any, Dict, List, Tuple
+
 from PIL import Image
 
 from transformers import AutoTokenizer, T5EncoderModel
@@ -9,7 +10,7 @@ from transformers import AutoTokenizer, T5EncoderModel
 from diffusers.pipelines.cogvideo.pipeline_cogvideox import get_resize_crop_region_for_grid
 from diffusers.models.embeddings import get_3d_rotary_pos_embed
 from diffusers import (
-    CogVideoXImageToVideoPipeline,
+    CogVideoXPipeline,
     CogVideoXTransformer3DModel,
     AutoencoderKLCogVideoX,
     CogVideoXDPMScheduler,
@@ -21,14 +22,14 @@ from finetune.utils import unwrap_model
 from ..utils import register
 
 
-class CogVideoXI2VLoraTrainer(Trainer):
+class CogVideoXT2VLoraTrainer(Trainer):
 
     @override
-    def load_components(self) -> Dict[str, Any]:
+    def load_components(self) -> Components:
         components = Components()
         model_path = str(self.args.model_path)
 
-        components.pipeline_cls = CogVideoXImageToVideoPipeline
+        components.pipeline_cls = CogVideoXPipeline
 
         components.tokenizer = AutoTokenizer.from_pretrained(
             model_path, subfolder="tokenizer"
@@ -51,7 +52,7 @@ class CogVideoXI2VLoraTrainer(Trainer):
         )
 
         return components
-
+ 
     @override
     def encode_video(self, video: torch.Tensor) -> torch.Tensor:
         # shape of input video: [B, C, F, H, W]
@@ -60,45 +61,41 @@ class CogVideoXI2VLoraTrainer(Trainer):
         latent_dist = vae.encode(video).latent_dist
         latent = latent_dist.sample() * vae.config.scaling_factor
         return latent
-
+       
     @override
     def collate_fn(self, samples: List[Dict[str, Any]]) -> Dict[str, Any]:
         ret = {
             "encoded_videos": [],
-            "prompt_token_ids": [],
-            "images": []
+            "prompt_token_ids": []
         }
-        
+
         for sample in samples:
             encoded_video = sample["encoded_video"]
             prompt = sample["prompt"]
-            image = sample["image"]
 
             # tokenize prompt
             text_inputs = self.components.tokenizer(
                 prompt,
                 padding="max_length",
-                max_length=self.state.transformer_config.max_text_seq_length,
+                max_length=226,
                 truncation=True,
                 add_special_tokens=True,
                 return_tensors="pt",
             )
             text_input_ids = text_inputs.input_ids
+
             ret["encoded_videos"].append(encoded_video)
             ret["prompt_token_ids"].append(text_input_ids[0])
-            ret["images"].append(image)
-    
+        
         ret["encoded_videos"] = torch.stack(ret["encoded_videos"])
         ret["prompt_token_ids"] = torch.stack(ret["prompt_token_ids"])
-        ret["images"] = torch.stack(ret["images"])
 
         return ret
-    
+
     @override
     def compute_loss(self, batch) -> torch.Tensor:
         prompt_token_ids = batch["prompt_token_ids"]
         latent = batch["encoded_videos"]
-        images = batch["images"]
 
         batch_size, num_channels, num_frames, height, width = latent.shape
 
@@ -106,15 +103,7 @@ class CogVideoXI2VLoraTrainer(Trainer):
         prompt_embeds = self.components.text_encoder(prompt_token_ids.to(self.accelerator.device))[0]
         _, seq_len, _ = prompt_embeds.shape
         prompt_embeds = prompt_embeds.view(batch_size, seq_len, -1)
-
-        # Add frame dimension to images [B,C,H,W] -> [B,C,F,H,W]
-        images = images.unsqueeze(2)
-        # Add noise to images
-        image_noise_sigma = torch.normal(mean=-3.0, std=0.5, size=(1,), device=self.accelerator.device)
-        image_noise_sigma = torch.exp(image_noise_sigma).to(dtype=images.dtype)
-        noisy_images = images + torch.randn_like(images) * image_noise_sigma[:, None, None, None, None]
-        image_latent_dist = self.components.vae.encode(noisy_images).latent_dist
-        image_latents = image_latent_dist.sample() * self.components.vae.config.scaling_factor
+        assert prompt_embeds.requires_grad is False
 
         # Sample a random timestep for each sample
         timesteps = torch.randint(
@@ -123,22 +112,10 @@ class CogVideoXI2VLoraTrainer(Trainer):
         )
         timesteps = timesteps.long()
 
-        # from [B, C, F, H, W] to [B, F, C, H, W]
-        latent = latent.permute(0, 2, 1, 3, 4)
-        image_latents = image_latents.permute(0, 2, 1, 3, 4)
-        assert (latent.shape[0], *latent.shape[2:]) == (image_latents.shape[0], *image_latents.shape[2:])
-
-        # Padding image_latents to the same frame number as latent
-        padding_shape = (latent.shape[0], latent.shape[1] - 1, *latent.shape[2:])
-        latent_padding = image_latents.new_zeros(padding_shape)
-        image_latents = torch.cat([image_latents, latent_padding], dim=1)
-
         # Add noise to latent
+        latent = latent.permute(0, 2, 1, 3, 4)  # [B, F, C, H, W]
         noise = torch.randn_like(latent)
-        latent_noisy = self.components.scheduler.add_noise(latent, noise, timesteps)
-
-        # Concatenate latent and image_latents in the channel dimension
-        latent_img_noisy = torch.cat([latent_noisy, image_latents], dim=2)
+        latent_added_noise = self.components.scheduler.add_noise(latent, noise, timesteps)
 
         # Prepare rotary embeds
         vae_scale_factor_spatial = 2 ** (len(self.components.vae.config.block_out_channels) - 1)
@@ -157,18 +134,16 @@ class CogVideoXI2VLoraTrainer(Trainer):
         )
 
         # Predict noise
-        ofs_emb = None if self.state.transformer_config.ofs_embed_dim is None else latent.new_full((1,), fill_value=2.0)
         predicted_noise = self.components.transformer(
-            hidden_states=latent_img_noisy,
+            hidden_states=latent_added_noise,
             encoder_hidden_states=prompt_embeds,
             timestep=timesteps,
-            ofs=ofs_emb,
             image_rotary_emb=rotary_emb,
             return_dict=False,
         )[0]
 
         # Denoise
-        latent_pred = self.components.scheduler.get_velocity(predicted_noise, latent_noisy, timesteps)
+        latent_pred = self.components.scheduler.get_velocity(predicted_noise, latent_added_noise, timesteps)
 
         alphas_cumprod = self.components.scheduler.alphas_cumprod[timesteps]
         weights = 1 / (1 - alphas_cumprod)
@@ -202,7 +177,6 @@ class CogVideoXI2VLoraTrainer(Trainer):
             height=self.state.train_height,
             width=self.state.train_width,
             prompt=prompt,
-            image=image,
             generator=self.state.generator
         ).frames[0]
         return [("video", video_generate)]
@@ -237,4 +211,4 @@ class CogVideoXI2VLoraTrainer(Trainer):
         return freqs_cos, freqs_sin
 
 
-register("cogvideox-i2v", "lora", CogVideoXI2VLoraTrainer)
+register("cogvideox-t2v", "lora", CogVideoXT2VLoraTrainer)
