@@ -1,2 +1,2 @@
-LOG_NAME = "finetrainer"
+LOG_NAME = "trainer"
 LOG_LEVEL = "INFO"
