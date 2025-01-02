@@ -90,27 +90,37 @@ class SATVideoDiffusionEngine(nn.Module):
         self.no_cond_log = no_cond_log
         self.device = args.device
 
+    # put lora add here
     def disable_untrainable_params(self):
         total_trainable = 0
-        for n, p in self.named_parameters():
-            if p.requires_grad == False:
-                continue
-            flag = False
-            for prefix in self.not_trainable_prefixes:
-                if n.startswith(prefix) or prefix == "all":
-                    flag = True
-                    break
+        if self.lora_train:
+            for n, p in self.named_parameters():
+                if p.requires_grad == False:
+                    continue
+                if 'lora_layer' not in n:
+                    p.lr_scale = 0
+                else:
+                    total_trainable += p.numel()
+        else:
+            for n, p in self.named_parameters():
+                if p.requires_grad == False:
+                    continue
+                flag = False
+                for prefix in self.not_trainable_prefixes:
+                    if n.startswith(prefix) or prefix == "all":
+                        flag = True
+                        break
 
-            lora_prefix = ["matrix_A", "matrix_B"]
-            for prefix in lora_prefix:
-                if prefix in n:
-                    flag = False
-                    break
+                lora_prefix = ['matrix_A', 'matrix_B']
+                for prefix in lora_prefix:
+                    if prefix in n:
+                        flag = False
+                        break
 
-            if flag:
-                p.requires_grad_(False)
-            else:
-                total_trainable += p.numel()
+                if flag:
+                    p.requires_grad_(False)
+                else:
+                    total_trainable += p.numel()
 
         print_rank0("***** Total trainable parameters: " + str(total_trainable) + " *****")
 
