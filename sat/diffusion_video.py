@@ -10,7 +10,6 @@ import torch
 from torch import nn
 
 from sgm.modules import UNCONDITIONAL_CONFIG
-from sgm.modules.autoencoding.temporal_ae import VideoDecoder
 from sgm.modules.diffusionmodules.wrappers import OPENAIUNETWRAPPER
 from sgm.util import (
     default,
@@ -192,11 +191,7 @@ class SATVideoDiffusionEngine(nn.Module):
         for n in range(n_rounds):
             z_now = z[n * n_samples : (n + 1) * n_samples, :, 1:]
             latent_time = z_now.shape[2]  # check the time latent
-            temporal_compress_times = 4
-
             fake_cp_size = min(10, latent_time // 2)
-            start_frame = 0
-
             recons = []
             start_frame = 0
             for i in range(fake_cp_size):
