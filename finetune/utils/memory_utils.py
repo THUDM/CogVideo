@@ -51,6 +51,10 @@ def free_memory() -> None:
     # TODO(aryan): handle non-cuda devices
 
 
+def unload_model(model):
+    model.to("cpu")
+
+
 def make_contiguous(x: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
     if isinstance(x, torch.Tensor):
         return x.contiguous()
