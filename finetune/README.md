@@ -46,7 +46,7 @@ If you need to use a validation dataset during training, make sure to provide a 
 
 Before starting the training, please note the following resolution requirements:
 
-1. The number of frames must be a multiple of 8.
+1. The number of frames must be a multiple of 8 **plus 1** (i.e., 8N+1), such as 49, 81, etc.
 2. The recommended resolution for videos is:
    - CogVideoX: 480x720 (Height x Width)
    - CogVideoX1.5: 768x1360 (Height x Width)

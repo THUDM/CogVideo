@@ -46,7 +46,7 @@ pip install -e .
 
 在开始训练之前，请注意以下分辨率设置要求：
 
-1. 帧数必须是8的倍数
+1. 帧数必须是8的倍数 **+1** (即8N+1), 例如49, 81 ...
 2. 视频分辨率建议使用模型的默认大小：
    - CogVideoX: 480x720 (高x宽)
    - CogVideoX1.5: 768x1360 (高x宽)
@@ -79,8 +79,6 @@ bash accelerate_train_t2v.sh
 
 bash accelerate_train_i2v.sh
 ```
-
-
 
 ## 载入微调的模型
 
