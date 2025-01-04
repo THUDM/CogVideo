@@ -7,7 +7,7 @@ from pydantic import BaseModel, field_validator
 class State(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
 
-    train_frames: int
+    train_frames: int  # user-defined training frames, **containing one image padding frame**
     train_height: int
     train_width: int
 
