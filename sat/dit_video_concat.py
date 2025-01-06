@@ -31,6 +31,7 @@ class ImagePatchEmbeddingMixin(BaseMixin):
     def word_embedding_forward(self, input_ids, **kwargs):
         images = kwargs["images"]  # (b,t,c,h,w)
         emb = rearrange(images, "b t c h w -> b (t h w) c")
+        # emb = rearrange(images, "b c t h w -> b (t h w) c")
         emb = rearrange(
             emb,
             "b (t o h p w q) c -> b (t h w) (c o p q)",
@@ -810,7 +811,9 @@ class DiffusionTransformer(BaseModel):
             ),
             reinit=True,
         )
-
+        if "lora_config" in module_configs:
+            lora_config = module_configs["lora_config"]
+            self.add_mixin("lora", instantiate_from_config(lora_config, layer_num=self.num_layers), reinit=True)
         return
 
     def forward(self, x, timesteps=None, context=None, y=None, **kwargs):
