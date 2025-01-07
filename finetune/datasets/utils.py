@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import List, Tuple
 
@@ -29,6 +30,37 @@ def load_videos(video_path: Path) -> List[Path]:
 def load_images(image_path: Path) -> List[Path]:
     with open(image_path, "r", encoding="utf-8") as file:
         return [image_path.parent / line.strip() for line in file.readlines() if len(line.strip()) > 0]
+
+
+def load_images_from_videos(videos_path: List[Path]) -> List[Path]:
+    first_frames_dir = videos_path[0].parent.parent / "first_frames"
+    first_frames_dir.mkdir(exist_ok=True)
+
+    first_frame_paths = []
+    for video_path in videos_path:
+        frame_path = first_frames_dir / f"{video_path.stem}.png"
+        if frame_path.exists():
+            first_frame_paths.append(frame_path)
+            continue
+
+        # Open video
+        cap = cv2.VideoCapture(str(video_path))
+
+        # Read first frame
+        ret, frame = cap.read()
+        if not ret:
+            raise RuntimeError(f"Failed to read video: {video_path}")
+
+        # Save frame as PNG with same name as video
+        cv2.imwrite(str(frame_path), frame)
+        logging.info(f"Saved first frame to {frame_path}")
+
+        # Release video capture
+        cap.release()
+
+        first_frame_paths.append(frame_path)
+
+    return first_frame_paths
 
 
 ##########  preprocessors  ##########

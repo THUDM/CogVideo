@@ -13,6 +13,7 @@ from finetune.constants import LOG_LEVEL, LOG_NAME
 
 from .utils import (
     load_images,
+    load_images_from_videos,
     load_prompts,
     load_videos,
     preprocess_image_with_resize,
@@ -53,7 +54,7 @@ class BaseI2VDataset(Dataset):
         data_root: str,
         caption_column: str,
         video_column: str,
-        image_column: str,
+        image_column: str | None,
         device: torch.device,
         trainer: "Trainer" = None,
         *args,
@@ -64,7 +65,10 @@ class BaseI2VDataset(Dataset):
         data_root = Path(data_root)
         self.prompts = load_prompts(data_root / caption_column)
         self.videos = load_videos(data_root / video_column)
-        self.images = load_images(data_root / image_column)
+        if image_column is not None:
+            self.images = load_images(data_root / image_column)
+        else:
+            self.images = load_images_from_videos(self.videos)
         self.trainer = trainer
 
         self.device = device

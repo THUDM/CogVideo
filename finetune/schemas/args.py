@@ -98,7 +98,9 @@ class Args(BaseModel):
     def validate_image_column(cls, v: str | None, info: ValidationInfo) -> str | None:
         values = info.data
         if values.get("model_type") == "i2v" and not v:
-            raise ValueError("image_column must be specified when using i2v model")
+            logging.warning(
+                "No `image_column` specified for i2v model. Will automatically extract first frames from videos as conditioning images."
+            )
         return v
 
     @field_validator("validation_dir", "validation_prompts")
