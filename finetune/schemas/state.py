@@ -1,8 +1,8 @@
-import torch
-
 from pathlib import Path
-from typing import List, Dict, Any
-from pydantic import BaseModel, field_validator
+from typing import Any, Dict, List
+
+import torch
+from pydantic import BaseModel
 
 
 class State(BaseModel):

@@ -1,5 +1,5 @@
-from ..utils import register
 from ..cogvideox_i2v.lora_trainer import CogVideoXI2VLoraTrainer
+from ..utils import register
 
 
 class CogVideoX1dot5I2VLoraTrainer(CogVideoXI2VLoraTrainer):

@@ -1,10 +1,10 @@
-import torch
-import cv2
-
-from typing import List, Tuple
 from pathlib import Path
-from torchvision import transforms
+from typing import List, Tuple
+
+import cv2
+import torch
 from torchvision.transforms.functional import resize
+
 
 # Must import after torch because this can sometimes lead to a nasty segmentation fault, or stack smashing error
 # Very few bug reports but it happens. Look in decord Github issues for more relevant information.

@@ -1,8 +1,8 @@
-import random
 import logging
+import random
 
-from torch.utils.data import Sampler
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
+
 
 logger = logging.getLogger(__name__)
 

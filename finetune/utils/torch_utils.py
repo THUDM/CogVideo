@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union, List
+from typing import Dict, List, Optional, Union
 
 import torch
 from accelerate import Accelerator

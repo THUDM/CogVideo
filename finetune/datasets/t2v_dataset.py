@@ -1,18 +1,18 @@
 import hashlib
-import torch
-
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, TYPE_CHECKING
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
+import torch
+from accelerate.logging import get_logger
+from safetensors.torch import load_file, save_file
 from torch.utils.data import Dataset
 from torchvision import transforms
-from accelerate.logging import get_logger
-from safetensors.torch import save_file, load_file
+from typing_extensions import override
 
-from finetune.constants import LOG_NAME, LOG_LEVEL
+from finetune.constants import LOG_LEVEL, LOG_NAME
 
-from .utils import load_prompts, load_videos, preprocess_video_with_resize, preprocess_video_with_buckets
+from .utils import load_prompts, load_videos, preprocess_video_with_buckets, preprocess_video_with_resize
+
 
 if TYPE_CHECKING:
     from finetune.trainer import Trainer

@@ -1,22 +1,21 @@
-import torch
-
-from typing_extensions import override
 from typing import Any, Dict, List, Tuple
-from PIL import Image
 
-from transformers import AutoTokenizer, T5EncoderModel
-
-from diffusers.models.embeddings import get_3d_rotary_pos_embed
+import torch
 from diffusers import (
-    CogVideoXImageToVideoPipeline,
-    CogVideoXTransformer3DModel,
     AutoencoderKLCogVideoX,
     CogVideoXDPMScheduler,
+    CogVideoXImageToVideoPipeline,
+    CogVideoXTransformer3DModel,
 )
+from diffusers.models.embeddings import get_3d_rotary_pos_embed
+from PIL import Image
+from transformers import AutoTokenizer, T5EncoderModel
+from typing_extensions import override
 
-from finetune.trainer import Trainer
 from finetune.schemas import Components
+from finetune.trainer import Trainer
 from finetune.utils import unwrap_model
+
 from ..utils import register
 
 

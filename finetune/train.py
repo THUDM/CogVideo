@@ -1,10 +1,11 @@
 import sys
 from pathlib import Path
 
+
 sys.path.append(str(Path(__file__).parent.parent))
 
-from finetune.schemas import Args
 from finetune.models.utils import get_model_cls
+from finetune.schemas import Args
 
 
 def main():
