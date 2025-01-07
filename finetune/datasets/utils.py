@@ -126,7 +126,7 @@ def preprocess_video_with_resize(
     video_reader = decord.VideoReader(uri=video_path.as_posix(), width=width, height=height)
     video_num_frames = len(video_reader)
     if video_num_frames < max_num_frames:
-        raise ValueError(f"video's frames is less than {max_num_frames}.")
+        raise ValueError(f"video frame count in {video_path} is less than {max_num_frames}.")
 
     indices = list(range(0, video_num_frames, video_num_frames // max_num_frames))
     frames = video_reader.get_batch(indices)
