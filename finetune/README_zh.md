@@ -72,7 +72,7 @@ bash accelerate_train_t2v.sh
 ```bash
 # 修改 accelerate_train_i2v.sh 中的配置参数
 # 除了需要修改与T2V相同的参数外，还需要额外设置:
-# --image_column: 参考图像文件列表路径
+# --image_column: 参考图像文件列表路径(如果没有自己的图片，默认使用视频第一帧，移除这个参数)
 # 其他重要参数请参考启动脚本
 
 bash accelerate_train_i2v.sh

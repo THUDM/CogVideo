@@ -70,7 +70,7 @@ bash accelerate_train_t2v.sh
 ```bash
 # accelerate_train_i2v.sh の設定パラメータを変更します
 # T2Vと同様に変更が必要なパラメータに加えて、以下のパラメータも設定する必要があります：
-# --image_column: 参照画像リストファイルのパス
+# --image_column: 参照画像リストファイルのパス(オプション)
 # その他の重要なパラメータについては、起動スクリプトを参照してください
 
 bash accelerate_train_i2v.sh
