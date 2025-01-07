@@ -1,6 +1,6 @@
 # CogVideoX Diffusers ファインチューニングガイド
 
-[中国語で読む](./README_zh.md)
+[中文阅读](./README_zh.md)
 
 [Read in English](./README.md)
 
@@ -25,20 +25,16 @@ pip install -e .
 ├── prompts.txt
 ├── videos
 ├── videos.txt
-├── images # I2Vタスクの場合のみ
-└── images.txt # I2Vタスクの場合のみ
+├── images     # (オプション) I2Vの場合。提供されない場合、動画の最初のフレームが参照画像として使用されます
+└── images.txt # (オプション) I2Vの場合。提供されない場合、動画の最初のフレームが参照画像として使用されます
 ```
 
 各ファイルの役割は以下の通りです：
 - `prompts.txt`: プロンプトを格納
 - `videos/`: .mp4 動画ファイルを格納
 - `videos.txt`: `videos/` フォルダ内の動画ファイルリストを格納
-- `images/`: .png 形式の参照画像ファイル（I2Vタスクの場合のみ）
-- `images.txt`: 参照画像ファイルリスト（I2Vタスクの場合のみ）
-
-サンプルデータセット（T2V）として、[ディズニー スチームボート・ウィリー](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset)をダウンロードできます。
-
-> 動画の最初のフレームを画像として抽出するスクリプトは[こちら](./scripts/extract_images.py)で提供しています。I2Vタスクの場合、このスクリプトを使用して参照画像を生成できます。
+- `images/`: (オプション) .png 形式の参照画像ファイル
+- `images.txt`: (オプション) 参照画像ファイルリスト
 
 トレーニング中に検証データセットを使用する場合は、トレーニングデータセットと同じフォーマットで検証データセットを提供する必要があります。
 

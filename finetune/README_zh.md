@@ -25,20 +25,18 @@ pip install -e .
 ├── prompts.txt
 ├── videos
 ├── videos.txt
-├── images # 仅 I2V 需要
-└── images.txt # 仅 I2V 需要
+├── images     # (可选) 对于I2V，若不提供，则从视频中提取第一帧作为参考图像
+└── images.txt # (可选) 对于I2V，若不提供，则从视频中提取第一帧作为参考图像
 ```
 
 其中：
 - `prompts.txt`: 存放提示词
 - `videos/`: 存放.mp4视频文件
 - `videos.txt`: 存放 videos 目录中的视频文件列表
-- `images/`: 存放.png参考图像文件
-- `images.txt`: 存放参考图像文件列表
+- `images/`: (可选) 存放.png参考图像文件
+- `images.txt`: (可选) 存放参考图像文件列表
 
 你可以从这里下载示例数据集(T2V) [迪士尼汽船威利号](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset)
-
-> 我们在[这里](./scripts/extract_images.py)提供了提取视频第一帧为图片的脚本，对于I2V任务您可以使用它来生成参考图像。
 
 如果需要在训练过程中进行validation，则需要额外提供验证数据集，其中数据格式与训练集相同。
 

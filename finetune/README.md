@@ -1,6 +1,6 @@
 # CogVideoX Diffusers Fine-tuning Guide
 
-[Read this in Chinese](./README_zh.md)
+[中文阅读](./README_zh.md)
 
 [日本語で読む](./README_ja.md)
 
@@ -25,20 +25,18 @@ First, you need to prepare your dataset. Depending on your task type (T2V or I2V
 ├── prompts.txt
 ├── videos
 ├── videos.txt
-├── images # Only for I2V tasks
-└── images.txt # Only for I2V tasks
+├── images     # (Optional) For I2V, if not provided, first frame will be extracted from video as reference
+└── images.txt # (Optional) For I2V, if not provided, first frame will be extracted from video as reference
 ```
 
 Where:
 - `prompts.txt`: Contains the prompts
 - `videos/`: Contains the .mp4 video files
 - `videos.txt`: Contains the list of video files in the `videos/` directory
-- `images/`: Contains the .png reference image files (only for I2V tasks)
-- `images.txt`: Contains the list of reference image files (only for I2V tasks)
+- `images/`: (Optional) Contains the .png reference image files
+- `images.txt`: (Optional) Contains the list of reference image files
 
 You can download a sample dataset (T2V) [Disney Steamboat Willie](https://huggingface.co/datasets/Wild-Heart/Disney-VideoGeneration-Dataset).
-
-> We provide a script to extract the first frame of a video as an image [here](./scripts/extract_images.py). You can use this script to generate reference images for I2V tasks.
 
 If you need to use a validation dataset during training, make sure to provide a validation dataset with the same format as the training dataset.
 
