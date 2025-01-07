@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 from pydantic import BaseModel, field_validator
 
+
 class State(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
 

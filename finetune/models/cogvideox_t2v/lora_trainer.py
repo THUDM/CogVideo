@@ -31,25 +31,15 @@ class CogVideoXT2VLoraTrainer(Trainer):
 
         components.pipeline_cls = CogVideoXPipeline
 
-        components.tokenizer = AutoTokenizer.from_pretrained(
-            model_path, subfolder="tokenizer"
-        )
+        components.tokenizer = AutoTokenizer.from_pretrained(model_path, subfolder="tokenizer")
 
-        components.text_encoder = T5EncoderModel.from_pretrained(
-            model_path, subfolder="text_encoder"
-        )
+        components.text_encoder = T5EncoderModel.from_pretrained(model_path, subfolder="text_encoder")
 
-        components.transformer = CogVideoXTransformer3DModel.from_pretrained(
-            model_path, subfolder="transformer"
-        )
+        components.transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer")
 
-        components.vae = AutoencoderKLCogVideoX.from_pretrained(
-            model_path, subfolder="vae"
-        )
+        components.vae = AutoencoderKLCogVideoX.from_pretrained(model_path, subfolder="vae")
 
-        components.scheduler = CogVideoXDPMScheduler.from_pretrained(
-            model_path, subfolder="scheduler"
-        )
+        components.scheduler = CogVideoXDPMScheduler.from_pretrained(model_path, subfolder="scheduler")
 
         return components
 
@@ -60,10 +50,10 @@ class CogVideoXT2VLoraTrainer(Trainer):
             text_encoder=self.components.text_encoder,
             vae=self.components.vae,
             transformer=unwrap_model(self.accelerator, self.components.transformer),
-            scheduler=self.components.scheduler
+            scheduler=self.components.scheduler,
         )
         return pipe
- 
+
     @override
     def encode_video(self, video: torch.Tensor) -> torch.Tensor:
         # shape of input video: [B, C, F, H, W]
@@ -86,21 +76,18 @@ class CogVideoXT2VLoraTrainer(Trainer):
         prompt_token_ids = prompt_token_ids.input_ids
         prompt_embedding = self.components.text_encoder(prompt_token_ids.to(self.accelerator.device))[0]
         return prompt_embedding
-       
+
     @override
     def collate_fn(self, samples: List[Dict[str, Any]]) -> Dict[str, Any]:
-        ret = {
-            "encoded_videos": [],
-            "prompt_embedding": []
-        }
-        
+        ret = {"encoded_videos": [], "prompt_embedding": []}
+
         for sample in samples:
             encoded_video = sample["encoded_video"]
             prompt_embedding = sample["prompt_embedding"]
 
             ret["encoded_videos"].append(encoded_video)
             ret["prompt_embedding"].append(prompt_embedding)
-    
+
         ret["encoded_videos"] = torch.stack(ret["encoded_videos"])
         ret["prompt_embedding"] = torch.stack(ret["prompt_embedding"])
 
@@ -116,10 +103,20 @@ class CogVideoXT2VLoraTrainer(Trainer):
 
         patch_size_t = self.state.transformer_config.patch_size_t
         if patch_size_t is not None and latent.shape[2] % patch_size_t != 0:
-            raise ValueError("Number of frames in latent must be divisible by patch size, please check your args for training.")
-        
+            raise ValueError(
+                "Number of frames in latent must be divisible by patch size, please check your args for training."
+            )
+
         # Add 2 random noise frames at the beginning of frame dimension
-        noise_frames = torch.randn(latent.shape[0], latent.shape[1], 2, latent.shape[3], latent.shape[4], device=latent.device, dtype=latent.dtype)
+        noise_frames = torch.randn(
+            latent.shape[0],
+            latent.shape[1],
+            2,
+            latent.shape[3],
+            latent.shape[4],
+            device=latent.device,
+            dtype=latent.dtype,
+        )
         latent = torch.cat([noise_frames, latent], dim=2)
 
         batch_size, num_channels, num_frames, height, width = latent.shape
@@ -130,8 +127,7 @@ class CogVideoXT2VLoraTrainer(Trainer):
 
         # Sample a random timestep for each sample
         timesteps = torch.randint(
-            0, self.components.scheduler.config.num_train_timesteps,
-            (batch_size,), device=self.accelerator.device
+            0, self.components.scheduler.config.num_train_timesteps, (batch_size,), device=self.accelerator.device
         )
         timesteps = timesteps.long()
 
@@ -193,7 +189,7 @@ class CogVideoXT2VLoraTrainer(Trainer):
             height=self.state.train_height,
             width=self.state.train_width,
             prompt=prompt,
-            generator=self.state.generator
+            generator=self.state.generator,
         ).frames[0]
         return [("video", video_generate)]
 
@@ -204,7 +200,7 @@ class CogVideoXT2VLoraTrainer(Trainer):
         num_frames: int,
         transformer_config: Dict,
         vae_scale_factor_spatial: int,
-        device: torch.device
+        device: torch.device,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         grid_height = height // (vae_scale_factor_spatial * transformer_config.patch_size)
         grid_width = width // (vae_scale_factor_spatial * transformer_config.patch_size)

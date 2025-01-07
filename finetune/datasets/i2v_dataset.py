@@ -13,11 +13,12 @@ from safetensors.torch import save_file, load_file
 from finetune.constants import LOG_NAME, LOG_LEVEL
 
 from .utils import (
-    load_prompts, load_videos, load_images,
-
+    load_prompts,
+    load_videos,
+    load_images,
     preprocess_image_with_resize,
     preprocess_video_with_resize,
-    preprocess_video_with_buckets
+    preprocess_video_with_buckets,
 )
 
 if TYPE_CHECKING:
@@ -46,6 +47,7 @@ class BaseI2VDataset(Dataset):
         device (torch.device): Device to load the data on
         encode_video_fn (Callable[[torch.Tensor], torch.Tensor], optional): Function to encode videos
     """
+
     def __init__(
         self,
         data_root: str,
@@ -55,7 +57,7 @@ class BaseI2VDataset(Dataset):
         device: torch.device,
         trainer: "Trainer" = None,
         *args,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -120,7 +122,10 @@ class BaseI2VDataset(Dataset):
 
         if prompt_embedding_path.exists():
             prompt_embedding = load_file(prompt_embedding_path)["prompt_embedding"]
-            logger.debug(f"process {self.trainer.accelerator.process_index}: Loaded prompt embedding from {prompt_embedding_path}", main_process_only=False)
+            logger.debug(
+                f"process {self.trainer.accelerator.process_index}: Loaded prompt embedding from {prompt_embedding_path}",
+                main_process_only=False,
+            )
         else:
             prompt_embedding = self.encode_text(prompt)
             prompt_embedding = prompt_embedding.to("cpu")
@@ -187,7 +192,7 @@ class BaseI2VDataset(Dataset):
                 - image(torch.Tensor) of shape [C, H, W]
         """
         raise NotImplementedError("Subclass must implement this method")
-    
+
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         """
         Applies transformations to a video.
@@ -197,14 +202,14 @@ class BaseI2VDataset(Dataset):
                 with shape [F, C, H, W] where:
                 - F is number of frames
                 - C is number of channels (3 for RGB)
-                - H is height 
+                - H is height
                 - W is width
 
         Returns:
             torch.Tensor: The transformed video tensor
         """
         raise NotImplementedError("Subclass must implement this method")
-    
+
     def image_transform(self, image: torch.Tensor) -> torch.Tensor:
         """
         Applies transformations to an image.
@@ -213,7 +218,7 @@ class BaseI2VDataset(Dataset):
             image (torch.Tensor): A 3D tensor representing an image
                 with shape [C, H, W] where:
                 - C is number of channels (3 for RGB)
-                - H is height 
+                - H is height
                 - W is width
 
         Returns:
@@ -235,6 +240,7 @@ class I2VDatasetWithResize(BaseI2VDataset):
         height (int): Target height for resizing videos and images
         width (int): Target width for resizing videos and images
     """
+
     def __init__(self, max_num_frames: int, height: int, width: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -242,11 +248,7 @@ class I2VDatasetWithResize(BaseI2VDataset):
         self.height = height
         self.width = width
 
-        self.__frame_transforms = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)
-            ]
-        )
+        self.__frame_transforms = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
         self.__image_transforms = self.__frame_transforms
 
     @override
@@ -260,25 +262,25 @@ class I2VDatasetWithResize(BaseI2VDataset):
         else:
             image = None
         return video, image
-    
+
     @override
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         return torch.stack([self.__frame_transforms(f) for f in frames], dim=0)
-    
+
     @override
     def image_transform(self, image: torch.Tensor) -> torch.Tensor:
         return self.__image_transforms(image)
 
 
 class I2VDatasetWithBuckets(BaseI2VDataset):
-
     def __init__(
         self,
         video_resolution_buckets: List[Tuple[int, int, int]],
         vae_temporal_compression_ratio: int,
         vae_height_compression_ratio: int,
         vae_width_compression_ratio: int,
-        *args, **kwargs
+        *args,
+        **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
 
@@ -290,23 +292,19 @@ class I2VDatasetWithBuckets(BaseI2VDataset):
             )
             for b in video_resolution_buckets
         ]
-        self.__frame_transforms = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)
-            ]
-        )
+        self.__frame_transforms = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
         self.__image_transforms = self.__frame_transforms
-    
+
     @override
     def preprocess(self, video_path: Path, image_path: Path) -> Tuple[torch.Tensor, torch.Tensor]:
         video = preprocess_video_with_buckets(video_path, self.video_resolution_buckets)
         image = preprocess_image_with_resize(image_path, video.shape[2], video.shape[3])
         return video, image
 
-    @override   
+    @override
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         return torch.stack([self.__frame_transforms(f) for f in frames], dim=0)
-    
+
     @override
     def image_transform(self, image: torch.Tensor) -> torch.Tensor:
         return self.__image_transforms(image)

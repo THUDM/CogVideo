@@ -78,10 +78,10 @@ class Args(BaseModel):
     ########## Validation ##########
     do_validation: bool = False
     validation_steps: int | None = None  # if set, should be a multiple of checkpointing_steps
-    validation_dir: Path | None     # if set do_validation, should not be None
+    validation_dir: Path | None  # if set do_validation, should not be None
     validation_prompts: str | None  # if set do_validation, should not be None
-    validation_images: str | None   # if set do_validation and model_type == i2v, should not be None
-    validation_videos: str | None   # if set do_validation and model_type == v2v, should not be None
+    validation_images: str | None  # if set do_validation and model_type == i2v, should not be None
+    validation_videos: str | None  # if set do_validation and model_type == v2v, should not be None
     gen_fps: int = 15
 
     #### deprecated args: gen_video_resolution
@@ -115,7 +115,7 @@ class Args(BaseModel):
             raise ValueError("validation_images must be specified when do_validation is True and model_type is i2v")
         return v
 
-    @field_validator("validation_videos") 
+    @field_validator("validation_videos")
     def validate_validation_videos(cls, v: str | None, info: ValidationInfo) -> str | None:
         values = info.data
         if values.get("do_validation") and values.get("model_type") == "v2v" and not v:
@@ -131,30 +131,31 @@ class Args(BaseModel):
             if values.get("checkpointing_steps") and v % values["checkpointing_steps"] != 0:
                 raise ValueError("validation_steps must be a multiple of checkpointing_steps")
         return v
-    
+
     @field_validator("train_resolution")
     def validate_train_resolution(cls, v: Tuple[int, int, int], info: ValidationInfo) -> str:
         try:
             frames, height, width = v
-            
+
             # Check if (frames - 1) is multiple of 8
             if (frames - 1) % 8 != 0:
                 raise ValueError("Number of frames - 1 must be a multiple of 8")
-            
+
             # Check resolution for cogvideox-5b models
             model_name = info.data.get("model_name", "")
             if model_name in ["cogvideox-5b-i2v", "cogvideox-5b-t2v"]:
                 if (height, width) != (480, 720):
                     raise ValueError("For cogvideox-5b models, height must be 480 and width must be 720")
-                
+
             return v
-            
+
         except ValueError as e:
-            if str(e) == "not enough values to unpack (expected 3, got 0)" or \
-               str(e) == "invalid literal for int() with base 10":
+            if (
+                str(e) == "not enough values to unpack (expected 3, got 0)"
+                or str(e) == "invalid literal for int() with base 10"
+            ):
                 raise ValueError("train_resolution must be in format 'frames x height x width'")
             raise e
-
 
     @classmethod
     def parse_args(cls):
@@ -208,8 +209,7 @@ class Args(BaseModel):
         # LoRA parameters
         parser.add_argument("--rank", type=int, default=128)
         parser.add_argument("--lora_alpha", type=int, default=64)
-        parser.add_argument("--target_modules", type=str, nargs="+", 
-                          default=["to_q", "to_k", "to_v", "to_out.0"])
+        parser.add_argument("--target_modules", type=str, nargs="+", default=["to_q", "to_k", "to_v", "to_out.0"])
 
         # Checkpointing
         parser.add_argument("--checkpointing_steps", type=int, default=200)
@@ -226,7 +226,7 @@ class Args(BaseModel):
         parser.add_argument("--gen_fps", type=int, default=15)
 
         args = parser.parse_args()
-        
+
         # Convert video_resolution_buckets string to list of tuples
         frames, height, width = args.train_resolution.split("x")
         args.train_resolution = (int(frames), int(height), int(width))

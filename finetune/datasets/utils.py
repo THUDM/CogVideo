@@ -15,6 +15,7 @@ decord.bridge.set_bridge("torch")
 
 ##########  loaders  ##########
 
+
 def load_prompts(prompt_path: Path) -> List[str]:
     with open(prompt_path, "r", encoding="utf-8") as file:
         return [line.strip() for line in file.readlines() if len(line.strip()) > 0]
@@ -31,6 +32,7 @@ def load_images(image_path: Path) -> List[Path]:
 
 
 ##########  preprocessors  ##########
+
 
 def preprocess_image_with_resize(
     image_path: Path | str,
@@ -96,7 +98,7 @@ def preprocess_video_with_resize(
 
     indices = list(range(0, video_num_frames, video_num_frames // max_num_frames))
     frames = video_reader.get_batch(indices)
-    frames = frames[: max_num_frames].float()
+    frames = frames[:max_num_frames].float()
     frames = frames.permute(0, 3, 1, 2).contiguous()
     return frames
 

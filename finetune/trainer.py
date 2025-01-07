@@ -1,4 +1,3 @@
-import os
 import logging
 import math
 import json
@@ -32,24 +31,23 @@ from peft import LoraConfig, get_peft_model_state_dict, set_peft_model_state_dic
 
 from finetune.schemas import Args, State, Components
 from finetune.utils import (
-    unwrap_model, cast_training_params,
+    unwrap_model,
+    cast_training_params,
     get_optimizer,
-
     get_memory_statistics,
     free_memory,
     unload_model,
-
     get_latest_ckpt_path_to_resume_from,
     get_intermediate_ckpt_path,
-    get_latest_ckpt_path_to_resume_from,
-    get_intermediate_ckpt_path,
-
-    string_to_filename
+    string_to_filename,
 )
 from finetune.datasets import I2VDatasetWithResize, T2VDatasetWithResize
 from finetune.datasets.utils import (
-    load_prompts, load_images, load_videos,
-    preprocess_image_with_resize, preprocess_video_with_resize
+    load_prompts,
+    load_images,
+    load_videos,
+    preprocess_image_with_resize,
+    preprocess_video_with_resize,
 )
 
 from finetune.constants import LOG_NAME, LOG_LEVEL
@@ -59,22 +57,22 @@ logger = get_logger(LOG_NAME, LOG_LEVEL)
 
 _DTYPE_MAP = {
     "fp32": torch.float32,
-    "fp16": torch.float16,
+    "fp16": torch.float16,  # FP16 is Only Support for CogVideoX-2B
     "bf16": torch.bfloat16,
 }
 
 
 class Trainer:
     # If set, should be a list of components to unload (refer to `Components``)
-    UNLOAD_LIST: List[str] = None  
+    UNLOAD_LIST: List[str] = None
 
     def __init__(self, args: Args) -> None:
-        self.args  = args
+        self.args = args
         self.state = State(
             weight_dtype=self.__get_training_dtype(),
             train_frames=self.args.train_resolution[0],
             train_height=self.args.train_resolution[1],
-            train_width=self.args.train_resolution[2]
+            train_width=self.args.train_resolution[2],
         )
 
         self.components = Components()
@@ -136,11 +134,13 @@ class Trainer:
         if self.accelerator.is_main_process:
             self.args.output_dir = Path(self.args.output_dir)
             self.args.output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def check_setting(self) -> None:
         # Check for unload_list
         if self.UNLOAD_LIST is None:
-            logger.warning("\033[91mNo unload_list specified for this Trainer. All components will be loaded to GPU during training.\033[0m")
+            logger.warning(
+                "\033[91mNo unload_list specified for this Trainer. All components will be loaded to GPU during training.\033[0m"
+            )
         else:
             for name in self.UNLOAD_LIST:
                 if name not in self.components.model_fields:
@@ -174,7 +174,7 @@ class Trainer:
                 max_num_frames=sample_frames,
                 height=self.state.train_height,
                 width=self.state.train_width,
-                trainer=self
+                trainer=self,
             )
         elif self.args.model_type == "t2v":
             self.dataset = T2VDatasetWithResize(
@@ -183,7 +183,7 @@ class Trainer:
                 max_num_frames=sample_frames,
                 height=self.state.train_height,
                 width=self.state.train_width,
-                trainer=self
+                trainer=self,
             )
         else:
             raise ValueError(f"Invalid model type: {self.args.model_type}")
@@ -204,7 +204,8 @@ class Trainer:
             pin_memory=self.args.pin_memory,
         )
         tmp_data_loader = self.accelerator.prepare_data_loader(tmp_data_loader)
-        for _ in tmp_data_loader: ...
+        for _ in tmp_data_loader:
+            ...
         self.accelerator.wait_for_everyone()
         logger.info("Precomputing latent for video and prompt embedding ... Done")
 
@@ -218,16 +219,15 @@ class Trainer:
             batch_size=self.args.batch_size,
             num_workers=self.args.num_workers,
             pin_memory=self.args.pin_memory,
-            shuffle=True
+            shuffle=True,
         )
-
 
     def prepare_trainable_parameters(self):
         logger.info("Initializing trainable parameters")
 
         # For now only lora is supported
         for attr_name, component in vars(self.components).items():
-            if hasattr(component, 'requires_grad_'):
+            if hasattr(component, "requires_grad_"):
                 component.requires_grad_(False)
 
         # For mixed precision training we cast all non-trainable weights (vae, text_encoder and transformer) to half-precision
@@ -332,7 +332,7 @@ class Trainer:
         # Afterwards we recalculate our number of training epochs
         self.args.train_epochs = math.ceil(self.args.train_steps / num_update_steps_per_epoch)
         self.state.num_update_steps_per_epoch = num_update_steps_per_epoch
-    
+
     def prepare_for_validation(self):
         validation_prompts = load_prompts(self.args.validation_dir / self.args.validation_prompts)
 
@@ -452,10 +452,7 @@ class Trainer:
                 progress_bar.set_postfix(logs)
 
                 # Maybe run validation
-                should_run_validation = (
-                    self.args.do_validation
-                    and global_step % self.args.validation_steps == 0
-                )
+                should_run_validation = self.args.do_validation and global_step % self.args.validation_steps == 0
                 if should_run_validation:
                     del loss
                     free_memory()
@@ -500,7 +497,7 @@ class Trainer:
 
         #####  Initialize pipeline  #####
         pipe = self.initialize_pipeline()
-        
+
         # Or use pipe.enable_sequential_cpu_offload() to further reduce memory usage
         pipe.enable_model_cpu_offload(device=self.accelerator.device)
 
@@ -520,9 +517,7 @@ class Trainer:
             video = self.state.validation_videos[i]
 
             if image is not None:
-                image = preprocess_image_with_resize(
-                    image, self.state.train_height, self.state.train_width
-                )
+                image = preprocess_image_with_resize(image, self.state.train_height, self.state.train_width)
                 # Convert image tensor (C, H, W) to PIL images
                 image = image.to(torch.uint8)
                 image = image.permute(1, 2, 0).cpu().numpy()
@@ -534,17 +529,13 @@ class Trainer:
                 )
                 # Convert video tensor (F, C, H, W) to list of PIL images
                 video = (video * 255).round().clamp(0, 255).to(torch.uint8)
-                video = [Image.fromarray(frame.permute(1,2,0).cpu().numpy()) for frame in video]
+                video = [Image.fromarray(frame.permute(1, 2, 0).cpu().numpy()) for frame in video]
 
             logger.debug(
                 f"Validating sample {i + 1}/{num_validation_samples} on process {accelerator.process_index}. Prompt: {prompt}",
                 main_process_only=False,
             )
-            validation_artifacts = self.validation_step({
-                "prompt": prompt,
-                "image": image,
-                "video": video
-            }, pipe)
+            validation_artifacts = self.validation_step({"prompt": prompt, "image": image, "video": video}, pipe)
             prompt_filename = string_to_filename(prompt)[:25]
             artifacts = {
                 "image": {"type": "image", "value": image},
@@ -611,7 +602,7 @@ class Trainer:
         logger.info(f"Memory after validation end: {json.dumps(memory_statistics, indent=4)}")
         torch.cuda.reset_peak_memory_stats(accelerator.device)
 
-        torch.set_grad_enabled(True) 
+        torch.set_grad_enabled(True)
         self.components.transformer.train()
 
     def fit(self):
@@ -628,10 +619,10 @@ class Trainer:
 
     def collate_fn(self, examples: List[Dict[str, Any]]):
         raise NotImplementedError
-    
+
     def load_components(self) -> Components:
         raise NotImplementedError
-    
+
     def initialize_pipeline(self) -> DiffusionPipeline:
         raise NotImplementedError
 
@@ -643,7 +634,7 @@ class Trainer:
     def encode_text(self, text: str) -> torch.Tensor:
         # shape of output text: [batch size, sequence length, embedding dimension]
         raise NotImplementedError
-    
+
     def compute_loss(self, batch) -> torch.Tensor:
         raise NotImplementedError
 
@@ -663,18 +654,18 @@ class Trainer:
     def __load_components(self):
         components = self.components.model_dump()
         for name, component in components.items():
-            if not isinstance(component, type) and hasattr(component, 'to'):
+            if not isinstance(component, type) and hasattr(component, "to"):
                 if name in self.UNLOAD_LIST:
                     continue
                 # setattr(self.components, name, component.to(self.accelerator.device))
                 setattr(self.components, name, component.to(self.accelerator.device, dtype=self.state.weight_dtype))
-    
+
     def __unload_components(self):
         components = self.components.model_dump()
         for name, component in components.items():
-            if not isinstance(component, type) and hasattr(component, 'to'):
+            if not isinstance(component, type) and hasattr(component, "to"):
                 if name in self.UNLOAD_LIST:
-                    setattr(self.components, name, component.to('cpu'))
+                    setattr(self.components, name, component.to("cpu"))
 
     def __prepare_saving_loading_hooks(self, transformer_lora_config):
         # create custom saving & loading hooks so that `accelerator.save_state(...)` serializes in a nice format
@@ -711,9 +702,7 @@ class Trainer:
                     ):
                         transformer_ = unwrap_model(self.accelerator, model)
                     else:
-                        raise ValueError(
-                            f"Unexpected save model: {unwrap_model(self.accelerator, model).__class__}"
-                        )
+                        raise ValueError(f"Unexpected save model: {unwrap_model(self.accelerator, model).__class__}")
             else:
                 transformer_ = unwrap_model(self.accelerator, self.components.transformer).__class__.from_pretrained(
                     self.args.model_path, subfolder="transformer"

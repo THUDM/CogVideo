@@ -8,5 +8,5 @@ __all__ = [
     "I2VDatasetWithBuckets",
     "T2VDatasetWithResize",
     "T2VDatasetWithBuckets",
-    "BucketSampler"
+    "BucketSampler",
 ]

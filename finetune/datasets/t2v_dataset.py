@@ -12,11 +12,7 @@ from safetensors.torch import save_file, load_file
 
 from finetune.constants import LOG_NAME, LOG_LEVEL
 
-from .utils import (
-    load_prompts, load_videos,
-    preprocess_video_with_resize,
-    preprocess_video_with_buckets
-)
+from .utils import load_prompts, load_videos, preprocess_video_with_resize, preprocess_video_with_buckets
 
 if TYPE_CHECKING:
     from finetune.trainer import Trainer
@@ -52,7 +48,7 @@ class BaseT2VDataset(Dataset):
         device: torch.device = None,
         trainer: "Trainer" = None,
         *args,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -108,7 +104,10 @@ class BaseT2VDataset(Dataset):
 
         if prompt_embedding_path.exists():
             prompt_embedding = load_file(prompt_embedding_path)["prompt_embedding"]
-            logger.debug(f"process {self.trainer.accelerator.process_index}: Loaded prompt embedding from {prompt_embedding_path}", main_process_only=False)
+            logger.debug(
+                f"process {self.trainer.accelerator.process_index}: Loaded prompt embedding from {prompt_embedding_path}",
+                main_process_only=False,
+            )
         else:
             prompt_embedding = self.encode_text(prompt)
             prompt_embedding = prompt_embedding.to("cpu")
@@ -164,7 +163,7 @@ class BaseT2VDataset(Dataset):
                 - W is width
         """
         raise NotImplementedError("Subclass must implement this method")
-    
+
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         """
         Applies transformations to a video.
@@ -174,7 +173,7 @@ class BaseT2VDataset(Dataset):
                 with shape [F, C, H, W] where:
                 - F is number of frames
                 - C is number of channels (3 for RGB)
-                - H is height 
+                - H is height
                 - W is width
 
         Returns:
@@ -203,36 +202,33 @@ class T2VDatasetWithResize(BaseT2VDataset):
         self.height = height
         self.width = width
 
-        self.__frame_transform = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)
-            ]
-        )
-    
+        self.__frame_transform = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+
     @override
     def preprocess(self, video_path: Path) -> torch.Tensor:
         return preprocess_video_with_resize(
-            video_path, self.max_num_frames, self.height, self.width,
+            video_path,
+            self.max_num_frames,
+            self.height,
+            self.width,
         )
-    
+
     @override
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         return torch.stack([self.__frame_transform(f) for f in frames], dim=0)
 
 
 class T2VDatasetWithBuckets(BaseT2VDataset):
-
     def __init__(
         self,
         video_resolution_buckets: List[Tuple[int, int, int]],
         vae_temporal_compression_ratio: int,
         vae_height_compression_ratio: int,
         vae_width_compression_ratio: int,
-        *args, **kwargs
+        *args,
+        **kwargs,
     ) -> None:
-        """
-        
-        """
+        """ """
         super().__init__(*args, **kwargs)
 
         self.video_resolution_buckets = [
@@ -244,18 +240,12 @@ class T2VDatasetWithBuckets(BaseT2VDataset):
             for b in video_resolution_buckets
         ]
 
-        self.__frame_transform = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)
-            ]
-        )
-    
+        self.__frame_transform = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+
     @override
     def preprocess(self, video_path: Path) -> torch.Tensor:
-        return preprocess_video_with_buckets(
-            video_path, self.video_resolution_buckets
-        )
-    
+        return preprocess_video_with_buckets(video_path, self.video_resolution_buckets)
+
     @override
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         return torch.stack([self.__frame_transform(f) for f in frames], dim=0)
