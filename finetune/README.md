@@ -72,7 +72,7 @@ bash accelerate_train_t2v.sh
 ```bash
 # Modify the configuration parameters in accelerate_train_i2v.sh
 # In addition to modifying the same parameters as for T2V, you also need to set:
-# --image_column: Path to the reference image list file
+# --image_column: Path to the reference image list file(if not provided, remove use this parameter)
 # Refer to the start script for other important parameters
 
 bash accelerate_train_i2v.sh
