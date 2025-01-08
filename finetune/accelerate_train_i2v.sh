@@ -6,7 +6,7 @@ export TOKENIZERS_PARALLELISM=false
 # Model Configuration
 MODEL_ARGS=(
     --model_path "THUDM/CogVideoX1.5-5B-I2V"
-    --model_name "cogvideox1.5-i2v"
+    --model_name "cogvideox1.5-i2v"  # ["cogvideox-i2v"]
     --model_type "i2v"
     --training_type "lora"
 )
@@ -23,7 +23,7 @@ DATA_ARGS=(
     --caption_column "prompt.txt"
     --video_column "videos.txt"
     --image_column "images.txt"
-    --train_resolution "80x768x1360"
+    --train_resolution "81x768x1360"
 )
 
 # Training Configuration
@@ -31,7 +31,7 @@ TRAIN_ARGS=(
     --train_epochs 10
     --batch_size 1
     --gradient_accumulation_steps 1
-    --mixed_precision "bf16"
+    --mixed_precision "bf16"  # ["no", "fp16"]
     --seed 42
 )
 
@@ -55,7 +55,7 @@ VALIDATION_ARGS=(
     --validation_steps 400
     --validation_prompts "prompts.txt"
     --validation_images "images.txt"
-    --gen_fps 15
+    --gen_fps 16
 )
 
 # Combine all arguments and launch training

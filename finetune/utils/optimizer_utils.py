@@ -1,9 +1,9 @@
 import inspect
-import torch
 
+import torch
 from accelerate.logging import get_logger
 
-from finetune.constants import LOG_NAME, LOG_LEVEL
+from finetune.constants import LOG_LEVEL, LOG_NAME
 
 
 logger = get_logger(LOG_NAME, LOG_LEVEL)

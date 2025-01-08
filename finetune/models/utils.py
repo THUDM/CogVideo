@@ -1,4 +1,4 @@
-from typing import Literal, Dict
+from typing import Dict, Literal
 
 from finetune.trainer import Trainer
 

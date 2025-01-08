@@ -1,10 +1,10 @@
 import gc
-import torch
-
 from typing import Any, Dict, Union
+
+import torch
 from accelerate.logging import get_logger
 
-from finetune.constants import LOG_NAME, LOG_LEVEL
+from finetune.constants import LOG_LEVEL, LOG_NAME
 
 
 logger = get_logger(LOG_NAME, LOG_LEVEL)
@@ -49,6 +49,10 @@ def free_memory() -> None:
         torch.cuda.ipc_collect()
 
     # TODO(aryan): handle non-cuda devices
+
+
+def unload_model(model):
+    model.to("cpu")
 
 
 def make_contiguous(x: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:

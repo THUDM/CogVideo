@@ -1,8 +1,8 @@
-import random
 import logging
+import random
 
-from torch.utils.data import Sampler
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
+
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,6 @@ class BucketSampler(Sampler):
 
         self._raised_warning_for_drop_last = False
 
-
     def __len__(self):
         if self.drop_last and not self._raised_warning_for_drop_last:
             self._raised_warning_for_drop_last = True
@@ -45,7 +44,6 @@ class BucketSampler(Sampler):
                 "Calculating the length for bucket sampler is not possible when `drop_last` is set to True. This may cause problems when setting the number of epochs used for training."
             )
         return (len(self.data_source) + self.batch_size - 1) // self.batch_size
-
 
     def __iter__(self):
         for index, data in enumerate(self.data_source):

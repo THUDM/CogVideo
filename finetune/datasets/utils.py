@@ -1,10 +1,11 @@
-import torch
-import cv2
-
-from typing import List, Tuple
+import logging
 from pathlib import Path
-from torchvision import transforms
+from typing import List, Tuple
+
+import cv2
+import torch
 from torchvision.transforms.functional import resize
+
 
 # Must import after torch because this can sometimes lead to a nasty segmentation fault, or stack smashing error
 # Very few bug reports but it happens. Look in decord Github issues for more relevant information.
@@ -14,6 +15,7 @@ decord.bridge.set_bridge("torch")
 
 
 ##########  loaders  ##########
+
 
 def load_prompts(prompt_path: Path) -> List[str]:
     with open(prompt_path, "r", encoding="utf-8") as file:
@@ -30,7 +32,39 @@ def load_images(image_path: Path) -> List[Path]:
         return [image_path.parent / line.strip() for line in file.readlines() if len(line.strip()) > 0]
 
 
+def load_images_from_videos(videos_path: List[Path]) -> List[Path]:
+    first_frames_dir = videos_path[0].parent.parent / "first_frames"
+    first_frames_dir.mkdir(exist_ok=True)
+
+    first_frame_paths = []
+    for video_path in videos_path:
+        frame_path = first_frames_dir / f"{video_path.stem}.png"
+        if frame_path.exists():
+            first_frame_paths.append(frame_path)
+            continue
+
+        # Open video
+        cap = cv2.VideoCapture(str(video_path))
+
+        # Read first frame
+        ret, frame = cap.read()
+        if not ret:
+            raise RuntimeError(f"Failed to read video: {video_path}")
+
+        # Save frame as PNG with same name as video
+        cv2.imwrite(str(frame_path), frame)
+        logging.info(f"Saved first frame to {frame_path}")
+
+        # Release video capture
+        cap.release()
+
+        first_frame_paths.append(frame_path)
+
+    return first_frame_paths
+
+
 ##########  preprocessors  ##########
+
 
 def preprocess_image_with_resize(
     image_path: Path | str,
@@ -92,11 +126,11 @@ def preprocess_video_with_resize(
     video_reader = decord.VideoReader(uri=video_path.as_posix(), width=width, height=height)
     video_num_frames = len(video_reader)
     if video_num_frames < max_num_frames:
-        raise ValueError(f"video's frames is less than {max_num_frames}.")
+        raise ValueError(f"video frame count in {video_path} is less than {max_num_frames}.")
 
     indices = list(range(0, video_num_frames, video_num_frames // max_num_frames))
     frames = video_reader.get_batch(indices)
-    frames = frames[: max_num_frames].float()
+    frames = frames[:max_num_frames].float()
     frames = frames.permute(0, 3, 1, 2).contiguous()
     return frames
 

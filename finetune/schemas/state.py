@@ -1,13 +1,14 @@
-import torch
-
 from pathlib import Path
-from typing import List, Dict, Any
-from pydantic import BaseModel, field_validator
+from typing import Any, Dict, List
+
+import torch
+from pydantic import BaseModel
+
 
 class State(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
 
-    train_frames: int
+    train_frames: int  # user-defined training frames, **containing one image padding frame**
     train_height: int
     train_width: int
 

@@ -1,20 +1,21 @@
-import torch
-
+import hashlib
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Callable
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
+import torch
 from accelerate.logging import get_logger
+from safetensors.torch import load_file, save_file
 from torch.utils.data import Dataset
 from torchvision import transforms
+from typing_extensions import override
 
-from finetune.constants import LOG_NAME, LOG_LEVEL
+from finetune.constants import LOG_LEVEL, LOG_NAME
 
-from .utils import (
-    load_prompts, load_videos,
-    preprocess_video_with_resize,
-    preprocess_video_with_buckets
-)
+from .utils import load_prompts, load_videos, preprocess_video_with_buckets, preprocess_video_with_resize
+
+
+if TYPE_CHECKING:
+    from finetune.trainer import Trainer
 
 # Must import after torch because this can sometimes lead to a nasty segmentation fault, or stack smashing error
 # Very few bug reports but it happens. Look in decord Github issues for more relevant information.
@@ -45,9 +46,9 @@ class BaseT2VDataset(Dataset):
         caption_column: str,
         video_column: str,
         device: torch.device = None,
-        encode_video_fn: Callable[[torch.Tensor], torch.Tensor] = None,
+        trainer: "Trainer" = None,
         *args,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -55,7 +56,9 @@ class BaseT2VDataset(Dataset):
         self.prompts = load_prompts(data_root / caption_column)
         self.videos = load_videos(data_root / video_column)
         self.device = device
-        self.encode_video_fn = encode_video_fn
+        self.encode_video = trainer.encode_video
+        self.encode_text = trainer.encode_text
+        self.trainer = trainer
 
         # Check if all video files exist
         if any(not path.is_file() for path in self.videos):
@@ -87,30 +90,56 @@ class BaseT2VDataset(Dataset):
 
         prompt = self.prompts[index]
         video = self.videos[index]
+        train_resolution_str = "x".join(str(x) for x in self.trainer.args.train_resolution)
 
-        latent_dir = video.parent / "latent"
-        latent_dir.mkdir(parents=True, exist_ok=True)
-        encoded_video_path = latent_dir / (video.stem + ".pt")
+        cache_dir = self.trainer.args.data_root / "cache"
+        video_latent_dir = cache_dir / "video_latent" / self.trainer.args.model_name / train_resolution_str
+        prompt_embeddings_dir = cache_dir / "prompt_embeddings"
+        video_latent_dir.mkdir(parents=True, exist_ok=True)
+        prompt_embeddings_dir.mkdir(parents=True, exist_ok=True)
+
+        prompt_hash = str(hashlib.sha256(prompt.encode()).hexdigest())
+        prompt_embedding_path = prompt_embeddings_dir / (prompt_hash + ".safetensors")
+        encoded_video_path = video_latent_dir / (video.stem + ".safetensors")
+
+        if prompt_embedding_path.exists():
+            prompt_embedding = load_file(prompt_embedding_path)["prompt_embedding"]
+            logger.debug(
+                f"process {self.trainer.accelerator.process_index}: Loaded prompt embedding from {prompt_embedding_path}",
+                main_process_only=False,
+            )
+        else:
+            prompt_embedding = self.encode_text(prompt)
+            prompt_embedding = prompt_embedding.to("cpu")
+            # [1, seq_len, hidden_size] -> [seq_len, hidden_size]
+            prompt_embedding = prompt_embedding[0]
+            save_file({"prompt_embedding": prompt_embedding}, prompt_embedding_path)
+            logger.info(f"Saved prompt embedding to {prompt_embedding_path}", main_process_only=False)
 
         if encoded_video_path.exists():
-            # shape of encoded_video: [C, F, H, W]
-            encoded_video = torch.load(encoded_video_path, weights_only=True)
+            # encoded_video = torch.load(encoded_video_path, weights_only=True)
+            encoded_video = load_file(encoded_video_path)["encoded_video"]
+            logger.debug(f"Loaded encoded video from {encoded_video_path}", main_process_only=False)
+            # shape of image: [C, H, W]
         else:
             frames = self.preprocess(video)
             frames = frames.to(self.device)
-            # current shape of frames: [F, C, H, W]
+            # Current shape of frames: [F, C, H, W]
             frames = self.video_transform(frames)
             # Convert to [B, C, F, H, W]
             frames = frames.unsqueeze(0)
             frames = frames.permute(0, 2, 1, 3, 4).contiguous()
-            encoded_video = self.encode_video_fn(frames)
-            # [B, C, F, H, W] -> [C, F, H, W]
-            encoded_video = encoded_video[0].cpu()
-            torch.save(encoded_video, encoded_video_path)
+            encoded_video = self.encode_video(frames)
+
+            # [1, C, F, H, W] -> [C, F, H, W]
+            encoded_video = encoded_video[0]
+            encoded_video = encoded_video.to("cpu")
+            save_file({"encoded_video": encoded_video}, encoded_video_path)
             logger.info(f"Saved encoded video to {encoded_video_path}", main_process_only=False)
 
+        # shape of encoded_video: [C, F, H, W]
         return {
-            "prompt": prompt,
+            "prompt_embedding": prompt_embedding,
             "encoded_video": encoded_video,
             "video_metadata": {
                 "num_frames": encoded_video.shape[1],
@@ -134,7 +163,7 @@ class BaseT2VDataset(Dataset):
                 - W is width
         """
         raise NotImplementedError("Subclass must implement this method")
-    
+
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         """
         Applies transformations to a video.
@@ -144,7 +173,7 @@ class BaseT2VDataset(Dataset):
                 with shape [F, C, H, W] where:
                 - F is number of frames
                 - C is number of channels (3 for RGB)
-                - H is height 
+                - H is height
                 - W is width
 
         Returns:
@@ -173,36 +202,33 @@ class T2VDatasetWithResize(BaseT2VDataset):
         self.height = height
         self.width = width
 
-        self.__frame_transform = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)
-            ]
-        )
-    
+        self.__frame_transform = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+
     @override
     def preprocess(self, video_path: Path) -> torch.Tensor:
         return preprocess_video_with_resize(
-            video_path, self.max_num_frames, self.height, self.width,
+            video_path,
+            self.max_num_frames,
+            self.height,
+            self.width,
         )
-    
+
     @override
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         return torch.stack([self.__frame_transform(f) for f in frames], dim=0)
 
 
 class T2VDatasetWithBuckets(BaseT2VDataset):
-
     def __init__(
         self,
         video_resolution_buckets: List[Tuple[int, int, int]],
         vae_temporal_compression_ratio: int,
         vae_height_compression_ratio: int,
         vae_width_compression_ratio: int,
-        *args, **kwargs
+        *args,
+        **kwargs,
     ) -> None:
-        """
-        
-        """
+        """ """
         super().__init__(*args, **kwargs)
 
         self.video_resolution_buckets = [
@@ -214,18 +240,12 @@ class T2VDatasetWithBuckets(BaseT2VDataset):
             for b in video_resolution_buckets
         ]
 
-        self.__frame_transform = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)
-            ]
-        )
-    
+        self.__frame_transform = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+
     @override
     def preprocess(self, video_path: Path) -> torch.Tensor:
-        return preprocess_video_with_buckets(
-            video_path, self.video_resolution_buckets
-        )
-    
+        return preprocess_video_with_buckets(video_path, self.video_resolution_buckets)
+
     @override
     def video_transform(self, frames: torch.Tensor) -> torch.Tensor:
         return torch.stack([self.__frame_transform(f) for f in frames], dim=0)

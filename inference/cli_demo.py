@@ -17,19 +17,19 @@ $ python cli_demo.py --prompt "A girl riding a bike." --model_path THUDM/CogVide
 Additional options are available to specify the model path, guidance scale, number of inference steps, video generation type, and output paths.
 """
 
-import logging
 import argparse
+import logging
 from typing import Literal, Optional
 
 import torch
 from diffusers import (
-    CogVideoXPipeline,
     CogVideoXDPMScheduler,
     CogVideoXImageToVideoPipeline,
+    CogVideoXPipeline,
     CogVideoXVideoToVideoPipeline,
 )
-
 from diffusers.utils import export_to_video, load_image, load_video
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,7 +38,6 @@ RESOLUTION_MAP = {
     # cogvideox1.5-*
     "cogvideox1.5-5b-i2v": (1360, 768),
     "cogvideox1.5-5b": (1360, 768),
-
     # cogvideox-*
     "cogvideox-5b-i2v": (720, 480),
     "cogvideox-5b": (720, 480),
@@ -100,10 +99,14 @@ def generate_video(
     elif (width, height) != desired_resolution:
         if generate_type == "i2v":
             # For i2v models, use user-defined width and height
-            logging.warning(f"\033[1;31mThe width({width}) and height({height}) are not recommended for {model_name}. The best resolution is {desired_resolution}.\033[0m")
+            logging.warning(
+                f"\033[1;31mThe width({width}) and height({height}) are not recommended for {model_name}. The best resolution is {desired_resolution}.\033[0m"
+            )
         else:
             # Otherwise, use the recommended width and height
-            logging.warning(f"\033[1;31m{model_name} is not supported for custom resolution. Setting back to default resolution {desired_resolution}.\033[0m")
+            logging.warning(
+                f"\033[1;31m{model_name} is not supported for custom resolution. Setting back to default resolution {desired_resolution}.\033[0m"
+            )
             width, height = desired_resolution
 
     if generate_type == "i2v":
