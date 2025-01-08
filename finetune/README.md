@@ -6,6 +6,17 @@
 
 If you're looking for the fine-tuning instructions for the SAT version, please check [here](../sat/README_zh.md). The dataset format for this version differs from the one used here.
 
+## Hardware Requirements
+
+| Model                | Training Type   | Mixed Precision | Training Resolution (frames x height x width) | Hardware Requirements    |
+|---------------------|-----------------|----------------|---------------------------------------------|------------------------|
+| cogvideox-t2v-2b     | lora (rank128)  | fp16           | 49x480x720                                  | 16GB VRAM (NVIDIA 4080) |
+| cogvideox-t2v-5b     | lora (rank128)  | bf16           | 49x480x720                                  | 24GB VRAM (NVIDIA 4090) |
+| cogvideox-i2v-5b     | lora (rank128)  | bf16           | 49x480x720                                  | 24GB VRAM (NVIDIA 4090) |
+| cogvideox1.5-t2v-5b  | lora (rank128)  | bf16           | 81x768x1360                                 | 35GB VRAM (NVIDIA A100) |
+| cogvideox1.5-i2v-5b  | lora (rank128)  | bf16           | 81x768x1360                                 | 35GB VRAM (NVIDIA A100) |
+
+
 ## Install Dependencies
 
 Since the relevant code has not yet been merged into the official `diffusers` release, you need to fine-tune based on the diffusers branch. Follow the steps below to install the dependencies:

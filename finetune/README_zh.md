@@ -6,6 +6,20 @@
 
 如果您想查看SAT版本微调，请查看[这里](../sat/README_zh.md)。其数据集格式与本版本不同。
 
+## 硬件要求
+
+| 模型                  | 训练类型        | 混合训练精度 | 训练分辨率(帧数x高x宽)  | 硬件要求               |
+|----------------------|----------------|------------|----------------------|-----------------------|
+| cogvideox-t2v-2b     | lora (rank128) | fp16       | 49x480x720           | 16G显存 (NVIDIA 4080) |
+| cogvideox-t2v-5b     | lora (rank128) | bf16       | 49x480x720           | 24G显存 (NVIDIA 4090) |
+| cogvideox-i2v-5b     | lora (rank128) | bf16       | 49x480x720           | 24G显存 (NVIDIA 4090) |
+| cogvideox1.5-t2v-5b  | lora (rank128) | bf16       | 81x768x1360          | 35G显存 (NVIDIA A100) |
+| cogvideox1.5-i2v-5b  | lora (rank128) | bf16       | 81x768x1360          | 35G显存 (NVIDIA A100) |
+<!-- | cogvideox-t2v-5b     | sft            | bf16       | 49x480x720           |         |
+| cogvideox-i2v-5b     | sft            | bf16       | 49x480x720           |         |
+| cogvideox1.5-t2v-5b  | sft            | bf16       | 81x768x1360          |         |
+| cogvideox1.5-i2v-5b  | sft            | bf16       | 81x768x1360          |         | -->
+
 ## 安装依赖
 
 由于相关代码还没有被合并到diffusers发行版，你需要基于diffusers分支进行微调。请按照以下步骤安装依赖：
