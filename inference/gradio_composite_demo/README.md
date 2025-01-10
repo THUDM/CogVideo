@@ -10,12 +10,12 @@ suggested_storage: large
 app_port: 7860
 app_file: app.py
 models:
-  - THUDM/CogVideoX-5b
+  - THUDM/CogVideoX-5b-I2V
 tags:
   - cogvideox
   - video-generation
   - thudm
-short_description: Text-to-Video
+short_description: Image-to-Video
 disable_embedding: false
 ---
 
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 ## Running the code
 
 ```bash
-python gradio_web_demo.py
+python app.py
 ```
 
 
