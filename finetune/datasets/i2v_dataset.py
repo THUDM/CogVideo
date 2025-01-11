@@ -153,7 +153,7 @@ class BaseI2VDataset(Dataset):
 
             # Add image into the first frame.
             # Note, **this operation maybe model-specific**, and maybe change in the future.
-            frames = torch.cat([image.unsqueeze(0), frames], dim=0)
+            frames = torch.cat([self.image_transform(image).unsqueeze(0), frames], dim=0)
 
             # Convert to [B, C, F, H, W]
             frames = frames.unsqueeze(0)
