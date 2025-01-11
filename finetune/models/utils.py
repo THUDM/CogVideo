@@ -15,17 +15,12 @@ def register(model_name: str, training_type: Literal["lora", "sft"], trainer_cls
         trainer_cls (Trainer): Trainer class to register.
     """
 
-    # Check if model_name exists in SUPPORTED_MODELS
+    # Check if model_name and training_type exists in SUPPORTED_MODELS
     if model_name not in SUPPORTED_MODELS:
         SUPPORTED_MODELS[model_name] = {}
     else:
-        raise ValueError(f"Model {model_name} already exists")
-
-    # Check if training_type exists for this model
-    if training_type not in SUPPORTED_MODELS[model_name]:
-        SUPPORTED_MODELS[model_name][training_type] = {}
-    else:
-        raise ValueError(f"Training type {training_type} already exists for model {model_name}")
+        if training_type in SUPPORTED_MODELS[model_name]:
+            raise ValueError(f"Training type {training_type} already exists for model {model_name}")
 
     SUPPORTED_MODELS[model_name][training_type] = trainer_cls
 
