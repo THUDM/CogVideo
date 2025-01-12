@@ -143,6 +143,7 @@ class BaseI2VDataset(Dataset):
             logger.debug(f"Loaded encoded video from {encoded_video_path}", main_process_only=False)
             # shape of image: [C, H, W]
             _, image = self.preprocess(None, self.images[index])
+            image = self.image_transform(image)
         else:
             frames, image = self.preprocess(video, image)
             frames = frames.to(self.device)
