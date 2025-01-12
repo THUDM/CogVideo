@@ -84,6 +84,8 @@ class Trainer:
         self._init_logging()
         self._init_directories()
 
+        self.state.using_deepspeed = self.accelerator.state.deepspeed_plugin is not None
+
     def _init_distributed(self):
         logging_dir = Path(self.args.output_dir, "logs")
         project_config = ProjectConfiguration(project_dir=self.args.output_dir, logging_dir=logging_dir)
@@ -246,9 +248,9 @@ class Trainer:
             self.components.transformer.add_adapter(transformer_lora_config)
             self.__prepare_saving_loading_hooks(transformer_lora_config)
 
-        # Load components needed for training to GPU (except transformer),
-        # and cast them to the specified data type
-        self.__move_components_to_device(dtype=weight_dtype)
+        # Load components needed for training to GPU (except transformer), and cast them to the specified data type
+        ignore_list = ["transformer"] + self.UNLOAD_LIST
+        self.__move_components_to_device(dtype=weight_dtype, ignore_list=ignore_list)
 
         if self.args.gradient_checkpointing:
             self.components.transformer.enable_gradient_checkpointing()
@@ -406,6 +408,7 @@ class Trainer:
             generator = generator.manual_seed(self.args.seed)
         self.state.generator = generator
 
+        free_memory()
         for epoch in range(first_epoch, self.args.train_epochs):
             logger.debug(f"Starting epoch ({epoch + 1}/{self.args.train_epochs})")
 
@@ -497,18 +500,25 @@ class Trainer:
         #####  Initialize pipeline  #####
         pipe = self.initialize_pipeline()
 
-        # Or use pipe.enable_sequential_cpu_offload() to further reduce memory usage
-        pipe.enable_model_cpu_offload(device=self.accelerator.device)
+        if self.state.using_deepspeed:
+            # Can't using model_cpu_offload in deepspeed,
+            # so we need to move all components in pipe to device
+            # pipe.to(self.accelerator.device, dtype=self.state.weight_dtype)
+            self.__move_components_to_device(dtype=self.state.weight_dtype, ignore_list=["transformer"])
+        else:
+            # if not using deepspeed, use model_cpu_offload to further reduce memory usage
+            # Or use pipe.enable_sequential_cpu_offload() to further reduce memory usage
+            pipe.enable_model_cpu_offload(device=self.accelerator.device)
 
-        # Convert all model weights to training dtype
-        # Note, this will change LoRA weights in self.components.transformer to training dtype, rather than keep them in fp32
-        pipe = pipe.to(dtype=self.state.weight_dtype)
+            # Convert all model weights to training dtype
+            # Note, this will change LoRA weights in self.components.transformer to training dtype, rather than keep them in fp32
+            pipe = pipe.to(dtype=self.state.weight_dtype)
 
         #################################
 
         all_processes_artifacts = []
         for i in range(num_validation_samples):
-            if self.accelerator.deepspeed_plugin and self.accelerator.deepspeed_plugin.zero_stage != 3:
+            if self.state.using_deepspeed and self.accelerator.deepspeed_plugin.zero_stage != 3:
                 # Skip current validation on all processes but one
                 if i % accelerator.num_processes != accelerator.process_index:
                     continue
@@ -539,7 +549,7 @@ class Trainer:
             validation_artifacts = self.validation_step({"prompt": prompt, "image": image, "video": video}, pipe)
 
             if (
-                self.accelerator.deepspeed_plugin is not None
+                self.state.using_deepspeed
                 and self.accelerator.deepspeed_plugin.zero_stage == 3
                 and not accelerator.is_main_process
             ):
@@ -599,22 +609,25 @@ class Trainer:
                         step=step,
                     )
 
-        pipe.remove_all_hooks()
-        del pipe
-        # Unload models except those needed for training
-        self.__move_components_to_cpu()
+        ##########  Clean up  ##########
+        if self.state.using_deepspeed:
+            del pipe
+            # Unload models except those needed for training
+            self.__move_components_to_cpu(unload_list=self.UNLOAD_LIST)
+        else:
+            pipe.remove_all_hooks()
+            del pipe
+            # Load models except those not needed for training
+            self.__move_components_to_device(dtype=self.state.weight_dtype, ignore_list=self.UNLOAD_LIST)
+            self.components.transformer.to(self.accelerator.device, dtype=self.state.weight_dtype)
 
-        # Load models except those not needed for training
-        self.__move_components_to_device(dtype=self.state.weight_dtype)
-        self.components.transformer.to(self.accelerator.device, dtype=self.state.weight_dtype)
-
-        if self.accelerator.state.deepspeed_plugin is None:
-            # Change trainable weights back to fp32
+            # Change trainable weights back to fp32 to keep with dtype after prepare the model
             cast_training_params([self.components.transformer], dtype=torch.float32)
 
-        accelerator.wait_for_everyone()
-
         free_memory()
+        accelerator.wait_for_everyone()
+        ################################
+
         memory_statistics = get_memory_statistics()
         logger.info(f"Memory after validation end: {json.dumps(memory_statistics, indent=4)}")
         torch.cuda.reset_peak_memory_stats(accelerator.device)
@@ -668,25 +681,20 @@ class Trainer:
         else:
             raise ValueError(f"Invalid mixed precision: {self.args.mixed_precision}")
 
-    def __move_components_to_device(self, dtype):
+    def __move_components_to_device(self, dtype, ignore_list: List[str] = []):
+        ignore_list = set(ignore_list)
         components = self.components.model_dump()
         for name, component in components.items():
             if not isinstance(component, type) and hasattr(component, "to"):
-                if name in self.UNLOAD_LIST:
-                    continue
+                if name not in ignore_list:
+                    setattr(self.components, name, component.to(self.accelerator.device, dtype=dtype))
 
-                # We don't need to move transformer to device
-                # because we will prepare it in the `prepare_for_training()`
-                if name == "transformer":
-                    continue
-
-                setattr(self.components, name, component.to(self.accelerator.device, dtype=dtype))
-
-    def __move_components_to_cpu(self):
+    def __move_components_to_cpu(self, unload_list: List[str] = []):
+        unload_list = set(unload_list)
         components = self.components.model_dump()
         for name, component in components.items():
             if not isinstance(component, type) and hasattr(component, "to"):
-                if name in self.UNLOAD_LIST:
+                if name in unload_list:
                     setattr(self.components, name, component.to("cpu"))
 
     def __prepare_saving_loading_hooks(self, transformer_lora_config):
