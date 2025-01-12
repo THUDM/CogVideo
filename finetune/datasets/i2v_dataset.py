@@ -147,6 +147,7 @@ class BaseI2VDataset(Dataset):
             frames, image = self.preprocess(video, image)
             frames = frames.to(self.device)
             image = image.to(self.device)
+            image = self.image_transform(image)
             # Current shape of frames: [F, C, H, W]
             frames = self.video_transform(frames)
 

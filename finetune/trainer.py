@@ -539,7 +539,7 @@ class Trainer:
                     video, self.state.train_frames, self.state.train_height, self.state.train_width
                 )
                 # Convert video tensor (F, C, H, W) to list of PIL images
-                video = (video * 255).round().clamp(0, 255).to(torch.uint8)
+                video = video.round().clamp(0, 255).to(torch.uint8)
                 video = [Image.fromarray(frame.permute(1, 2, 0).cpu().numpy()) for frame in video]
 
             logger.debug(
