@@ -111,7 +111,7 @@ class CogVideoXT2VLoraTrainer(Trainer):
 
         # Get prompt embeddings
         _, seq_len, _ = prompt_embedding.shape
-        prompt_embedding = prompt_embedding.view(batch_size, seq_len, -1)
+        prompt_embedding = prompt_embedding.view(batch_size, seq_len, -1).to(dtype=latent.dtype)
 
         # Sample a random timestep for each sample
         timesteps = torch.randint(
@@ -197,7 +197,7 @@ class CogVideoXT2VLoraTrainer(Trainer):
             base_num_frames = num_frames
         else:
             base_num_frames = (num_frames + transformer_config.patch_size_t - 1) // transformer_config.patch_size_t
-
+        breakpoint()
         freqs_cos, freqs_sin = get_3d_rotary_pos_embed(
             embed_dim=transformer_config.attention_head_dim,
             crops_coords=None,

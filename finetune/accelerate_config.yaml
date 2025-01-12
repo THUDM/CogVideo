@@ -5,7 +5,7 @@ num_processes: 8  # should be the same as the number of GPUs
 
 debug: false
 deepspeed_config:
-  deepspeed_config_file: /home/lhy/code/CogVideo/finetune/configs/zero2.yaml  # e.g. /home/user/cogvideo/finetune/configs/zero2.yaml
+  deepspeed_config_file: configs/zero2.yaml  # e.g. configs/zero2.yaml, need use absolute path
   zero3_init_flag: false
 distributed_type: DEEPSPEED
 downcast_bf16: 'no'
