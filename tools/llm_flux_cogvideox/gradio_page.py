@@ -12,7 +12,7 @@ from transformers import AutoTokenizer
 from datetime import datetime, timedelta
 import threading
 import time
-import moviepy.editor as mp
+from moviepy import VideoFileClip
 
 torch.set_float32_matmul_precision("high")
 
@@ -140,9 +140,9 @@ def save_video(tensor):
 
 
 def convert_to_gif(video_path):
-    clip = mp.VideoFileClip(video_path)
-    clip = clip.set_fps(8)
-    clip = clip.resize(height=240)
+    clip = VideoFileClip(video_path)
+    clip = clip.with_fps(8)
+    clip = clip.resized(height=240)
     gif_path = video_path.replace(".mp4", ".gif")
     clip.write_gif(gif_path, fps=8)
     return gif_path

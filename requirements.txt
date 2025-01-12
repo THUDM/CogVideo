@@ -10,5 +10,5 @@ gradio>=5.5.0
 imageio>=2.35.1
 imageio-ffmpeg>=0.5.1
 openai>=1.54.0
-moviepy>=1.0.3
+moviepy>=2.0.0
 scikit-video>=1.1.11
