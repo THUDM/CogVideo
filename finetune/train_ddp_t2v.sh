@@ -13,25 +13,25 @@ MODEL_ARGS=(
 
 # Output Configuration
 OUTPUT_ARGS=(
-    --output_dir "/path/to/output/dir"
+    --output_dir "/absolute/path/to/your/output_dir"
     --report_to "tensorboard"
 )
 
 # Data Configuration
 DATA_ARGS=(
-    --data_root "/path/to/data/dir"
+    --data_root "/absolute/path/to/your/data_root"
     --caption_column "prompt.txt"
     --video_column "videos.txt"
-    --train_resolution "81x768x1360"
+    --train_resolution "81x768x1360"  # (frames x height x width), frames should be 8N+1
 )
 
 # Training Configuration
 TRAIN_ARGS=(
-    --train_epochs 10
+    --train_epochs 10 # number of training epochs
+    --seed 42 # random seed
     --batch_size 1
     --gradient_accumulation_steps 1
-    --mixed_precision "bf16"  # ["no", "fp16"]
-    --seed 42
+    --mixed_precision "bf16"  # ["no", "fp16"] # Only CogVideoX-2B supports fp16 training
 )
 
 # System Configuration
@@ -43,15 +43,16 @@ SYSTEM_ARGS=(
 
 # Checkpointing Configuration
 CHECKPOINT_ARGS=(
-    --checkpointing_steps 200
-    --checkpointing_limit 10
+    --checkpointing_steps 10 # save checkpoint every x steps
+    --checkpointing_limit 2 # maximum number of checkpoints to keep, after which the oldest one is deleted
+    --resume_from_checkpoint "/absolute/path/to/checkpoint_dir"  # if you want to resume from a checkpoint, otherwise, comment this line
 )
 
 # Validation Configuration
 VALIDATION_ARGS=(
-    --do_validation False
-    --validation_dir "/path/to/validation/dir"
-    --validation_steps 400
+    --do_validation false  # ["true", "false"]
+    --validation_dir "/absolute/path/to/your/validation_set"
+    --validation_steps 20  # should be multiple of checkpointing_steps
     --validation_prompts "prompts.txt"
     --gen_fps 16
 )

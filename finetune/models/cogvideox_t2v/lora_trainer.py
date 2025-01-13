@@ -100,28 +100,18 @@ class CogVideoXT2VLoraTrainer(Trainer):
         # Shape of latent: [B, C, F, H, W]
 
         patch_size_t = self.state.transformer_config.patch_size_t
-        if patch_size_t is not None and latent.shape[2] % patch_size_t != 0:
-            raise ValueError(
-                "Number of frames in latent must be divisible by patch size, please check your args for training."
-            )
-
-        # Add 2 random noise frames at the beginning of frame dimension
-        noise_frames = torch.randn(
-            latent.shape[0],
-            latent.shape[1],
-            2,
-            latent.shape[3],
-            latent.shape[4],
-            device=latent.device,
-            dtype=latent.dtype,
-        )
-        latent = torch.cat([noise_frames, latent], dim=2)
+        if patch_size_t is not None:
+            ncopy = latent.shape[2] % patch_size_t
+            # Copy the first frame ncopy times to match patch_size_t
+            first_frame = latent[:, :, :1, :, :]  # Get first frame [B, C, 1, H, W]
+            latent = torch.cat([first_frame.repeat(1, 1, ncopy, 1, 1), latent], dim=2)
+            assert latent.shape[2] % patch_size_t == 0
 
         batch_size, num_channels, num_frames, height, width = latent.shape
 
         # Get prompt embeddings
         _, seq_len, _ = prompt_embedding.shape
-        prompt_embedding = prompt_embedding.view(batch_size, seq_len, -1)
+        prompt_embedding = prompt_embedding.view(batch_size, seq_len, -1).to(dtype=latent.dtype)
 
         # Sample a random timestep for each sample
         timesteps = torch.randint(
@@ -183,7 +173,7 @@ class CogVideoXT2VLoraTrainer(Trainer):
         prompt, image, video = eval_data["prompt"], eval_data["image"], eval_data["video"]
 
         video_generate = pipe(
-            num_frames=self.state.train_frames,  # since we pad 2 frames in latent, we still use train_frames
+            num_frames=self.state.train_frames,
             height=self.state.train_height,
             width=self.state.train_width,
             prompt=prompt,
@@ -207,7 +197,6 @@ class CogVideoXT2VLoraTrainer(Trainer):
             base_num_frames = num_frames
         else:
             base_num_frames = (num_frames + transformer_config.patch_size_t - 1) // transformer_config.patch_size_t
-
         freqs_cos, freqs_sin = get_3d_rotary_pos_embed(
             embed_dim=transformer_config.attention_head_dim,
             crops_coords=None,

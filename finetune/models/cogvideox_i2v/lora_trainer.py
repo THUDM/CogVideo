@@ -9,6 +9,7 @@ from diffusers import (
 )
 from diffusers.models.embeddings import get_3d_rotary_pos_embed
 from PIL import Image
+from numpy import dtype
 from transformers import AutoTokenizer, T5EncoderModel
 from typing_extensions import override
 
@@ -116,7 +117,7 @@ class CogVideoXI2VLoraTrainer(Trainer):
 
         # Get prompt embeddings
         _, seq_len, _ = prompt_embedding.shape
-        prompt_embedding = prompt_embedding.view(batch_size, seq_len, -1)
+        prompt_embedding = prompt_embedding.view(batch_size, seq_len, -1).to(dtype=latent.dtype)
 
         # Add frame dimension to images [B,C,H,W] -> [B,C,F,H,W]
         images = images.unsqueeze(2)
@@ -166,7 +167,7 @@ class CogVideoXI2VLoraTrainer(Trainer):
             else None
         )
 
-        # Predict noise
+        # Predict noise, For CogVideoX1.5 Only.
         ofs_emb = (
             None if self.state.transformer_config.ofs_embed_dim is None else latent.new_full((1,), fill_value=2.0)
         )

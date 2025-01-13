@@ -78,7 +78,7 @@ class Args(BaseModel):
 
     ########## Validation ##########
     do_validation: bool = False
-    validation_steps: int | None = None  # if set, should be a multiple of checkpointing_steps
+    validation_steps: int | None  # if set, should be a multiple of checkpointing_steps
     validation_dir: Path | None  # if set do_validation, should not be None
     validation_prompts: str | None  # if set do_validation, should not be None
     validation_images: str | None  # if set do_validation and model_type == i2v, should not be None

@@ -36,12 +36,12 @@ logging.basicConfig(level=logging.INFO)
 # Recommended resolution for each model (width, height)
 RESOLUTION_MAP = {
     # cogvideox1.5-*
-    "cogvideox1.5-5b-i2v": (1360, 768),
-    "cogvideox1.5-5b": (1360, 768),
+    "cogvideox1.5-5b-i2v": (768, 1360),
+    "cogvideox1.5-5b": (768, 1360),
     # cogvideox-*
-    "cogvideox-5b-i2v": (720, 480),
-    "cogvideox-5b": (720, 480),
-    "cogvideox-2b": (720, 480),
+    "cogvideox-5b-i2v": (480, 720),
+    "cogvideox-5b": (480, 720),
+    "cogvideox-2b": (480, 720),
 }
 
 
@@ -94,7 +94,7 @@ def generate_video(
     model_name = model_path.split("/")[-1].lower()
     desired_resolution = RESOLUTION_MAP[model_name]
     if width is None or height is None:
-        width, height = desired_resolution
+        height, width = desired_resolution
         logging.info(f"\033[1mUsing default resolution {desired_resolution} for {model_name}\033[0m")
     elif (width, height) != desired_resolution:
         if generate_type == "i2v":
@@ -121,7 +121,7 @@ def generate_video(
     # If you're using with lora, add this code
     if lora_path:
         pipe.load_lora_weights(lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
-        pipe.fuse_lora(lora_scale=1 / lora_rank)
+        pipe.fuse_lora(components=["transformer"], lora_scale=1/lora_rank)
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
