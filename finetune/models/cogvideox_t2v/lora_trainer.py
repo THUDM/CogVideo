@@ -197,7 +197,6 @@ class CogVideoXT2VLoraTrainer(Trainer):
             base_num_frames = num_frames
         else:
             base_num_frames = (num_frames + transformer_config.patch_size_t - 1) // transformer_config.patch_size_t
-        breakpoint()
         freqs_cos, freqs_sin = get_3d_rotary_pos_embed(
             embed_dim=transformer_config.attention_head_dim,
             crops_coords=None,

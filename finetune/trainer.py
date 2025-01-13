@@ -758,16 +758,6 @@ class Trainer:
         self.accelerator.register_save_state_pre_hook(save_model_hook)
         self.accelerator.register_load_state_pre_hook(load_model_hook)
 
-    # def __maybe_save_checkpoint(self, global_step: int, must_save: bool = False):
-    #     if self.accelerator.distributed_type == DistributedType.DEEPSPEED or self.accelerator.is_main_process:
-    #         if must_save or global_step % self.args.checkpointing_steps == 0:
-    #             save_path = get_intermediate_ckpt_path(
-    #                 checkpointing_limit=self.args.checkpointing_limit,
-    #                 step=global_step,
-    #                 output_dir=self.args.output_dir,
-    #             )
-    #         self.accelerator.save_state(save_path, safe_serialization=True)
-
     def __maybe_save_checkpoint(self, global_step: int, must_save: bool = False):
         if self.accelerator.distributed_type == DistributedType.DEEPSPEED or self.accelerator.is_main_process:
             if must_save or global_step % self.args.checkpointing_steps == 0:
@@ -783,4 +773,4 @@ class Trainer:
                 pipe_save_path.mkdir(parents=True, exist_ok=True)
                 pipe.save_pretrained(pipe_save_path)
                 del pipe
-                torch.cuda.empty_cache()
+                free_memory()

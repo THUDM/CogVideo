@@ -48,7 +48,7 @@ SYSTEM_ARGS=(
 CHECKPOINT_ARGS=(
     --checkpointing_steps 10
     --checkpointing_limit 2
-    --resume_from_checkpoint "/absolute/path/to/checkpoint_dir"  # if you want to resume from a checkpoint, otherwise, comment this line
+    # --resume_from_checkpoint "/absolute/path/to/checkpoint_dir"  # if you want to resume from a checkpoint, otherwise, comment this line
 )
 
 # Validation Configuration
