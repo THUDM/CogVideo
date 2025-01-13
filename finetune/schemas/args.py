@@ -229,7 +229,7 @@ class Args(BaseModel):
         parser.add_argument("--resume_from_checkpoint", type=str, default=None)
 
         # Validation
-        parser.add_argument("--do_validation", type=bool, default=False)
+        parser.add_argument("--do_validation", type=lambda x: x.lower() == 'true', default=False)
         parser.add_argument("--validation_steps", type=int, default=None)
         parser.add_argument("--validation_dir", type=str, default=None)
         parser.add_argument("--validation_prompts", type=str, default=None)
