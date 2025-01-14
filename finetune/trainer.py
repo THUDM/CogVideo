@@ -768,9 +768,3 @@ class Trainer:
                     output_dir=self.args.output_dir,
                 )
                 self.accelerator.save_state(save_path, safe_serialization=True)
-                pipe = self.initialize_pipeline()
-                pipe_save_path = Path(self.args.output_dir) / f"checkpoint-pipeline-{global_step}"
-                pipe_save_path.mkdir(parents=True, exist_ok=True)
-                pipe.save_pretrained(pipe_save_path)
-                del pipe
-                free_memory()

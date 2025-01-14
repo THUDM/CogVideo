@@ -23,18 +23,18 @@ DATA_ARGS=(
     --caption_column "prompt.txt"
     --video_column "videos.txt"
     # --image_column "images.txt"  # comment this line will use first frame of video as image conditioning
-    --train_resolution "81x768x1360"  # (frames x height x width), frames should be 8N+1
+    --train_resolution "81x768x1360"  # (frames x height x width), frames should be 8N+1 and height, width should be multiples of 16
 )
 
 # Training Configuration
 TRAIN_ARGS=(
-    --train_epochs 10
-    --seed 42
+    --train_epochs 10 # number of training epochs
+    --seed 42 # random seed
 
     #########   Please keep consistent with deepspeed config file ##########
     --batch_size 1
     --gradient_accumulation_steps 1
-    --mixed_precision "bf16"  # ["no", "fp16"]
+    --mixed_precision "bf16"  # ["no", "fp16"] Only CogVideoX-2B supports fp16 training
     ########################################################################
 )
 
@@ -47,8 +47,8 @@ SYSTEM_ARGS=(
 
 # Checkpointing Configuration
 CHECKPOINT_ARGS=(
-    --checkpointing_steps 10
-    --checkpointing_limit 2
+    --checkpointing_steps 10 # save checkpoint every x steps
+    --checkpointing_limit 2 # maximum number of checkpoints to keep, after which the oldest one is deleted
     # --resume_from_checkpoint "/absolute/path/to/checkpoint_dir"  # if you want to resume from a checkpoint, otherwise, comment this line
 )
 

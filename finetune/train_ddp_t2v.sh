@@ -27,11 +27,11 @@ DATA_ARGS=(
 
 # Training Configuration
 TRAIN_ARGS=(
-    --train_epochs 10
+    --train_epochs 10 # number of training epochs
+    --seed 42 # random seed
     --batch_size 1
     --gradient_accumulation_steps 1
-    --mixed_precision "bf16"  # ["no", "fp16"]
-    --seed 42
+    --mixed_precision "bf16"  # ["no", "fp16"] # Only CogVideoX-2B supports fp16 training
 )
 
 # System Configuration
@@ -43,8 +43,8 @@ SYSTEM_ARGS=(
 
 # Checkpointing Configuration
 CHECKPOINT_ARGS=(
-    --checkpointing_steps 5
-    --checkpointing_limit 10
+    --checkpointing_steps 10 # save checkpoint every x steps
+    --checkpointing_limit 2 # maximum number of checkpoints to keep, after which the oldest one is deleted
     --resume_from_checkpoint "/absolute/path/to/checkpoint_dir"  # if you want to resume from a checkpoint, otherwise, comment this line
 )
 
