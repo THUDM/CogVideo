@@ -78,7 +78,7 @@ class Args(BaseModel):
 
     ########## Validation ##########
     do_validation: bool = False
-    validation_steps: int | None = None  # if set, should be a multiple of checkpointing_steps
+    validation_steps: int | None  # if set, should be a multiple of checkpointing_steps
     validation_dir: Path | None  # if set do_validation, should not be None
     validation_prompts: str | None  # if set do_validation, should not be None
     validation_images: str | None  # if set do_validation and model_type == i2v, should not be None
@@ -229,7 +229,7 @@ class Args(BaseModel):
         parser.add_argument("--resume_from_checkpoint", type=str, default=None)
 
         # Validation
-        parser.add_argument("--do_validation", type=bool, default=False)
+        parser.add_argument("--do_validation", type=lambda x: x.lower() == 'true', default=False)
         parser.add_argument("--validation_steps", type=int, default=None)
         parser.add_argument("--validation_dir", type=str, default=None)
         parser.add_argument("--validation_prompts", type=str, default=None)

@@ -14,7 +14,10 @@ To run the script, use the following command with appropriate arguments:
 $ python cli_demo.py --prompt "A girl riding a bike." --model_path THUDM/CogVideoX1.5-5b --generate_type "t2v"
 ```
 
+You can change `pipe.enable_sequential_cpu_offload()` to `pipe.enable_model_cpu_offload()` to speed up inference, but this will use more GPU memory
+
 Additional options are available to specify the model path, guidance scale, number of inference steps, video generation type, and output paths.
+
 """
 
 import argparse
@@ -22,6 +25,7 @@ import logging
 from typing import Literal, Optional
 
 import torch
+
 from diffusers import (
     CogVideoXDPMScheduler,
     CogVideoXImageToVideoPipeline,
@@ -36,12 +40,12 @@ logging.basicConfig(level=logging.INFO)
 # Recommended resolution for each model (width, height)
 RESOLUTION_MAP = {
     # cogvideox1.5-*
-    "cogvideox1.5-5b-i2v": (1360, 768),
-    "cogvideox1.5-5b": (1360, 768),
+    "cogvideox1.5-5b-i2v": (768, 1360),
+    "cogvideox1.5-5b": (768, 1360),
     # cogvideox-*
-    "cogvideox-5b-i2v": (720, 480),
-    "cogvideox-5b": (720, 480),
-    "cogvideox-2b": (720, 480),
+    "cogvideox-5b-i2v": (480, 720),
+    "cogvideox-5b": (480, 720),
+    "cogvideox-2b": (480, 720),
 }
 
 
@@ -94,7 +98,7 @@ def generate_video(
     model_name = model_path.split("/")[-1].lower()
     desired_resolution = RESOLUTION_MAP[model_name]
     if width is None or height is None:
-        width, height = desired_resolution
+        height, width = desired_resolution
         logging.info(f"\033[1mUsing default resolution {desired_resolution} for {model_name}\033[0m")
     elif (width, height) != desired_resolution:
         if generate_type == "i2v":
@@ -121,7 +125,7 @@ def generate_video(
     # If you're using with lora, add this code
     if lora_path:
         pipe.load_lora_weights(lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
-        pipe.fuse_lora(lora_scale=1 / lora_rank)
+        pipe.fuse_lora(components=["transformer"], lora_scale=1 / lora_rank)
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
@@ -134,8 +138,9 @@ def generate_video(
     # 3. Enable CPU offload for the model.
     # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
     # and enable to("cuda")
-
     # pipe.to("cuda")
+
+    # pipe.enable_model_cpu_offload()
     pipe.enable_sequential_cpu_offload()
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()

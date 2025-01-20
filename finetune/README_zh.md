@@ -8,17 +8,25 @@
 
 ## 硬件要求
 
-| 模型                  | 训练类型        | 混合训练精度 | 训练分辨率(帧数x高x宽)  | 硬件要求               |
-|----------------------|----------------|------------|----------------------|-----------------------|
-| cogvideox-t2v-2b     | lora (rank128) | fp16       | 49x480x720           | 16G显存 (NVIDIA 4080) |
-| cogvideox-t2v-5b     | lora (rank128) | bf16       | 49x480x720           | 24G显存 (NVIDIA 4090) |
-| cogvideox-i2v-5b     | lora (rank128) | bf16       | 49x480x720           | 24G显存 (NVIDIA 4090) |
-| cogvideox1.5-t2v-5b  | lora (rank128) | bf16       | 81x768x1360          | 35G显存 (NVIDIA A100) |
-| cogvideox1.5-i2v-5b  | lora (rank128) | bf16       | 81x768x1360          | 35G显存 (NVIDIA A100) |
-<!-- | cogvideox-t2v-5b     | sft            | bf16       | 49x480x720           |         |
-| cogvideox-i2v-5b     | sft            | bf16       | 49x480x720           |         |
-| cogvideox1.5-t2v-5b  | sft            | bf16       | 81x768x1360          |         |
-| cogvideox1.5-i2v-5b  | sft            | bf16       | 81x768x1360          |         | -->
+| 模型                        | 训练类型        | 分布式策略                          | 混合训练精度 | 训练分辨率(帧数x高x宽)  | 硬件要求               |
+|----------------------------|----------------|-----------------------------------|------------|----------------------|-----------------------|
+| cogvideox-t2v-2b           | lora (rank128) | DDP                               | fp16       | 49x480x720           | 16G显存 (NVIDIA 4080) |
+| cogvideox-{t2v, i2v}-5b    | lora (rank128) | DDP                               | bf16       | 49x480x720           | 24G显存 (NVIDIA 4090) |
+| cogvideox1.5-{t2v, i2v}-5b | lora (rank128) | DDP                               | bf16       | 81x768x1360          | 35G显存 (NVIDIA A100) |
+| cogvideox-t2v-2b           | sft            | DDP                               | fp16       | 49x480x720           | 36G显存 (NVIDIA A100) |
+| cogvideox-t2v-2b           | sft            | 1卡zero-2 + opt offload           | fp16       | 49x480x720           | 17G显存 (NVIDIA 4090) |
+| cogvideox-t2v-2b           | sft            | 8卡zero-2                         | fp16       | 49x480x720           | 17G显存 (NVIDIA 4090) |
+| cogvideox-t2v-2b           | sft            | 8卡zero-3                         | fp16       | 49x480x720           | 19G显存 (NVIDIA 4090) |
+| cogvideox-t2v-2b           | sft            | 8卡zero-3 + opt and param offload | bf16       | 49x480x720           | 14G显存 (NVIDIA 4080) |
+| cogvideox-{t2v, i2v}-5b    | sft            | 1卡zero-2 + opt offload           | bf16       | 49x480x720           | 42G显存 (NVIDIA A100) |
+| cogvideox-{t2v, i2v}-5b    | sft            | 8卡zero-2                         | bf16       | 49x480x720           | 42G显存 (NVIDIA 4090) |
+| cogvideox-{t2v, i2v}-5b    | sft            | 8卡zero-3                         | bf16       | 49x480x720           | 43G显存 (NVIDIA 4090) |
+| cogvideox-{t2v, i2v}-5b    | sft            | 8卡zero-3 + opt and param offload | bf16       | 49x480x720           | 28G显存 (NVIDIA 5090) |
+| cogvideox1.5-{t2v, i2v}-5b | sft            | 1卡zero-2 + opt offload           | bf16       | 81x768x1360          | 56G显存 (NVIDIA A100) |
+| cogvideox1.5-{t2v, i2v}-5b | sft            | 8卡zero-2                         | bf16       | 81x768x1360          | 55G显存 (NVIDIA A100) |
+| cogvideox1.5-{t2v, i2v}-5b | sft            | 8卡zero-3                         | bf16       | 81x768x1360          | 55G显存 (NVIDIA A100) |
+| cogvideox1.5-{t2v, i2v}-5b | sft            | 8卡zero-3 + opt and param offload | bf16       | 81x768x1360          | 40G显存 (NVIDIA A100) |
+
 
 ## 安装依赖
 
@@ -66,35 +74,48 @@ pip install -e .
 
 > **重要提示**：为了提高训练效率，我们会在训练前自动对video进行encode并将结果缓存在磁盘。如果在训练后修改了数据，请删除video目录下的latent目录，以确保使用最新的数据。
 
-### 文本生成视频 (T2V) 微调
+### LoRA
 
 ```bash
-# 修改 accelerate_train_t2v.sh 中的配置参数
+# 修改 train_ddp_t2v.sh 中的配置参数
 # 主要需要修改以下参数:
 # --output_dir: 输出目录
 # --data_root: 数据集根目录
 # --caption_column: 提示词文件路径
+# --image_column: I2V可选，参考图像文件列表路径 (移除这个参数将默认使用视频第一帧作为image condition)
 # --video_column: 视频文件列表路径
 # --train_resolution: 训练分辨率 (帧数x高x宽)
 # 其他重要参数请参考启动脚本
 
-bash accelerate_train_t2v.sh
+bash train_ddp_t2v.sh  # 文本生成视频 (T2V) 微调
+bash train_ddp_i2v.sh  # 图像生成视频 (I2V) 微调
 ```
 
-### 图像生成视频 (I2V) 微调
+### SFT
+
+我们在`configs/`目录中提供了几个zero配置的模版，请根据你的需求选择合适的训练配置（在`accelerate_config.yaml`中配置`deepspeed_config_file`选项即可）。
 
 ```bash
-# 修改 accelerate_train_i2v.sh 中的配置参数
-# 除了需要修改与T2V相同的参数外，还需要额外设置:
-# --image_column: 参考图像文件列表路径(如果没有自己的图片，默认使用视频第一帧，移除这个参数)
-# 其他重要参数请参考启动脚本
+# 需要配置的参数与LoRA训练同理
 
-bash accelerate_train_i2v.sh
+bash train_zero_t2v.sh  # 文本生成视频 (T2V) 微调
+bash train_zero_i2v.sh  # 图像生成视频 (I2V) 微调
 ```
+
+除了设置bash脚本的相关参数，你还需要在zero的配置文件中设定相关的训练选项，并确保zero的训练配置与bash脚本中的参数一致，例如batch_size，gradient_accumulation_steps，mixed_precision，具体细节请参考[deepspeed官方文档](https://www.deepspeed.ai/docs/config-json/)
+
+在使用sft训练时，有以下几点需要注意：
+
+1. 对于sft训练，validation时不会使用model offload，因此显存峰值可能会超出24GB，所以对于24GB以下的显卡，建议关闭validation。
+
+2. 开启zero-3时validation会比较慢，建议在zero-3下关闭validation。
+
 
 ## 载入微调的模型
 
 + 请关注[cli_demo.py](../inference/cli_demo.py) 以了解如何加载微调的模型。
+
++ 对于sft训练的模型，请先使用`checkpoint-*/`目录下的`zero_to_fp32.py`脚本合并模型权重
 
 ## 最佳实践
 
@@ -105,4 +126,3 @@ bash accelerate_train_i2v.sh
 + 原始仓库使用 `lora_alpha` 设置为 1。我们发现这个值在多次运行中效果不佳，可能是因为模型后端和训练设置的不同。我们的建议是将
   lora_alpha 设置为与 rank 相同或 rank // 2。
 + 建议使用 rank 为 64 及以上的设置。
-

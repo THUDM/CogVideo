@@ -5,8 +5,7 @@
 [日本語で読む](./README_ja.md)
 
 本文件夹包含了使用 [SAT](https://github.com/THUDM/SwissArmyTransformer) 权重的推理代码，以及 SAT 权重的微调代码。
-
-该代码是团队训练模型时使用的框架。注释较少，需要认真研究。
+如果你关注 `CogVideoX1.0`版本的模型，请查看[这里](https://github.com/THUDM/CogVideo/releases/tag/v1.0)的SAT文件夹，该分支仅支持`CogVideoX1.5`系列模型。
 
 ## 推理模型
 

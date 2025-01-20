@@ -1,4 +1,4 @@
-diffusers>=0.31.0
+diffusers>=0.32.1
 accelerate>=1.1.1
 transformers>=4.46.2
 numpy==1.26.0
@@ -12,3 +12,4 @@ imageio-ffmpeg>=0.5.1
 openai>=1.54.0
 moviepy>=2.0.0
 scikit-video>=1.1.11
+pydantic>=2.10.3

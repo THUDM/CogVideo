@@ -139,21 +139,18 @@ class BaseI2VDataset(Dataset):
             logger.info(f"Saved prompt embedding to {prompt_embedding_path}", main_process_only=False)
 
         if encoded_video_path.exists():
-            # encoded_video = torch.load(encoded_video_path, weights_only=True)
             encoded_video = load_file(encoded_video_path)["encoded_video"]
             logger.debug(f"Loaded encoded video from {encoded_video_path}", main_process_only=False)
             # shape of image: [C, H, W]
             _, image = self.preprocess(None, self.images[index])
+            image = self.image_transform(image)
         else:
             frames, image = self.preprocess(video, image)
             frames = frames.to(self.device)
             image = image.to(self.device)
+            image = self.image_transform(image)
             # Current shape of frames: [F, C, H, W]
             frames = self.video_transform(frames)
-
-            # Add image into the first frame.
-            # Note, **this operation maybe model-specific**, and maybe change in the future.
-            frames = torch.cat([image.unsqueeze(0), frames], dim=0)
 
             # Convert to [B, C, F, H, W]
             frames = frames.unsqueeze(0)
