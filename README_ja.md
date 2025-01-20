@@ -192,6 +192,11 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
     <td colspan="3" style="text-align: center;">720 * 480</td>
   </tr>
   <tr>
+    <td style="text-align: center;">フレーム数</td>
+    <td colspan="2" style="text-align: center;"><b>16N + 1</b> (N <= 10) である必要があります (デフォルト 81)</td>
+    <td colspan="3" style="text-align: center;"><b>8N + 1</b> (N <= 6) である必要があります (デフォルト 49)</td>
+  </tr>
+  <tr>
     <td style="text-align: center;">推論精度</td>
     <td colspan="2" style="text-align: center;"><b>BF16(推奨)</b>, FP16, FP32，FP8*，INT8，INT4非対応</td>
     <td style="text-align: center;"><b>FP16*(推奨)</b>, BF16, FP32，FP8*，INT8，INT4非対応</td>

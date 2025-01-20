@@ -180,7 +180,12 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
     <td colspan="1" style="text-align: center;">1360 * 768</td>
     <td colspan="1" style="text-align: center;"> Min(W, H) = 768 <br> 768 ≤ Max(W, H) ≤ 1360 <br> Max(W, H) % 16 = 0 </td>
     <td colspan="3" style="text-align: center;">720 * 480</td>
-    </tr>
+  </tr>
+  <tr>
+    <td style="text-align: center;">帧数</td>
+    <td colspan="2" style="text-align: center;">必须为 <b>16N + 1</b> 其中 N <= 10 (默认 81)</td>
+    <td colspan="3" style="text-align: center;">必须为 <b>8N + 1</b> 其中 N <= 6 (默认 49)</td>
+  </tr>
   <tr>
     <td style="text-align: center;">推理精度</td>
     <td colspan="2" style="text-align: center;"><b>BF16(推荐)</b>, FP16, FP32，FP8*，INT8，不支持INT4</td>

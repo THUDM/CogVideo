@@ -200,6 +200,11 @@ models we currently offer, along with their foundational information.
     <td colspan="3" style="text-align: center;">720 * 480</td>
   </tr>
   <tr>
+    <td style="text-align: center;">Number of Frames</td>
+    <td colspan="2" style="text-align: center;">Should be <b>16N + 1</b> where N <= 10 (default 81)</td>
+    <td colspan="3" style="text-align: center;">Should be <b>8N + 1</b> where N <= 6 (default 49)</td>
+  </tr>
+  <tr>
     <td style="text-align: center;">Inference Precision</td>
     <td colspan="2" style="text-align: center;"><b>BF16 (Recommended)</b>, FP16, FP32, FP8*, INT8, Not supported: INT4</td>
     <td style="text-align: center;"><b>FP16*(Recommended)</b>, BF16, FP32, FP8*, INT8, Not supported: INT4</td>
