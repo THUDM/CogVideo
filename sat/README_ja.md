@@ -5,7 +5,8 @@
 [中文阅读](./README_zh.md)
 
 このフォルダには、[SAT](https://github.com/THUDM/SwissArmyTransformer)の重みを使用した推論コードと、SAT重みのファインチューニングコードが含まれています。
-このコードは、チームがモデルを訓練する際に使用したフレームワークです。コメントが少ないため、注意深く確認する必要があります。
+`CogVideoX1.0`バージョンのモデルに関心がある場合は、[こちら](https://github.com/THUDM/CogVideo/releases/tag/v1.0)
+のSATフォルダを参照してください。このブランチは`CogVideoX1.5`シリーズのモデルのみをサポートしています。
 
 ## 推論モデル
 
@@ -16,7 +17,8 @@ pip install -r requirements.txt
 ```
 
 ### 2. モデルの重みをダウンロード
- まず、SATミラーからモデルの重みをダウンロードしてください。
+
+まず、SATミラーからモデルの重みをダウンロードしてください。
 
 #### CogVideoX1.5 モデル
 
@@ -270,7 +272,9 @@ args:
   force_inference: True
 ```
 
-+ 複数のプロンプトを含むテキストファイルを使用する場合、`configs/test.txt`を適宜編集してください。1行につき1プロンプトです。プロンプトの書き方が分からない場合は、[こちらのコード](../inference/convert_demo.py)を使用してLLMで補正できます。
++ 複数のプロンプトを含むテキストファイルを使用する場合、`configs/test.txt`
+  を適宜編集してください。1行につき1プロンプトです。プロンプトの書き方が分からない場合は、[こちらのコード](../inference/convert_demo.py)
+  を使用してLLMで補正できます。
 + コマンドライン入力を使用する場合、以下のように変更します：
 
 ```
@@ -346,6 +350,7 @@ bash inference.sh
     fp16:
       enabled: True  # CogVideoX-2B 用は True、CogVideoX-5B 用は False に設定
 ```
+
 ```yaml
 args:
   latent_channels: 16
@@ -364,7 +369,8 @@ args:
   force_inference: True
 ```
 
-+ If using a text file to save multiple prompts, modify `configs/test.txt` as needed. One prompt per line. If you are unsure how to write prompts, use [this code](../inference/convert_demo.py) to call an LLM for refinement.
++ If using a text file to save multiple prompts, modify `configs/test.txt` as needed. One prompt per line. If you are
+  unsure how to write prompts, use [this code](../inference/convert_demo.py) to call an LLM for refinement.
 + To use command-line input, modify:
 
 ```
@@ -405,13 +411,15 @@ The dataset should be structured as follows:
     ├── ...
 ```
 
-Each txt file should have the same name as the corresponding video file and contain the label for that video. The videos and labels should correspond one-to-one. Generally, avoid using one video with multiple labels.
+Each txt file should have the same name as the corresponding video file and contain the label for that video. The videos
+and labels should correspond one-to-one. Generally, avoid using one video with multiple labels.
 
 For style fine-tuning, prepare at least 50 videos and labels with a similar style to facilitate fitting.
 
 ### Modifying the Configuration File
 
-We support two fine-tuning methods: `Lora` and full-parameter fine-tuning. Note that both methods only fine-tune the `transformer` part. The `VAE` part is not modified, and `T5` is only used as an encoder.
+We support two fine-tuning methods: `Lora` and full-parameter fine-tuning. Note that both methods only fine-tune the
+`transformer` part. The `VAE` part is not modified, and `T5` is only used as an encoder.
 Modify the files in `configs/sft.yaml` (full fine-tuning) as follows:
 
 ```yaml
@@ -463,13 +471,15 @@ model:
 
 Edit `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` and select the config file. Below are two examples:
 
-1. If you want to use the `CogVideoX-2B` model with `Lora`, modify `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` as follows:
+1. If you want to use the `CogVideoX-2B` model with `Lora`, modify `finetune_single_gpu.sh` or `finetune_multi_gpus.sh`
+   as follows:
 
 ```
 run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b_lora.yaml configs/sft.yaml --seed $RANDOM"
 ```
 
-2. If you want to use the `CogVideoX-2B` model with full fine-tuning, modify `finetune_single_gpu.sh` or `finetune_multi_gpus.sh` as follows:
+2. If you want to use the `CogVideoX-2B` model with full fine-tuning, modify `finetune_single_gpu.sh` or
+   `finetune_multi_gpus.sh` as follows:
 
 ```
 run_cmd="torchrun --standalone --nproc_per_node=8 train_video.py --base configs/cogvideox_2b.yaml configs/sft.yaml --seed $RANDOM"
@@ -509,9 +519,11 @@ python ../tools/convert_weight_sat2hf.py
 ### Exporting Lora Weights from SAT to Huggingface Diffusers
 
 Support is provided for exporting Lora weights from SAT to Huggingface Diffusers format.
-After training with the above steps, you’ll find the SAT model with Lora weights in {args.save}/1000/1000/mp_rank_00_model_states.pt
+After training with the above steps, you’ll find the SAT model with Lora weights in
+{args.save}/1000/1000/mp_rank_00_model_states.pt
 
-The export script `export_sat_lora_weight.py` is located in the CogVideoX repository under `tools/`. After exporting, use `load_cogvideox_lora.py` for inference.
+The export script `export_sat_lora_weight.py` is located in the CogVideoX repository under `tools/`. After exporting,
+use `load_cogvideox_lora.py` for inference.
 
 Export command:
 
@@ -519,7 +531,8 @@ Export command:
 python tools/export_sat_lora_weight.py --sat_pt_path {args.save}/{experiment_name}-09-09-21-10/1000/mp_rank_00_model_states.pt --lora_save_directory   {args.save}/export_hf_lora_weights_1/
 ```
 
-The following model structures were modified during training. Here is the mapping between SAT and HF Lora structures. Lora adds a low-rank weight to the attention structure of the model.
+The following model structures were modified during training. Here is the mapping between SAT and HF Lora structures.
+Lora adds a low-rank weight to the attention structure of the model.
 
 ```
 'attention.query_key_value.matrix_A.0': 'attn1.to_q.lora_A.weight',
