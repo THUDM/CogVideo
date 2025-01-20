@@ -100,7 +100,7 @@ def generate_video(
     if width is None or height is None:
         height, width = desired_resolution
         logging.info(f"\033[1mUsing default resolution {desired_resolution} for {model_name}\033[0m")
-    elif (width, height) != desired_resolution:
+    elif (height, width) != desired_resolution:
         if generate_type == "i2v":
             # For i2v models, use user-defined width and height
             logging.warning(
@@ -111,7 +111,7 @@ def generate_video(
             logging.warning(
                 f"\033[1;31m{model_name} is not supported for custom resolution. Setting back to default resolution {desired_resolution}.\033[0m"
             )
-            width, height = desired_resolution
+            height, width = desired_resolution
 
     if generate_type == "i2v":
         pipe = CogVideoXImageToVideoPipeline.from_pretrained(model_path, torch_dtype=dtype)
