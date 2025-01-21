@@ -30,7 +30,7 @@ from datetime import datetime, timedelta
 
 from diffusers.image_processor import VaeImageProcessor
 from openai import OpenAI
-import moviepy.editor as mp
+from moviepy import VideoFileClip
 import utils
 from rife_model import load_rife_model, rife_inference_with_latents
 from huggingface_hub import hf_hub_download, snapshot_download
@@ -271,9 +271,9 @@ def infer(
 
 
 def convert_to_gif(video_path):
-    clip = mp.VideoFileClip(video_path)
-    clip = clip.set_fps(8)
-    clip = clip.resize(height=240)
+    clip = VideoFileClip(video_path)
+    clip = clip.with_fps(8)
+    clip = clip.resized(height=240)
     gif_path = video_path.replace(".mp4", ".gif")
     clip.write_gif(gif_path, fps=8)
     return gif_path
