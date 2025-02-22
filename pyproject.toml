@@ -1,27 +1,43 @@
+[project]
+name = "cogvideo"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "datasets>=2.14.4",
+    "decord>=0.6.0",
+    "deepspeed>=0.16.4",
+    "diffusers>=0.32.2",
+    "opencv-python>=4.11.0.86",
+    "peft>=0.13.2",
+    "pydantic>=2.10.6",
+    "sentencepiece>=0.2.0",
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
+    "transformers>=4.46.3",
+    "wandb>=0.19.7",
+]
+
+
 [tool.ruff]
-line-length = 119
-
-[tool.ruff.lint]
-# Never enforce `E501` (line length violations).
-ignore = ["C901", "E501", "E741", "F402", "F823"]
-select = ["C", "E", "F", "I", "W"]
-
-# Ignore import violations in all `__init__.py` files.
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402", "F401", "F403", "F811"]
-
-[tool.ruff.lint.isort]
-lines-after-imports = 2
+exclude = ['.git', '.mypy_cache', '.ruff_cache', '.venv', 'dist']
+target-version = 'py310'
+line-length = 100
 
 [tool.ruff.format]
-# Like Black, use double quotes for strings.
-quote-style = "double"
+line-ending = 'lf'
+quote-style = 'preserve'
 
-# Like Black, indent with spaces, rather than tabs.
-indent-style = "space"
-
-# Like Black, respect magic trailing commas.
-skip-magic-trailing-comma = false
-
-# Like Black, automatically detect the appropriate line ending.
-line-ending = "auto"
+[tool.ruff.lint]
+select = ["E", "W"]
+ignore = [
+    "E999",
+    "EXE001",
+    "UP009",
+    "F401",
+    "TID252",
+    "F403",
+    "F841",
+    "E501",
+    "W293",
+]

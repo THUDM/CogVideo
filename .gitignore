@@ -23,3 +23,15 @@ venv
 **/*.mp4
 **/validation_set
 CogVideo-1.0
+
+**/**foo**
+**/sat
+**/train_results
+**/train_res*
+
+**/**foo**
+**/sat
+**/train_results
+**/train_res*
+
+**/uv.lock
