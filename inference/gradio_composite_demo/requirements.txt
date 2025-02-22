@@ -15,5 +15,5 @@ gradio>=5.4.0
 imageio>=2.34.2
 imageio-ffmpeg>=0.5.1
 openai>=1.45.0
-moviepy>=1.0.3
+moviepy>=2.0.0
 pillow==9.5.0

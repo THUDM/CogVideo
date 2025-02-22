@@ -41,7 +41,7 @@ pip install -r requirements.txt
 ## Running the code
 
 ```bash
-python gradio_web_demo.py
+python app.py
 ```
 
 
