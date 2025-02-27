@@ -22,7 +22,8 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2025/01/08```: 我们更新了基于`diffusers`版本模型的`Lora`微调代码，占用显存更低，详情请见[这里](finetune/README_zh.md)。
+- 🔥 **News**: ```2025/02/28```:  DDIM Inverse 已经在`CogVideoX-5B` 和 `CogVideoX1.5 -5B` 支持，查看 [here](inference/ddim_inversion.py).
+- 🔥 **News**: ```2025/01/08```: 我们更新了基于`diffusers`版本模型的`Lora`微调代码，占用显存更低，详情请见[这里](finetune/README_zh.md)。
 - 🔥 **News**: ```2024/11/15```: 我们发布 `CogVideoX1.5` 模型的diffusers版本，仅需调整部分参数仅可沿用之前的代码。
 - 🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。 
 CogVideoX1.5-5B 系列模型支持 **10秒** 长度的视频和更高的分辨率，其中 `CogVideoX1.5-5B-I2V` 支持 **任意分辨率** 的视频生成，SAT代码已经更新。`diffusers`版本还在适配中。SAT版本代码前往 [这里](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT) 下载。
