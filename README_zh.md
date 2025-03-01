@@ -278,6 +278,8 @@ pipe.vae.enable_tiling()
 
 我们非常欢迎来自社区的贡献，并积极的贡献开源社区。以下作品已经对CogVideoX进行了适配，欢迎大家使用:
 
++ [RIFLEx-CogVideoX](https://github.com/thu-ml/RIFLEx)：
+  RIFLEx 是一个视频长度外推的方法，只需一行代码即可将视频生成长度延伸为原先的二倍。RIFLEx 不仅支持 Training-free 的推理，也提供基于 CogVideoX 进行微调的模型，只需在原有长度视频上微调 1000 步即可大大提高长度外推能力。
 + [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun):
   CogVideoX-Fun是一个基于CogVideoX结构修改后的的pipeline，支持自由的分辨率，多种启动方式。
 + [CogStudio](https://github.com/pinokiofactory/cogstudio): CogVideo 的 Gradio Web UI单独实现仓库，支持更多功能的 Web UI。
