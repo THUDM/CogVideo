@@ -22,6 +22,7 @@
 
 ## 项目更新
 
+- 🔥🔥 **News**: ```2025/03/16```: 我们推出了 [CogKit](https://github.com/THUDM/CogKit) 工具，这是一个微调**CogView4**, **CogVideoX** 系列的微调和推理框架，一个工具包，玩转我们的多模态生成模型。
 - 🔥 **News**: ```2025/02/28```:  DDIM Inverse 已经在`CogVideoX-5B` 和 `CogVideoX1.5 -5B` 支持，查看 [here](inference/ddim_inversion.py).
 - 🔥 **News**: ```2025/01/08```: 我们更新了基于`diffusers`版本模型的`Lora`微调代码，占用显存更低，详情请见[这里](finetune/README_zh.md)。
 - 🔥 **News**: ```2024/11/15```: 我们发布 `CogVideoX1.5` 模型的diffusers版本，仅需调整部分参数仅可沿用之前的代码。
