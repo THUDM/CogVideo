@@ -38,13 +38,17 @@ class StandardDiffusionLoss(nn.Module):
 
     def __call__(self, network, denoiser, conditioner, input, batch):
         cond = conditioner(batch)
-        additional_model_inputs = {key: batch[key] for key in self.batch2model_keys.intersection(batch)}
+        additional_model_inputs = {
+            key: batch[key] for key in self.batch2model_keys.intersection(batch)
+        }
 
         sigmas = self.sigma_sampler(input.shape[0]).to(input.device)
         noise = torch.randn_like(input)
         if self.offset_noise_level > 0.0:
             noise = (
-                noise + append_dims(torch.randn(input.shape[0]).to(input.device), input.ndim) * self.offset_noise_level
+                noise
+                + append_dims(torch.randn(input.shape[0]).to(input.device), input.ndim)
+                * self.offset_noise_level
             )
             noise = noise.to(input.dtype)
         noised_input = input.float() + noise * append_dims(sigmas, input.ndim)
@@ -63,7 +67,9 @@ class StandardDiffusionLoss(nn.Module):
 
 
 class VideoDiffusionLoss(StandardDiffusionLoss):
-    def __init__(self, block_scale=None, block_size=None, min_snr_value=None, fixed_frames=0, **kwargs):
+    def __init__(
+        self, block_scale=None, block_size=None, min_snr_value=None, fixed_frames=0, **kwargs
+    ):
         self.fixed_frames = fixed_frames
         self.block_scale = block_scale
         self.block_size = block_size
@@ -72,7 +78,9 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
 
     def __call__(self, network, denoiser, conditioner, input, batch):
         cond = conditioner(batch)
-        additional_model_inputs = {key: batch[key] for key in self.batch2model_keys.intersection(batch)}
+        additional_model_inputs = {
+            key: batch[key] for key in self.batch2model_keys.intersection(batch)
+        }
 
         alphas_cumprod_sqrt, idx = self.sigma_sampler(input.shape[0], return_idx=True)
         alphas_cumprod_sqrt = alphas_cumprod_sqrt.to(input.device)
@@ -86,24 +94,30 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
         src = global_rank * mp_size
         torch.distributed.broadcast(idx, src=src, group=mpu.get_model_parallel_group())
         torch.distributed.broadcast(noise, src=src, group=mpu.get_model_parallel_group())
-        torch.distributed.broadcast(alphas_cumprod_sqrt, src=src, group=mpu.get_model_parallel_group())
+        torch.distributed.broadcast(
+            alphas_cumprod_sqrt, src=src, group=mpu.get_model_parallel_group()
+        )
 
         additional_model_inputs["idx"] = idx
 
         if self.offset_noise_level > 0.0:
             noise = (
-                noise + append_dims(torch.randn(input.shape[0]).to(input.device), input.ndim) * self.offset_noise_level
+                noise
+                + append_dims(torch.randn(input.shape[0]).to(input.device), input.ndim)
+                * self.offset_noise_level
             )
 
-        noised_input = input.float() * append_dims(alphas_cumprod_sqrt, input.ndim) + noise * append_dims(
-            (1 - alphas_cumprod_sqrt**2) ** 0.5, input.ndim
-        )
+        noised_input = input.float() * append_dims(
+            alphas_cumprod_sqrt, input.ndim
+        ) + noise * append_dims((1 - alphas_cumprod_sqrt**2) ** 0.5, input.ndim)
 
         if "concat_images" in batch.keys():
             cond["concat"] = batch["concat_images"]
 
         # [2, 13, 16, 60, 90],[2] dict_keys(['crossattn', 'concat'])  dict_keys(['idx'])
-        model_output = denoiser(network, noised_input, alphas_cumprod_sqrt, cond, **additional_model_inputs)
+        model_output = denoiser(
+            network, noised_input, alphas_cumprod_sqrt, cond, **additional_model_inputs
+        )
         w = append_dims(1 / (1 - alphas_cumprod_sqrt**2), input.ndim)  # v-pred
 
         if self.min_snr_value is not None:

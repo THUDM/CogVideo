@@ -52,6 +52,8 @@ def get_model_cls(model_type: str, training_type: Literal["lora", "sft"]) -> Tra
         print(f"\nSupported training types for '{model_type}' are:")
         for supported_type in SUPPORTED_MODELS[model_type]:
             print(f"  • {supported_type}")
-        raise ValueError(f"Training type '{training_type}' is not supported for model '{model_type}'")
+        raise ValueError(
+            f"Training type '{training_type}' is not supported for model '{model_type}'"
+        )
 
     return SUPPORTED_MODELS[model_type][training_type]

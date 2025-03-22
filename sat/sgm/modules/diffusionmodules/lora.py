@@ -20,7 +20,9 @@ from torch import nn
 
 
 class LoRALinearLayer(nn.Module):
-    def __init__(self, in_features, out_features, rank=4, network_alpha=None, device=None, dtype=None):
+    def __init__(
+        self, in_features, out_features, rank=4, network_alpha=None, device=None, dtype=None
+    ):
         super().__init__()
 
         self.down = nn.Linear(in_features, rank, bias=False, device=device, dtype=dtype)
@@ -50,11 +52,20 @@ class LoRALinearLayer(nn.Module):
 
 class LoRAConv2dLayer(nn.Module):
     def __init__(
-        self, in_features, out_features, rank=4, kernel_size=(1, 1), stride=(1, 1), padding=0, network_alpha=None
+        self,
+        in_features,
+        out_features,
+        rank=4,
+        kernel_size=(1, 1),
+        stride=(1, 1),
+        padding=0,
+        network_alpha=None,
     ):
         super().__init__()
 
-        self.down = nn.Conv2d(in_features, rank, kernel_size=kernel_size, stride=stride, padding=padding, bias=False)
+        self.down = nn.Conv2d(
+            in_features, rank, kernel_size=kernel_size, stride=stride, padding=padding, bias=False
+        )
         # according to the official kohya_ss trainer kernel_size are always fixed for the up layer
         # # see: https://github.com/bmaltais/kohya_ss/blob/2accb1305979ba62f5077a23aabac23b4c37e935/networks/lora_diffusers.py#L129
         self.up = nn.Conv2d(rank, out_features, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -85,7 +96,9 @@ class LoRACompatibleConv(nn.Conv2d):
     A convolutional layer that can be used with LoRA.
     """
 
-    def __init__(self, *args, lora_layer: Optional[LoRAConv2dLayer] = None, scale: float = 1.0, **kwargs):
+    def __init__(
+        self, *args, lora_layer: Optional[LoRAConv2dLayer] = None, scale: float = 1.0, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.lora_layer = lora_layer
         self.scale = scale
@@ -144,7 +157,13 @@ class LoRACompatibleConv(nn.Conv2d):
             # make sure to the functional Conv2D function as otherwise torch.compile's graph will break
             # see: https://github.com/huggingface/diffusers/pull/4315
             return F.conv2d(
-                hidden_states, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups
+                hidden_states,
+                self.weight,
+                self.bias,
+                self.stride,
+                self.padding,
+                self.dilation,
+                self.groups,
             )
         else:
             return super().forward(hidden_states) + (scale * self.lora_layer(hidden_states))
@@ -155,7 +174,9 @@ class LoRACompatibleLinear(nn.Linear):
     A Linear layer that can be used with LoRA.
     """
 
-    def __init__(self, *args, lora_layer: Optional[LoRALinearLayer] = None, scale: float = 1.0, **kwargs):
+    def __init__(
+        self, *args, lora_layer: Optional[LoRALinearLayer] = None, scale: float = 1.0, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.lora_layer = lora_layer
         self.scale = scale
@@ -197,7 +218,9 @@ class LoRACompatibleLinear(nn.Linear):
         w_up = self.w_up.to(device=device).float()
         w_down = self.w_down.to(device).float()
 
-        unfused_weight = fused_weight.float() - (self._lora_scale * torch.bmm(w_up[None, :], w_down[None, :])[0])
+        unfused_weight = fused_weight.float() - (
+            self._lora_scale * torch.bmm(w_up[None, :], w_down[None, :])[0]
+        )
         self.weight.data = unfused_weight.to(device=device, dtype=dtype)
 
         self.w_up = None
@@ -252,7 +275,9 @@ def _find_modules_v2(
 
     # Get the targets we should replace all linears under
     if ancestor_class is not None:
-        ancestors = (module for module in model.modules() if module.__class__.__name__ in ancestor_class)
+        ancestors = (
+            module for module in model.modules() if module.__class__.__name__ in ancestor_class
+        )
     else:
         # this, incase you want to naively iterate over all modules.
         ancestors = [module for module in model.modules()]
@@ -274,7 +299,9 @@ def _find_modules_v2(
                 if flag:
                     continue
                 # Skip this linear if it's a child of a LoraInjectedLinear
-                if exclude_children_of and any([isinstance(parent, _class) for _class in exclude_children_of]):
+                if exclude_children_of and any(
+                    [isinstance(parent, _class) for _class in exclude_children_of]
+                ):
                     continue
                 # Otherwise, yield it
                 yield parent, name, module

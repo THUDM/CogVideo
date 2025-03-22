@@ -29,10 +29,14 @@ def downsample(x):
 
 
 def upsample(x):
-    cc = torch.cat([x, torch.zeros(x.shape[0], x.shape[1], x.shape[2], x.shape[3]).to(device)], dim=3)
+    cc = torch.cat(
+        [x, torch.zeros(x.shape[0], x.shape[1], x.shape[2], x.shape[3]).to(device)], dim=3
+    )
     cc = cc.view(x.shape[0], x.shape[1], x.shape[2] * 2, x.shape[3])
     cc = cc.permute(0, 1, 3, 2)
-    cc = torch.cat([cc, torch.zeros(x.shape[0], x.shape[1], x.shape[3], x.shape[2] * 2).to(device)], dim=3)
+    cc = torch.cat(
+        [cc, torch.zeros(x.shape[0], x.shape[1], x.shape[3], x.shape[2] * 2).to(device)], dim=3
+    )
     cc = cc.view(x.shape[0], x.shape[1], x.shape[3] * 2, x.shape[2] * 2)
     x_up = cc.permute(0, 1, 3, 2)
     return conv_gauss(x_up, 4 * gauss_kernel(channels=x.shape[1]))
@@ -64,6 +68,10 @@ class LapLoss(torch.nn.Module):
         self.gauss_kernel = gauss_kernel(channels=channels)
 
     def forward(self, input, target):
-        pyr_input = laplacian_pyramid(img=input, kernel=self.gauss_kernel, max_levels=self.max_levels)
-        pyr_target = laplacian_pyramid(img=target, kernel=self.gauss_kernel, max_levels=self.max_levels)
+        pyr_input = laplacian_pyramid(
+            img=input, kernel=self.gauss_kernel, max_levels=self.max_levels
+        )
+        pyr_target = laplacian_pyramid(
+            img=target, kernel=self.gauss_kernel, max_levels=self.max_levels
+        )
         return sum(torch.nn.functional.l1_loss(a, b) for a, b in zip(pyr_input, pyr_target))

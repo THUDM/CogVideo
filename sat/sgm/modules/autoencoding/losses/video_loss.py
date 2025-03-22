@@ -45,7 +45,9 @@ def hinge_gen_loss(fake):
 @autocast(enabled=False)
 @beartype
 def grad_layer_wrt_loss(loss: Tensor, layer: nn.Parameter):
-    return torch_grad(outputs=loss, inputs=layer, grad_outputs=torch.ones_like(loss), retain_graph=True)[0].detach()
+    return torch_grad(
+        outputs=loss, inputs=layer, grad_outputs=torch.ones_like(loss), retain_graph=True
+    )[0].detach()
 
 
 def pick_video_frame(video, frame_indices):
@@ -126,7 +128,8 @@ class DiscriminatorBlock(nn.Module):
 
         self.downsample = (
             nn.Sequential(
-                Rearrange("b c (h p1) (w p2) -> b (c p1 p2) h w", p1=2, p2=2), nn.Conv2d(filters * 4, filters, 1)
+                Rearrange("b c (h p1) (w p2) -> b (c p1 p2) h w", p1=2, p2=2),
+                nn.Conv2d(filters * 4, filters, 1),
             )
             if downsample
             else None
@@ -185,11 +188,18 @@ class Discriminator(nn.Module):
             is_not_last = ind != (len(layer_dims_in_out) - 1)
 
             block = DiscriminatorBlock(
-                in_chan, out_chan, downsample=is_not_last, antialiased_downsample=antialiased_downsample
+                in_chan,
+                out_chan,
+                downsample=is_not_last,
+                antialiased_downsample=antialiased_downsample,
             )
 
             attn_block = nn.Sequential(
-                Residual(LinearSpaceAttention(dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head)),
+                Residual(
+                    LinearSpaceAttention(
+                        dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head
+                    )
+                ),
                 Residual(FeedForward(dim=out_chan, mult=ff_mult, images=True)),
             )
 
@@ -363,7 +373,9 @@ class Discriminator3D(nn.Module):
                 )
                 attn_block = nn.Sequential(
                     Residual(
-                        LinearSpaceAttention(dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head)
+                        LinearSpaceAttention(
+                            dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head
+                        )
                     ),
                     Residual(FeedForward(dim=out_chan, mult=ff_mult, images=True)),
                 )
@@ -458,7 +470,9 @@ class Discriminator3DWithfirstframe(nn.Module):
                 )
                 attn_block = nn.Sequential(
                     Residual(
-                        LinearSpaceAttention(dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head)
+                        LinearSpaceAttention(
+                            dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head
+                        )
                     ),
                     Residual(FeedForward(dim=out_chan, mult=ff_mult, images=True)),
                 )
@@ -581,11 +595,17 @@ class VideoAutoencoderLoss(nn.Module):
                 input_frames = pick_video_frame(inputs, frame_indices)
                 recon_frames = pick_video_frame(reconstructions, frame_indices)
 
-                perceptual_loss = self.perceptual_model(input_frames.contiguous(), recon_frames.contiguous()).mean()
+                perceptual_loss = self.perceptual_model(
+                    input_frames.contiguous(), recon_frames.contiguous()
+                ).mean()
             else:
                 perceptual_loss = self.zero
 
-            if global_step >= self.disc_start or not self.training or self.adversarial_loss_weight == 0:
+            if (
+                global_step >= self.disc_start
+                or not self.training
+                or self.adversarial_loss_weight == 0
+            ):
                 gen_loss = self.zero
                 adaptive_weight = 0
             else:
@@ -598,9 +618,13 @@ class VideoAutoencoderLoss(nn.Module):
 
                 adaptive_weight = 1
                 if self.perceptual_weight > 0 and last_layer is not None:
-                    norm_grad_wrt_perceptual_loss = grad_layer_wrt_loss(perceptual_loss, last_layer).norm(p=2)
+                    norm_grad_wrt_perceptual_loss = grad_layer_wrt_loss(
+                        perceptual_loss, last_layer
+                    ).norm(p=2)
                     norm_grad_wrt_gen_loss = grad_layer_wrt_loss(gen_loss, last_layer).norm(p=2)
-                    adaptive_weight = norm_grad_wrt_perceptual_loss / norm_grad_wrt_gen_loss.clamp(min=1e-3)
+                    adaptive_weight = norm_grad_wrt_perceptual_loss / norm_grad_wrt_gen_loss.clamp(
+                        min=1e-3
+                    )
                     adaptive_weight.clamp_(max=1e3)
 
                     if torch.isnan(adaptive_weight).any():

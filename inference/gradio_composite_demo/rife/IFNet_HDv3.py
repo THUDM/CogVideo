@@ -61,11 +61,19 @@ class IFBlock(nn.Module):
 
     def forward(self, x, flow, scale=1):
         x = F.interpolate(
-            x, scale_factor=1.0 / scale, mode="bilinear", align_corners=False, recompute_scale_factor=False
+            x,
+            scale_factor=1.0 / scale,
+            mode="bilinear",
+            align_corners=False,
+            recompute_scale_factor=False,
         )
         flow = (
             F.interpolate(
-                flow, scale_factor=1.0 / scale, mode="bilinear", align_corners=False, recompute_scale_factor=False
+                flow,
+                scale_factor=1.0 / scale,
+                mode="bilinear",
+                align_corners=False,
+                recompute_scale_factor=False,
             )
             * 1.0
             / scale
@@ -78,11 +86,21 @@ class IFBlock(nn.Module):
         flow = self.conv1(feat)
         mask = self.conv2(feat)
         flow = (
-            F.interpolate(flow, scale_factor=scale, mode="bilinear", align_corners=False, recompute_scale_factor=False)
+            F.interpolate(
+                flow,
+                scale_factor=scale,
+                mode="bilinear",
+                align_corners=False,
+                recompute_scale_factor=False,
+            )
             * scale
         )
         mask = F.interpolate(
-            mask, scale_factor=scale, mode="bilinear", align_corners=False, recompute_scale_factor=False
+            mask,
+            scale_factor=scale,
+            mode="bilinear",
+            align_corners=False,
+            recompute_scale_factor=False,
         )
         return flow, mask
 
@@ -112,7 +130,11 @@ class IFNet(nn.Module):
         loss_cons = 0
         block = [self.block0, self.block1, self.block2]
         for i in range(3):
-            f0, m0 = block[i](torch.cat((warped_img0[:, :3], warped_img1[:, :3], mask), 1), flow, scale=scale_list[i])
+            f0, m0 = block[i](
+                torch.cat((warped_img0[:, :3], warped_img1[:, :3], mask), 1),
+                flow,
+                scale=scale_list[i],
+            )
             f1, m1 = block[i](
                 torch.cat((warped_img1[:, :3], warped_img0[:, :3], -mask), 1),
                 torch.cat((flow[:, 2:4], flow[:, :2]), 1),

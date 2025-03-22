@@ -26,7 +26,11 @@ class BucketSampler(Sampler):
     """
 
     def __init__(
-        self, data_source: Dataset, batch_size: int = 8, shuffle: bool = True, drop_last: bool = False
+        self,
+        data_source: Dataset,
+        batch_size: int = 8,
+        shuffle: bool = True,
+        drop_last: bool = False,
     ) -> None:
         self.data_source = data_source
         self.batch_size = batch_size
@@ -48,7 +52,11 @@ class BucketSampler(Sampler):
     def __iter__(self):
         for index, data in enumerate(self.data_source):
             video_metadata = data["video_metadata"]
-            f, h, w = video_metadata["num_frames"], video_metadata["height"], video_metadata["width"]
+            f, h, w = (
+                video_metadata["num_frames"],
+                video_metadata["height"],
+                video_metadata["width"],
+            )
 
             self.buckets[(f, h, w)].append(data)
             if len(self.buckets[(f, h, w)]) == self.batch_size:

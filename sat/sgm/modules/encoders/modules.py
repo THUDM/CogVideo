@@ -99,7 +99,9 @@ class GeneralConditioner(nn.Module):
             elif "input_keys" in embconfig:
                 embedder.input_keys = embconfig["input_keys"]
             else:
-                raise KeyError(f"need either 'input_key' or 'input_keys' for embedder {embedder.__class__.__name__}")
+                raise KeyError(
+                    f"need either 'input_key' or 'input_keys' for embedder {embedder.__class__.__name__}"
+                )
 
             embedder.legacy_ucg_val = embconfig.get("legacy_ucg_value", None)
             if embedder.legacy_ucg_val is not None:
@@ -160,7 +162,10 @@ class GeneralConditioner(nn.Module):
                 if cond_or_not is None:
                     emb = (
                         expand_dims_like(
-                            torch.bernoulli((1.0 - embedder.ucg_rate) * torch.ones(emb.shape[0], device=emb.device)),
+                            torch.bernoulli(
+                                (1.0 - embedder.ucg_rate)
+                                * torch.ones(emb.shape[0], device=emb.device)
+                            ),
                             emb,
                         )
                         * emb

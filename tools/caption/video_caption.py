@@ -9,11 +9,16 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 MODEL_PATH = "THUDM/cogvlm2-llama3-caption"
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[
-    0] >= 8 else torch.float16
+TORCH_TYPE = (
+    torch.bfloat16
+    if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8
+    else torch.float16
+)
 
 parser = argparse.ArgumentParser(description="CogVLM2-Video CLI Demo")
-parser.add_argument('--quant', type=int, choices=[4, 8], help='Enable 4-bit or 8-bit precision loading', default=0)
+parser.add_argument(
+    '--quant', type=int, choices=[4, 8], help='Enable 4-bit or 8-bit precision loading', default=0
+)
 args = parser.parse_args([])
 
 
@@ -29,8 +34,11 @@ def load_video(video_data, strategy='chat'):
         clip_end_sec = 60
         clip_start_sec = 0
         start_frame = int(clip_start_sec * decord_vr.get_avg_fps())
-        end_frame = min(total_frames,
-                        int(clip_end_sec * decord_vr.get_avg_fps())) if clip_end_sec is not None else total_frames
+        end_frame = (
+            min(total_frames, int(clip_end_sec * decord_vr.get_avg_fps()))
+            if clip_end_sec is not None
+            else total_frames
+        )
         frame_id_list = np.linspace(start_frame, end_frame - 1, num_frames, dtype=int)
     elif strategy == 'chat':
         timestamps = decord_vr.get_frame_timestamp(np.arange(total_frames))
@@ -54,11 +62,11 @@ tokenizer = AutoTokenizer.from_pretrained(
     trust_remote_code=True,
 )
 
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_PATH,
-    torch_dtype=TORCH_TYPE,
-    trust_remote_code=True
-).eval().to(DEVICE)
+model = (
+    AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=TORCH_TYPE, trust_remote_code=True)
+    .eval()
+    .to(DEVICE)
+)
 
 
 def predict(prompt, video_data, temperature):
@@ -69,11 +77,7 @@ def predict(prompt, video_data, temperature):
     history = []
     query = prompt
     inputs = model.build_conversation_input_ids(
-        tokenizer=tokenizer,
-        query=query,
-        images=[video],
-        history=history,
-        template_version=strategy
+        tokenizer=tokenizer, query=query, images=[video], history=history, template_version=strategy
     )
     inputs = {
         'input_ids': inputs['input_ids'].unsqueeze(0).to('cuda'),
@@ -91,7 +95,7 @@ def predict(prompt, video_data, temperature):
     }
     with torch.no_grad():
         outputs = model.generate(**inputs, **gen_kwargs)
-        outputs = outputs[:, inputs['input_ids'].shape[1]:]
+        outputs = outputs[:, inputs['input_ids'].shape[1] :]
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         return response
 

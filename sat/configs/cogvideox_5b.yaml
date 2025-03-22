@@ -3,7 +3,7 @@ model:
   disable_first_stage_autocast: true
   log_keys:
     - txt
-  
+
   denoiser_config:
     target: sgm.modules.diffusionmodules.denoiser.DiscreteDenoiser
     params:

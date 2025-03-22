@@ -32,13 +32,19 @@ class CogVideoXI2VLoraTrainer(Trainer):
 
         components.tokenizer = AutoTokenizer.from_pretrained(model_path, subfolder="tokenizer")
 
-        components.text_encoder = T5EncoderModel.from_pretrained(model_path, subfolder="text_encoder")
+        components.text_encoder = T5EncoderModel.from_pretrained(
+            model_path, subfolder="text_encoder"
+        )
 
-        components.transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer")
+        components.transformer = CogVideoXTransformer3DModel.from_pretrained(
+            model_path, subfolder="transformer"
+        )
 
         components.vae = AutoencoderKLCogVideoX.from_pretrained(model_path, subfolder="vae")
 
-        components.scheduler = CogVideoXDPMScheduler.from_pretrained(model_path, subfolder="scheduler")
+        components.scheduler = CogVideoXDPMScheduler.from_pretrained(
+            model_path, subfolder="scheduler"
+        )
 
         return components
 
@@ -73,7 +79,9 @@ class CogVideoXI2VLoraTrainer(Trainer):
             return_tensors="pt",
         )
         prompt_token_ids = prompt_token_ids.input_ids
-        prompt_embedding = self.components.text_encoder(prompt_token_ids.to(self.accelerator.device))[0]
+        prompt_embedding = self.components.text_encoder(
+            prompt_token_ids.to(self.accelerator.device)
+        )[0]
         return prompt_embedding
 
     @override
@@ -122,22 +130,34 @@ class CogVideoXI2VLoraTrainer(Trainer):
         # Add frame dimension to images [B,C,H,W] -> [B,C,F,H,W]
         images = images.unsqueeze(2)
         # Add noise to images
-        image_noise_sigma = torch.normal(mean=-3.0, std=0.5, size=(1,), device=self.accelerator.device)
+        image_noise_sigma = torch.normal(
+            mean=-3.0, std=0.5, size=(1,), device=self.accelerator.device
+        )
         image_noise_sigma = torch.exp(image_noise_sigma).to(dtype=images.dtype)
-        noisy_images = images + torch.randn_like(images) * image_noise_sigma[:, None, None, None, None]
-        image_latent_dist = self.components.vae.encode(noisy_images.to(dtype=self.components.vae.dtype)).latent_dist
+        noisy_images = (
+            images + torch.randn_like(images) * image_noise_sigma[:, None, None, None, None]
+        )
+        image_latent_dist = self.components.vae.encode(
+            noisy_images.to(dtype=self.components.vae.dtype)
+        ).latent_dist
         image_latents = image_latent_dist.sample() * self.components.vae.config.scaling_factor
 
         # Sample a random timestep for each sample
         timesteps = torch.randint(
-            0, self.components.scheduler.config.num_train_timesteps, (batch_size,), device=self.accelerator.device
+            0,
+            self.components.scheduler.config.num_train_timesteps,
+            (batch_size,),
+            device=self.accelerator.device,
         )
         timesteps = timesteps.long()
 
         # from [B, C, F, H, W] to [B, F, C, H, W]
         latent = latent.permute(0, 2, 1, 3, 4)
         image_latents = image_latents.permute(0, 2, 1, 3, 4)
-        assert (latent.shape[0], *latent.shape[2:]) == (image_latents.shape[0], *image_latents.shape[2:])
+        assert (latent.shape[0], *latent.shape[2:]) == (
+            image_latents.shape[0],
+            *image_latents.shape[2:],
+        )
 
         # Padding image_latents to the same frame number as latent
         padding_shape = (latent.shape[0], latent.shape[1] - 1, *latent.shape[2:])
@@ -169,7 +189,9 @@ class CogVideoXI2VLoraTrainer(Trainer):
 
         # Predict noise, For CogVideoX1.5 Only.
         ofs_emb = (
-            None if self.state.transformer_config.ofs_embed_dim is None else latent.new_full((1,), fill_value=2.0)
+            None
+            if self.state.transformer_config.ofs_embed_dim is None
+            else latent.new_full((1,), fill_value=2.0)
         )
         predicted_noise = self.components.transformer(
             hidden_states=latent_img_noisy,
@@ -181,7 +203,9 @@ class CogVideoXI2VLoraTrainer(Trainer):
         )[0]
 
         # Denoise
-        latent_pred = self.components.scheduler.get_velocity(predicted_noise, latent_noisy, timesteps)
+        latent_pred = self.components.scheduler.get_velocity(
+            predicted_noise, latent_noisy, timesteps
+        )
 
         alphas_cumprod = self.components.scheduler.alphas_cumprod[timesteps]
         weights = 1 / (1 - alphas_cumprod)
@@ -228,7 +252,9 @@ class CogVideoXI2VLoraTrainer(Trainer):
         if transformer_config.patch_size_t is None:
             base_num_frames = num_frames
         else:
-            base_num_frames = (num_frames + transformer_config.patch_size_t - 1) // transformer_config.patch_size_t
+            base_num_frames = (
+                num_frames + transformer_config.patch_size_t - 1
+            ) // transformer_config.patch_size_t
 
         freqs_cos, freqs_sin = get_3d_rotary_pos_embed(
             embed_dim=transformer_config.attention_head_dim,

@@ -3,7 +3,9 @@ from .refine import *
 
 def deconv(in_planes, out_planes, kernel_size=4, stride=2, padding=1):
     return nn.Sequential(
-        torch.nn.ConvTranspose2d(in_channels=in_planes, out_channels=out_planes, kernel_size=4, stride=2, padding=1),
+        torch.nn.ConvTranspose2d(
+            in_channels=in_planes, out_channels=out_planes, kernel_size=4, stride=2, padding=1
+        ),
         nn.PReLU(out_planes),
     )
 
@@ -46,7 +48,11 @@ class IFBlock(nn.Module):
         if scale != 1:
             x = F.interpolate(x, scale_factor=1.0 / scale, mode="bilinear", align_corners=False)
         if flow != None:
-            flow = F.interpolate(flow, scale_factor=1.0 / scale, mode="bilinear", align_corners=False) * 1.0 / scale
+            flow = (
+                F.interpolate(flow, scale_factor=1.0 / scale, mode="bilinear", align_corners=False)
+                * 1.0
+                / scale
+            )
             x = torch.cat((x, flow), 1)
         x = self.conv0(x)
         x = self.convblock(x) + x
@@ -83,7 +89,9 @@ class IFNet_m(nn.Module):
         for i in range(3):
             if flow != None:
                 flow_d, mask_d = stu[i](
-                    torch.cat((img0, img1, timestep, warped_img0, warped_img1, mask), 1), flow, scale=scale[i]
+                    torch.cat((img0, img1, timestep, warped_img0, warped_img1, mask), 1),
+                    flow,
+                    scale=scale[i],
                 )
                 flow = flow + flow_d
                 mask = mask + mask_d
@@ -97,13 +105,17 @@ class IFNet_m(nn.Module):
             merged.append(merged_student)
         if gt.shape[1] == 3:
             flow_d, mask_d = self.block_tea(
-                torch.cat((img0, img1, timestep, warped_img0, warped_img1, mask, gt), 1), flow, scale=1
+                torch.cat((img0, img1, timestep, warped_img0, warped_img1, mask, gt), 1),
+                flow,
+                scale=1,
             )
             flow_teacher = flow + flow_d
             warped_img0_teacher = warp(img0, flow_teacher[:, :2])
             warped_img1_teacher = warp(img1, flow_teacher[:, 2:4])
             mask_teacher = torch.sigmoid(mask + mask_d)
-            merged_teacher = warped_img0_teacher * mask_teacher + warped_img1_teacher * (1 - mask_teacher)
+            merged_teacher = warped_img0_teacher * mask_teacher + warped_img1_teacher * (
+                1 - mask_teacher
+            )
         else:
             flow_teacher = None
             merged_teacher = None
@@ -111,11 +123,16 @@ class IFNet_m(nn.Module):
             merged[i] = merged[i][0] * mask_list[i] + merged[i][1] * (1 - mask_list[i])
             if gt.shape[1] == 3:
                 loss_mask = (
-                    ((merged[i] - gt).abs().mean(1, True) > (merged_teacher - gt).abs().mean(1, True) + 0.01)
+                    (
+                        (merged[i] - gt).abs().mean(1, True)
+                        > (merged_teacher - gt).abs().mean(1, True) + 0.01
+                    )
                     .float()
                     .detach()
                 )
-                loss_distill += (((flow_teacher.detach() - flow_list[i]) ** 2).mean(1, True) ** 0.5 * loss_mask).mean()
+                loss_distill += (
+                    ((flow_teacher.detach() - flow_list[i]) ** 2).mean(1, True) ** 0.5 * loss_mask
+                ).mean()
         if returnflow:
             return flow
         else:

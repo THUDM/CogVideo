@@ -26,7 +26,9 @@ class IdentityRegularizer(AbstractRegularizer):
         yield from ()
 
 
-def measure_perplexity(predicted_indices: torch.Tensor, num_centroids: int) -> Tuple[torch.Tensor, torch.Tensor]:
+def measure_perplexity(
+    predicted_indices: torch.Tensor, num_centroids: int
+) -> Tuple[torch.Tensor, torch.Tensor]:
     # src: https://github.com/karpathy/deep-vector-quantization/blob/main/model.py
     # eval cluster perplexity. when perplexity == num_embeddings then all clusters are used exactly equally
     encodings = F.one_hot(predicted_indices, num_centroids).float().reshape(-1, num_centroids)

@@ -115,7 +115,9 @@ class BaseI2VDataset(Dataset):
         train_resolution_str = "x".join(str(x) for x in self.trainer.args.train_resolution)
 
         cache_dir = self.trainer.args.data_root / "cache"
-        video_latent_dir = cache_dir / "video_latent" / self.trainer.args.model_name / train_resolution_str
+        video_latent_dir = (
+            cache_dir / "video_latent" / self.trainer.args.model_name / train_resolution_str
+        )
         prompt_embeddings_dir = cache_dir / "prompt_embeddings"
         video_latent_dir.mkdir(parents=True, exist_ok=True)
         prompt_embeddings_dir.mkdir(parents=True, exist_ok=True)
@@ -136,7 +138,9 @@ class BaseI2VDataset(Dataset):
             # [1, seq_len, hidden_size] -> [seq_len, hidden_size]
             prompt_embedding = prompt_embedding[0]
             save_file({"prompt_embedding": prompt_embedding}, prompt_embedding_path)
-            logger.info(f"Saved prompt embedding to {prompt_embedding_path}", main_process_only=False)
+            logger.info(
+                f"Saved prompt embedding to {prompt_embedding_path}", main_process_only=False
+            )
 
         if encoded_video_path.exists():
             encoded_video = load_file(encoded_video_path)["encoded_video"]
@@ -177,7 +181,9 @@ class BaseI2VDataset(Dataset):
             },
         }
 
-    def preprocess(self, video_path: Path | None, image_path: Path | None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def preprocess(
+        self, video_path: Path | None, image_path: Path | None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Loads and preprocesses a video and an image.
         If either path is None, no preprocessing will be done for that input.
@@ -249,13 +255,19 @@ class I2VDatasetWithResize(BaseI2VDataset):
         self.height = height
         self.width = width
 
-        self.__frame_transforms = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+        self.__frame_transforms = transforms.Compose(
+            [transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)]
+        )
         self.__image_transforms = self.__frame_transforms
 
     @override
-    def preprocess(self, video_path: Path | None, image_path: Path | None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def preprocess(
+        self, video_path: Path | None, image_path: Path | None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         if video_path is not None:
-            video = preprocess_video_with_resize(video_path, self.max_num_frames, self.height, self.width)
+            video = preprocess_video_with_resize(
+                video_path, self.max_num_frames, self.height, self.width
+            )
         else:
             video = None
         if image_path is not None:
@@ -293,7 +305,9 @@ class I2VDatasetWithBuckets(BaseI2VDataset):
             )
             for b in video_resolution_buckets
         ]
-        self.__frame_transforms = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+        self.__frame_transforms = transforms.Compose(
+            [transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)]
+        )
         self.__image_transforms = self.__frame_transforms
 
     @override

@@ -47,7 +47,9 @@ class AttentionPool2d(nn.Module):
         output_dim: int = None,
     ):
         super().__init__()
-        self.positional_embedding = nn.Parameter(th.randn(embed_dim, spacial_dim**2 + 1) / embed_dim**0.5)
+        self.positional_embedding = nn.Parameter(
+            th.randn(embed_dim, spacial_dim**2 + 1) / embed_dim**0.5
+        )
         self.qkv_proj = conv_nd(1, embed_dim, 3 * embed_dim, 1)
         self.c_proj = conv_nd(1, embed_dim, output_dim or embed_dim, 1)
         self.num_heads = embed_dim // num_heads_channels
@@ -303,7 +305,9 @@ class ResBlock(TimestepBlock):
         if self.out_channels == channels:
             self.skip_connection = nn.Identity()
         elif use_conv:
-            self.skip_connection = conv_nd(dims, channels, self.out_channels, kernel_size, padding=padding)
+            self.skip_connection = conv_nd(
+                dims, channels, self.out_channels, kernel_size, padding=padding
+            )
         else:
             self.skip_connection = conv_nd(dims, channels, self.out_channels, 1)
 
@@ -437,7 +441,9 @@ class QKVAttentionLegacy(nn.Module):
         ch = width // (3 * self.n_heads)
         q, k, v = qkv.reshape(bs * self.n_heads, ch * 3, length).split(ch, dim=1)
         scale = 1 / math.sqrt(math.sqrt(ch))
-        weight = th.einsum("bct,bcs->bts", q * scale, k * scale)  # More stable with f16 than dividing afterwards
+        weight = th.einsum(
+            "bct,bcs->bts", q * scale, k * scale
+        )  # More stable with f16 than dividing afterwards
         weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
         a = th.einsum("bts,bcs->bct", weight, v)
         return a.reshape(bs, -1, length)
@@ -574,9 +580,7 @@ class UNetModel(nn.Module):
             ), "Fool!! You forgot to include the dimension of your cross-attention conditioning..."
 
         if context_dim is not None:
-            assert (
-                use_spatial_transformer
-            ), "Fool!! You forgot to use the spatial transformer for your cross-attention conditioning..."
+            assert use_spatial_transformer, "Fool!! You forgot to use the spatial transformer for your cross-attention conditioning..."
             if type(context_dim) == ListConfig:
                 context_dim = list(context_dim)
 
@@ -640,7 +644,9 @@ class UNetModel(nn.Module):
         self.num_heads_upsample = num_heads_upsample
         self.predict_codebook_ids = n_embed is not None
 
-        assert use_fairscale_checkpoint != use_checkpoint or not (use_checkpoint or use_fairscale_checkpoint)
+        assert use_fairscale_checkpoint != use_checkpoint or not (
+            use_checkpoint or use_fairscale_checkpoint
+        )
 
         self.use_fairscale_checkpoint = False
         checkpoint_wrapper_fn = (
@@ -942,7 +948,9 @@ class UNetModel(nn.Module):
             print(f"loading lora from {ckpt_path}")
             sd = th.load(ckpt_path)["module"]
             sd = {
-                key[len("model.diffusion_model") :]: sd[key] for key in sd if key.startswith("model.diffusion_model")
+                key[len("model.diffusion_model") :]: sd[key]
+                for key in sd
+                if key.startswith("model.diffusion_model")
             }
             self.load_state_dict(sd, strict=False)
 
@@ -978,7 +986,9 @@ class UNetModel(nn.Module):
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
         hs = []
-        t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False, dtype=self.dtype)
+        t_emb = timestep_embedding(
+            timesteps, self.model_channels, repeat_only=False, dtype=self.dtype
+        )
         emb = self.time_embed(t_emb)
 
         if self.num_classes is not None:

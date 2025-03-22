@@ -37,7 +37,9 @@ def save_texts(texts, save_dir, iterations):
             f.write(text + "\n")
 
 
-def save_video_as_grid_and_mp4(video_batch: torch.Tensor, save_path: str, T: int, fps: int = 5, args=None, key=None):
+def save_video_as_grid_and_mp4(
+    video_batch: torch.Tensor, save_path: str, T: int, fps: int = 5, args=None, key=None
+):
     os.makedirs(save_path, exist_ok=True)
 
     for i, vid in enumerate(video_batch):
@@ -52,7 +54,8 @@ def save_video_as_grid_and_mp4(video_batch: torch.Tensor, save_path: str, T: int
                 writer.append_data(frame)
         if args is not None and args.wandb:
             wandb.log(
-                {key + f"_video_{i}": wandb.Video(now_save_path, fps=fps, format="mp4")}, step=args.iteration + 1
+                {key + f"_video_{i}": wandb.Video(now_save_path, fps=fps, format="mp4")},
+                step=args.iteration + 1,
             )
 
 
@@ -138,7 +141,9 @@ def broad_cast_batch(batch):
     return batch
 
 
-def forward_step_eval(data_iterator, model, args, timers, only_log_video_latents=False, data_class=None):
+def forward_step_eval(
+    data_iterator, model, args, timers, only_log_video_latents=False, data_class=None
+):
     if mpu.get_model_parallel_rank() == 0:
         timers("data loader").start()
         batch_video = next(data_iterator)
@@ -209,7 +214,9 @@ if __name__ == "__main__":
     args = argparse.Namespace(**vars(args), **vars(known))
 
     data_class = get_obj_from_str(args.data_config["target"])
-    create_dataset_function = partial(data_class.create_dataset_function, **args.data_config["params"])
+    create_dataset_function = partial(
+        data_class.create_dataset_function, **args.data_config["params"]
+    )
 
     import yaml
 
@@ -225,7 +232,9 @@ if __name__ == "__main__":
         model_cls=SATVideoDiffusionEngine,
         forward_step_function=partial(forward_step, data_class=data_class),
         forward_step_eval=partial(
-            forward_step_eval, data_class=data_class, only_log_video_latents=args.only_log_video_latents
+            forward_step_eval,
+            data_class=data_class,
+            only_log_video_latents=args.only_log_video_latents,
         ),
         create_dataset_function=create_dataset_function,
     )

@@ -22,7 +22,7 @@ def load_torch_file(ckpt, device=None, dtype=torch.float16):
     if ckpt.lower().endswith(".safetensors") or ckpt.lower().endswith(".sft"):
         sd = safetensors.torch.load_file(ckpt, device=device.type)
     else:
-        if not "weights_only" in torch.load.__code__.co_varnames:
+        if "weights_only" not in torch.load.__code__.co_varnames:
             logger.warning(
                 "Warning torch.load doesn't support weights_only on this pytorch version, loading unsafely."
             )
@@ -74,27 +74,39 @@ def get_tiled_scale_steps(width, height, tile_x, tile_y, overlap):
 
 @torch.inference_mode()
 def tiled_scale_multidim(
-    samples, function, tile=(64, 64), overlap=8, upscale_amount=4, out_channels=3, output_device="cpu", pbar=None
+    samples,
+    function,
+    tile=(64, 64),
+    overlap=8,
+    upscale_amount=4,
+    out_channels=3,
+    output_device="cpu",
+    pbar=None,
 ):
     dims = len(tile)
     print(f"samples dtype:{samples.dtype}")
     output = torch.empty(
-        [samples.shape[0], out_channels] + list(map(lambda a: round(a * upscale_amount), samples.shape[2:])),
+        [samples.shape[0], out_channels]
+        + list(map(lambda a: round(a * upscale_amount), samples.shape[2:])),
         device=output_device,
     )
 
     for b in range(samples.shape[0]):
         s = samples[b : b + 1]
         out = torch.zeros(
-            [s.shape[0], out_channels] + list(map(lambda a: round(a * upscale_amount), s.shape[2:])),
+            [s.shape[0], out_channels]
+            + list(map(lambda a: round(a * upscale_amount), s.shape[2:])),
             device=output_device,
         )
         out_div = torch.zeros(
-            [s.shape[0], out_channels] + list(map(lambda a: round(a * upscale_amount), s.shape[2:])),
+            [s.shape[0], out_channels]
+            + list(map(lambda a: round(a * upscale_amount), s.shape[2:])),
             device=output_device,
         )
 
-        for it in itertools.product(*map(lambda a: range(0, a[0], a[1] - overlap), zip(s.shape[2:], tile))):
+        for it in itertools.product(
+            *map(lambda a: range(0, a[0], a[1] - overlap), zip(s.shape[2:], tile))
+        ):
             s_in = s
             upscaled = []
 
@@ -142,7 +154,14 @@ def tiled_scale(
     pbar=None,
 ):
     return tiled_scale_multidim(
-        samples, function, (tile_y, tile_x), overlap, upscale_amount, out_channels, output_device, pbar
+        samples,
+        function,
+        (tile_y, tile_x),
+        overlap,
+        upscale_amount,
+        out_channels,
+        output_device,
+        pbar,
     )
 
 
@@ -186,7 +205,9 @@ def upscale(upscale_model, tensor: torch.Tensor, inf_device, output_device="cpu"
     return s
 
 
-def upscale_batch_and_concatenate(upscale_model, latents, inf_device, output_device="cpu") -> torch.Tensor:
+def upscale_batch_and_concatenate(
+    upscale_model, latents, inf_device, output_device="cpu"
+) -> torch.Tensor:
     upscaled_latents = []
     for i in range(latents.size(0)):
         latent = latents[i]
@@ -207,7 +228,9 @@ class ProgressBar:
     def __init__(self, total, desc=None):
         self.total = total
         self.current = 0
-        self.b_unit = tqdm.tqdm(total=total, desc="ProgressBar context index: 0" if desc is None else desc)
+        self.b_unit = tqdm.tqdm(
+            total=total, desc="ProgressBar context index: 0" if desc is None else desc
+        )
 
     def update(self, value):
         if value > self.total:

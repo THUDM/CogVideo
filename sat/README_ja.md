@@ -335,7 +335,7 @@ bash inference.sh
   eval_iters: 1 # 検証イテレーション数
   eval_interval: 100    # 検証間隔
   eval_batch_size: 1  # 検証バッチサイズ
-  save: ckpts # モデル保存パス 
+  save: ckpts # モデル保存パス
   save_interval: 100 # 保存間隔
   log_interval: 20 # ログ出力間隔
   train_data: [ "your train data path" ]
@@ -433,7 +433,7 @@ Modify the files in `configs/sft.yaml` (full fine-tuning) as follows:
   eval_iters: 1 # Evaluation iterations
   eval_interval: 100    # Evaluation interval
   eval_batch_size: 1  # Evaluation batch size
-  save: ckpts # Model save path 
+  save: ckpts # Model save path
   save_interval: 100 # Save interval
   log_interval: 20 # Log output interval
   train_data: [ "your train data path" ]
@@ -505,7 +505,7 @@ run_cmd="$environs python sample_video.py --base configs/cogvideox_<model parame
 Then, run the code:
 
 ```
-bash inference.sh 
+bash inference.sh
 ```
 
 ### Converting to Huggingface Diffusers-compatible Weights

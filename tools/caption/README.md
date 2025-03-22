@@ -11,7 +11,7 @@ data into textual descriptions to provide the essential training data for text-t
 
 ## Video Caption via CogVLM2-Caption
 
-🤗 [Hugging Face](https://huggingface.co/THUDM/cogvlm2-llama3-caption) | 🤖 [ModelScope](https://modelscope.cn/models/ZhipuAI/cogvlm2-llama3-caption/) 
+🤗 [Hugging Face](https://huggingface.co/THUDM/cogvlm2-llama3-caption) | 🤖 [ModelScope](https://modelscope.cn/models/ZhipuAI/cogvlm2-llama3-caption/)
 
 CogVLM2-Caption is a video captioning model used to generate training data for the CogVideoX model.
 

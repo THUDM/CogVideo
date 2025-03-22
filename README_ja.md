@@ -21,7 +21,7 @@
 </p>
 
 ## 更新とニュース
-- 🔥🔥 ```2025/03/16```: [CogKit](https://github.com/THUDM/CogKit) は **CogView4** および **CogVideoX** シリーズの微調整と推論のためのフレームワークです。このツールキットを活用することで、私たちのマルチモーダル生成モデルを最大限に活用できます。
+- 🔥🔥 ```2025/03/24```: [CogKit](https://github.com/THUDM/CogKit) は **CogView4** および **CogVideoX** シリーズの微調整と推論のためのフレームワークです。このツールキットを活用することで、私たちのマルチモーダル生成モデルを最大限に活用できます。
 -  **ニュース**: ```2025/02/28```: DDIM Inverse が `CogVideoX-5B` と `CogVideoX1.5-5B` でサポートされました。詳細は [こちら](inference/ddim_inversion.py) をご覧ください。
 -  **ニュース**: ```2025/01/08```: 私たちは`diffusers`バージョンのモデルをベースにした`Lora`微調整用のコードを更新しました。より少ないVRAM（ビデオメモリ）で動作します。詳細については[こちら](finetune/README_ja.md)をご覧ください。
 -  **ニュース**: ```2024/11/15```: `CogVideoX1.5` モデルのdiffusersバージョンをリリースしました。わずかなパラメータ調整で以前のコードをそのまま利用可能です。
@@ -243,7 +243,7 @@ CogVideoXは、[清影](https://chatglm.cn/video?fr=osm_cogvideox) と同源の�
   <tr>
     <td style="text-align: center;">位置エンコーディング</td>
     <td colspan="2" style="text-align: center;">3d_rope_pos_embed</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td> 
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
   </tr>
@@ -417,8 +417,6 @@ CogVideoのデモは [https://models.aminer.cn/cogvideo](https://models.aminer.c
   year={2022}
 }
 ```
-
-あなたの貢献をお待ちしています！詳細は[こちら](resources/contribute_ja.md)をクリックしてください。
 
 ## ライセンス契約
 

@@ -15,7 +15,16 @@ class VectorQuantizer2(nn.Module):
     # NOTE: due to a bug the beta term was applied to the wrong term. for
     # backwards compatibility we use the buggy version by default, but you can
     # specify legacy=False to fix it.
-    def __init__(self, n_e, e_dim, beta, remap=None, unknown_index="random", sane_index_shape=False, legacy=True):
+    def __init__(
+        self,
+        n_e,
+        e_dim,
+        beta,
+        remap=None,
+        unknown_index="random",
+        sane_index_shape=False,
+        legacy=True,
+    ):
         super().__init__()
         self.n_e = n_e
         self.e_dim = e_dim
@@ -51,7 +60,9 @@ class VectorQuantizer2(nn.Module):
         new = match.argmax(-1)
         unknown = match.sum(2) < 1
         if self.unknown_index == "random":
-            new[unknown] = torch.randint(0, self.re_embed, size=new[unknown].shape).to(device=new.device)
+            new[unknown] = torch.randint(0, self.re_embed, size=new[unknown].shape).to(
+                device=new.device
+            )
         else:
             new[unknown] = self.unknown_index
         return new.reshape(ishape)
@@ -78,7 +89,8 @@ class VectorQuantizer2(nn.Module):
         d = (
             torch.sum(z_flattened**2, dim=1, keepdim=True)
             + torch.sum(self.embedding.weight**2, dim=1)
-            - 2 * torch.einsum("bd,dn->bn", z_flattened, rearrange(self.embedding.weight, "n d -> d n"))
+            - 2
+            * torch.einsum("bd,dn->bn", z_flattened, rearrange(self.embedding.weight, "n d -> d n"))
         )
 
         min_encoding_indices = torch.argmin(d, dim=1)
@@ -88,9 +100,13 @@ class VectorQuantizer2(nn.Module):
 
         # compute loss for embedding
         if not self.legacy:
-            loss = self.beta * torch.mean((z_q.detach() - z) ** 2) + torch.mean((z_q - z.detach()) ** 2)
+            loss = self.beta * torch.mean((z_q.detach() - z) ** 2) + torch.mean(
+                (z_q - z.detach()) ** 2
+            )
         else:
-            loss = torch.mean((z_q.detach() - z) ** 2) + self.beta * torch.mean((z_q - z.detach()) ** 2)
+            loss = torch.mean((z_q.detach() - z) ** 2) + self.beta * torch.mean(
+                (z_q - z.detach()) ** 2
+            )
 
         # preserve gradients
         z_q = z + (z_q - z).detach()
@@ -104,7 +120,9 @@ class VectorQuantizer2(nn.Module):
             min_encoding_indices = min_encoding_indices.reshape(-1, 1)  # flatten
 
         if self.sane_index_shape:
-            min_encoding_indices = min_encoding_indices.reshape(z_q.shape[0], z_q.shape[2], z_q.shape[3])
+            min_encoding_indices = min_encoding_indices.reshape(
+                z_q.shape[0], z_q.shape[2], z_q.shape[3]
+            )
 
         return z_q, loss, (perplexity, min_encodings, min_encoding_indices)
 
@@ -184,7 +202,9 @@ class GumbelQuantize(nn.Module):
         new = match.argmax(-1)
         unknown = match.sum(2) < 1
         if self.unknown_index == "random":
-            new[unknown] = torch.randint(0, self.re_embed, size=new[unknown].shape).to(device=new.device)
+            new[unknown] = torch.randint(0, self.re_embed, size=new[unknown].shape).to(
+                device=new.device
+            )
         else:
             new[unknown] = self.unknown_index
         return new.reshape(ishape)

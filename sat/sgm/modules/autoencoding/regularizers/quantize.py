@@ -33,7 +33,9 @@ class AbstractQuantizer(AbstractRegularizer):
         new = match.argmax(-1)
         unknown = match.sum(2) < 1
         if self.unknown_index == "random":
-            new[unknown] = torch.randint(0, self.re_embed, size=new[unknown].shape).to(device=new.device)
+            new[unknown] = torch.randint(0, self.re_embed, size=new[unknown].shape).to(
+                device=new.device
+            )
         else:
             new[unknown] = self.unknown_index
         return new.reshape(ishape)
@@ -50,7 +52,9 @@ class AbstractQuantizer(AbstractRegularizer):
         return back.reshape(ishape)
 
     @abstractmethod
-    def get_codebook_entry(self, indices: torch.Tensor, shape: Optional[Tuple[int, ...]] = None) -> torch.Tensor:
+    def get_codebook_entry(
+        self, indices: torch.Tensor, shape: Optional[Tuple[int, ...]] = None
+    ) -> torch.Tensor:
         raise NotImplementedError()
 
     def get_trainable_parameters(self) -> Iterator[torch.nn.Parameter]:
@@ -239,7 +243,8 @@ class VectorQuantizer(AbstractQuantizer):
         d = (
             torch.sum(z_flattened**2, dim=1, keepdim=True)
             + torch.sum(self.embedding.weight**2, dim=1)
-            - 2 * torch.einsum("bd,dn->bn", z_flattened, rearrange(self.embedding.weight, "n d -> d n"))
+            - 2
+            * torch.einsum("bd,dn->bn", z_flattened, rearrange(self.embedding.weight, "n d -> d n"))
         )
 
         min_encoding_indices = torch.argmin(d, dim=1)
@@ -267,15 +272,21 @@ class VectorQuantizer(AbstractQuantizer):
 
         if self.sane_index_shape:
             if do_reshape:
-                min_encoding_indices = min_encoding_indices.reshape(z_q.shape[0], z_q.shape[2], z_q.shape[3])
+                min_encoding_indices = min_encoding_indices.reshape(
+                    z_q.shape[0], z_q.shape[2], z_q.shape[3]
+                )
             else:
-                min_encoding_indices = rearrange(min_encoding_indices, "(b s) 1 -> b s", b=z_q.shape[0])
+                min_encoding_indices = rearrange(
+                    min_encoding_indices, "(b s) 1 -> b s", b=z_q.shape[0]
+                )
 
         loss_dict["min_encoding_indices"] = min_encoding_indices
 
         return z_q, loss_dict
 
-    def get_codebook_entry(self, indices: torch.Tensor, shape: Optional[Tuple[int, ...]] = None) -> torch.Tensor:
+    def get_codebook_entry(
+        self, indices: torch.Tensor, shape: Optional[Tuple[int, ...]] = None
+    ) -> torch.Tensor:
         # shape specifying (batch, height, width, channel)
         if self.remap is not None:
             assert shape is not None, "Need to give shape for remap"
@@ -448,6 +459,8 @@ class VectorQuantizerWithInputProjection(VectorQuantizer):
             elif len(in_shape) == 5:
                 z_q = rearrange(z_q, "b (t h w) c -> b c t h w ", w=in_shape[-1], h=in_shape[-2])
             else:
-                raise NotImplementedError(f"rearranging not available for {len(in_shape)}-dimensional input.")
+                raise NotImplementedError(
+                    f"rearranging not available for {len(in_shape)}-dimensional input."
+                )
 
         return z_q, loss_dict

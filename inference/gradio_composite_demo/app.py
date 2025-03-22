@@ -39,11 +39,15 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 MODEL = "THUDM/CogVideoX-5b"
 
-hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran")
+hf_hub_download(
+    repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran"
+)
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
 pipe = CogVideoXPipeline.from_pretrained(MODEL, torch_dtype=torch.bfloat16).to(device)
-pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+pipe.scheduler = CogVideoXDPMScheduler.from_config(
+    pipe.scheduler.config, timestep_spacing="trailing"
+)
 pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
     MODEL,
     transformer=pipe.transformer,
@@ -296,8 +300,16 @@ def delete_old_files():
 
 
 threading.Thread(target=delete_old_files, daemon=True).start()
-examples_videos = [["example_videos/horse.mp4"], ["example_videos/kitten.mp4"], ["example_videos/train_running.mp4"]]
-examples_images = [["example_images/beach.png"], ["example_images/street.png"], ["example_images/camping.png"]]
+examples_videos = [
+    ["example_videos/horse.mp4"],
+    ["example_videos/kitten.mp4"],
+    ["example_videos/train_running.mp4"],
+]
+examples_images = [
+    ["example_images/beach.png"],
+    ["example_images/street.png"],
+    ["example_images/camping.png"],
+]
 
 with gr.Blocks() as demo:
     gr.Markdown("""
@@ -317,19 +329,31 @@ with gr.Blocks() as demo:
             "></a>
            </div>
            <div style="text-align: center; font-size: 15px; font-weight: bold; color: red; margin-bottom: 20px;">
-            ⚠️ This demo is for academic research and experimental use only. 
+            ⚠️ This demo is for academic research and experimental use only.
             </div>
            """)
     with gr.Row():
         with gr.Column():
-            with gr.Accordion("I2V: Image Input (cannot be used simultaneously with video input)", open=False):
+            with gr.Accordion(
+                "I2V: Image Input (cannot be used simultaneously with video input)", open=False
+            ):
                 image_input = gr.Image(label="Input Image (will be cropped to 720 * 480)")
-                examples_component_images = gr.Examples(examples_images, inputs=[image_input], cache_examples=False)
-            with gr.Accordion("V2V: Video Input (cannot be used simultaneously with image input)", open=False):
-                video_input = gr.Video(label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)")
+                examples_component_images = gr.Examples(
+                    examples_images, inputs=[image_input], cache_examples=False
+                )
+            with gr.Accordion(
+                "V2V: Video Input (cannot be used simultaneously with image input)", open=False
+            ):
+                video_input = gr.Video(
+                    label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)"
+                )
                 strength = gr.Slider(0.1, 1.0, value=0.8, step=0.01, label="Strength")
-                examples_component_videos = gr.Examples(examples_videos, inputs=[video_input], cache_examples=False)
-            prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
+                examples_component_videos = gr.Examples(
+                    examples_videos, inputs=[video_input], cache_examples=False
+                )
+            prompt = gr.Textbox(
+                label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5
+            )
 
             with gr.Row():
                 gr.Markdown(
@@ -340,11 +364,16 @@ with gr.Blocks() as demo:
                 with gr.Column():
                     with gr.Row():
                         seed_param = gr.Number(
-                            label="Inference Seed (Enter a positive number, -1 for random)", value=-1
+                            label="Inference Seed (Enter a positive number, -1 for random)",
+                            value=-1,
                         )
                     with gr.Row():
-                        enable_scale = gr.Checkbox(label="Super-Resolution (720 × 480 -> 2880 × 1920)", value=False)
-                        enable_rife = gr.Checkbox(label="Frame Interpolation (8fps -> 16fps)", value=False)
+                        enable_scale = gr.Checkbox(
+                            label="Super-Resolution (720 × 480 -> 2880 × 1920)", value=False
+                        )
+                        enable_rife = gr.Checkbox(
+                            label="Frame Interpolation (8fps -> 16fps)", value=False
+                        )
                     gr.Markdown(
                         "✨In this demo, we use [RIFE](https://github.com/hzwer/ECCV2022-RIFE) for frame interpolation and [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) for upscaling(Super-Resolution).<br>&nbsp;&nbsp;&nbsp;&nbsp;The entire process is based on open-source solutions."
                     )
@@ -430,7 +459,7 @@ with gr.Blocks() as demo:
         seed_value,
         scale_status,
         rife_status,
-        progress=gr.Progress(track_tqdm=True)
+        progress=gr.Progress(track_tqdm=True),
     ):
         latents, seed = infer(
             prompt,
@@ -457,7 +486,9 @@ with gr.Blocks() as demo:
             image_pil = VaeImageProcessor.numpy_to_pil(image_np)
             batch_video_frames.append(image_pil)
 
-        video_path = utils.save_video(batch_video_frames[0], fps=math.ceil((len(batch_video_frames[0]) - 1) / 6))
+        video_path = utils.save_video(
+            batch_video_frames[0], fps=math.ceil((len(batch_video_frames[0]) - 1) / 6)
+        )
         video_update = gr.update(visible=True, value=video_path)
         gif_path = convert_to_gif(video_path)
         gif_update = gr.update(visible=True, value=gif_path)

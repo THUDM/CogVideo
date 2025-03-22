@@ -14,7 +14,7 @@
 📚 查看 <a href="https://arxiv.org/abs/2408.06072" target="_blank">论文</a> 和 <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">使用文档</a>
 </p>
 <p align="center">
-    👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/dCGfUsagrD" target="_blank">Discord</a> 
+    👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和  <a href="https://discord.gg/dCGfUsagrD" target="_blank">Discord</a>
 </p>
 <p align="center">
 📍 前往<a href="https://chatglm.cn/video?fr=osm_cogvideox"> 清影</a> 和 <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9"> API平台</a> 体验更大规模的商业版视频生成模型。
@@ -22,11 +22,11 @@
 
 ## 项目更新
 
-- 🔥🔥 **News**: ```2025/03/16```: 我们推出了 [CogKit](https://github.com/THUDM/CogKit) 工具，这是一个微调**CogView4**, **CogVideoX** 系列的微调和推理框架，一个工具包，玩转我们的多模态生成模型。
+- 🔥🔥 **News**: ```2025/03/24```: 我们推出了 [CogKit](https://github.com/THUDM/CogKit) 工具，这是一个微调**CogView4**, **CogVideoX** 系列的微调和推理框架，一个工具包，玩转我们的多模态生成模型。
 - 🔥 **News**: ```2025/02/28```:  DDIM Inverse 已经在`CogVideoX-5B` 和 `CogVideoX1.5 -5B` 支持，查看 [here](inference/ddim_inversion.py).
 - 🔥 **News**: ```2025/01/08```: 我们更新了基于`diffusers`版本模型的`Lora`微调代码，占用显存更低，详情请见[这里](finetune/README_zh.md)。
 - 🔥 **News**: ```2024/11/15```: 我们发布 `CogVideoX1.5` 模型的diffusers版本，仅需调整部分参数仅可沿用之前的代码。
-- 🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。 
+- 🔥 **News**: ```2024/11/08```: 我们发布 `CogVideoX1.5` 模型。CogVideoX1.5 是 CogVideoX 开源模型的升级版本。
 CogVideoX1.5-5B 系列模型支持 **10秒** 长度的视频和更高的分辨率，其中 `CogVideoX1.5-5B-I2V` 支持 **任意分辨率** 的视频生成，SAT代码已经更新。`diffusers`版本还在适配中。SAT版本代码前往 [这里](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT) 下载。
 - 🔥**News**: ```2024/10/13```: 成本更低，单卡4090可微调 `CogVideoX-5B`
   的微调框架[cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory)已经推出，多种分辨率微调，欢迎使用。
@@ -234,7 +234,7 @@ CogVideoX是 [清影](https://chatglm.cn/video?fr=osm_cogvideox) 同源的开源
   <tr>
     <td style="text-align: center;">位置编码</td>
     <td colspan="2" style="text-align: center;">3d_rope_pos_embed</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td> 
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
   </tr>
@@ -397,8 +397,6 @@ CogVideo的demo网站在[https://models.aminer.cn/cogvideo](https://models.amine
   year={2022}
 }
 ```
-
-我们欢迎您的贡献，您可以点击[这里](resources/contribute_zh.md)查看更多信息。
 
 ## 模型协议
 
