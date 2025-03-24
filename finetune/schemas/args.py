@@ -115,14 +115,18 @@ class Args(BaseModel):
     def validate_validation_images(cls, v: str | None, info: ValidationInfo) -> str | None:
         values = info.data
         if values.get("do_validation") and values.get("model_type") == "i2v" and not v:
-            raise ValueError("validation_images must be specified when do_validation is True and model_type is i2v")
+            raise ValueError(
+                "validation_images must be specified when do_validation is True and model_type is i2v"
+            )
         return v
 
     @field_validator("validation_videos")
     def validate_validation_videos(cls, v: str | None, info: ValidationInfo) -> str | None:
         values = info.data
         if values.get("do_validation") and values.get("model_type") == "v2v" and not v:
-            raise ValueError("validation_videos must be specified when do_validation is True and model_type is v2v")
+            raise ValueError(
+                "validation_videos must be specified when do_validation is True and model_type is v2v"
+            )
         return v
 
     @field_validator("validation_steps")
@@ -148,7 +152,9 @@ class Args(BaseModel):
             model_name = info.data.get("model_name", "")
             if model_name in ["cogvideox-5b-i2v", "cogvideox-5b-t2v"]:
                 if (height, width) != (480, 720):
-                    raise ValueError("For cogvideox-5b models, height must be 480 and width must be 720")
+                    raise ValueError(
+                        "For cogvideox-5b models, height must be 480 and width must be 720"
+                    )
 
             return v
 
@@ -221,7 +227,9 @@ class Args(BaseModel):
         # LoRA parameters
         parser.add_argument("--rank", type=int, default=128)
         parser.add_argument("--lora_alpha", type=int, default=64)
-        parser.add_argument("--target_modules", type=str, nargs="+", default=["to_q", "to_k", "to_v", "to_out.0"])
+        parser.add_argument(
+            "--target_modules", type=str, nargs="+", default=["to_q", "to_k", "to_v", "to_out.0"]
+        )
 
         # Checkpointing
         parser.add_argument("--checkpointing_steps", type=int, default=200)

@@ -23,7 +23,9 @@ def get_latest_ckpt_path_to_resume_from(
     else:
         resume_from_checkpoint_path = Path(resume_from_checkpoint)
         if not resume_from_checkpoint_path.exists():
-            logger.info(f"Checkpoint '{resume_from_checkpoint}' does not exist. Starting a new training run.")
+            logger.info(
+                f"Checkpoint '{resume_from_checkpoint}' does not exist. Starting a new training run."
+            )
             initial_global_step = 0
             global_step = 0
             first_epoch = 0

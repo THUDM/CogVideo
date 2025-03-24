@@ -22,7 +22,9 @@ from datetime import datetime, timedelta
 from openai import OpenAI
 from moviepy import VideoFileClip
 
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to("cuda")
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(
+    "cuda"
+)
 
 pipe.vae.enable_slicing()
 pipe.vae.enable_tiling()
@@ -95,7 +97,12 @@ def convert_prompt(prompt: str, retry_times: int = 3) -> str:
     return prompt
 
 
-def infer(prompt: str, num_inference_steps: int, guidance_scale: float, progress=gr.Progress(track_tqdm=True)):
+def infer(
+    prompt: str,
+    num_inference_steps: int,
+    guidance_scale: float,
+    progress=gr.Progress(track_tqdm=True),
+):
     torch.cuda.empty_cache()
     video = pipe(
         prompt=prompt,
@@ -151,7 +158,9 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column():
-            prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
+            prompt = gr.Textbox(
+                label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5
+            )
 
             with gr.Row():
                 gr.Markdown(
@@ -176,7 +185,13 @@ with gr.Blocks() as demo:
                 download_video_button = gr.File(label="📥 Download Video", visible=False)
                 download_gif_button = gr.File(label="📥 Download GIF", visible=False)
 
-    def generate(prompt, num_inference_steps, guidance_scale, model_choice, progress=gr.Progress(track_tqdm=True)):
+    def generate(
+        prompt,
+        num_inference_steps,
+        guidance_scale,
+        model_choice,
+        progress=gr.Progress(track_tqdm=True),
+    ):
         tensor = infer(prompt, num_inference_steps, guidance_scale, progress=progress)
         video_path = save_video(tensor)
         video_update = gr.update(visible=True, value=video_path)

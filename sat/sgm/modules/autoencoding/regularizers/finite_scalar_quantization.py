@@ -79,13 +79,19 @@ class FSQ(Module):
         self.dim = default(dim, len(_levels) * num_codebooks)
 
         has_projections = self.dim != effective_codebook_dim
-        self.project_in = nn.Linear(self.dim, effective_codebook_dim) if has_projections else nn.Identity()
-        self.project_out = nn.Linear(effective_codebook_dim, self.dim) if has_projections else nn.Identity()
+        self.project_in = (
+            nn.Linear(self.dim, effective_codebook_dim) if has_projections else nn.Identity()
+        )
+        self.project_out = (
+            nn.Linear(effective_codebook_dim, self.dim) if has_projections else nn.Identity()
+        )
         self.has_projections = has_projections
 
         self.codebook_size = self._levels.prod().item()
 
-        implicit_codebook = self.indices_to_codes(torch.arange(self.codebook_size), project_out=False)
+        implicit_codebook = self.indices_to_codes(
+            torch.arange(self.codebook_size), project_out=False
+        )
         self.register_buffer("implicit_codebook", implicit_codebook, persistent=False)
 
     def bound(self, z: Tensor, eps: float = 1e-3) -> Tensor:
@@ -153,7 +159,9 @@ class FSQ(Module):
             z = rearrange(z, "b d ... -> b ... d")
             z, ps = pack_one(z, "b * d")
 
-        assert z.shape[-1] == self.dim, f"expected dimension of {self.dim} but found dimension of {z.shape[-1]}"
+        assert (
+            z.shape[-1] == self.dim
+        ), f"expected dimension of {self.dim} but found dimension of {z.shape[-1]}"
 
         z = self.project_in(z)
 

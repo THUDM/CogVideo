@@ -104,18 +104,34 @@ def save_video(tensor, output_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CogVideoX encode/decode demo")
-    parser.add_argument("--model_path", type=str, required=True, help="The path to the CogVideoX model")
+    parser.add_argument(
+        "--model_path", type=str, required=True, help="The path to the CogVideoX model"
+    )
     parser.add_argument("--video_path", type=str, help="The path to the video file (for encoding)")
-    parser.add_argument("--encoded_path", type=str, help="The path to the encoded tensor file (for decoding)")
-    parser.add_argument("--output_path", type=str, default=".", help="The path to save the output file")
     parser.add_argument(
-        "--mode", type=str, choices=["encode", "decode", "both"], required=True, help="Mode: encode, decode, or both"
+        "--encoded_path", type=str, help="The path to the encoded tensor file (for decoding)"
     )
     parser.add_argument(
-        "--dtype", type=str, default="bfloat16", help="The data type for computation (e.g., 'float16' or 'bfloat16')"
+        "--output_path", type=str, default=".", help="The path to save the output file"
     )
     parser.add_argument(
-        "--device", type=str, default="cuda", help="The device to use for computation (e.g., 'cuda' or 'cpu')"
+        "--mode",
+        type=str,
+        choices=["encode", "decode", "both"],
+        required=True,
+        help="Mode: encode, decode, or both",
+    )
+    parser.add_argument(
+        "--dtype",
+        type=str,
+        default="bfloat16",
+        help="The data type for computation (e.g., 'float16' or 'bfloat16')",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cuda",
+        help="The device to use for computation (e.g., 'cuda' or 'cpu')",
     )
     args = parser.parse_args()
 
@@ -126,15 +142,21 @@ if __name__ == "__main__":
         assert args.video_path, "Video path must be provided for encoding."
         encoded_output = encode_video(args.model_path, args.video_path, dtype, device)
         torch.save(encoded_output, args.output_path + "/encoded.pt")
-        print(f"Finished encoding the video to a tensor, save it to a file at {encoded_output}/encoded.pt")
+        print(
+            f"Finished encoding the video to a tensor, save it to a file at {encoded_output}/encoded.pt"
+        )
     elif args.mode == "decode":
         assert args.encoded_path, "Encoded tensor path must be provided for decoding."
         decoded_output = decode_video(args.model_path, args.encoded_path, dtype, device)
         save_video(decoded_output, args.output_path)
-        print(f"Finished decoding the video and saved it to a file at {args.output_path}/output.mp4")
+        print(
+            f"Finished decoding the video and saved it to a file at {args.output_path}/output.mp4"
+        )
     elif args.mode == "both":
         assert args.video_path, "Video path must be provided for encoding."
         encoded_output = encode_video(args.model_path, args.video_path, dtype, device)
         torch.save(encoded_output, args.output_path + "/encoded.pt")
-        decoded_output = decode_video(args.model_path, args.output_path + "/encoded.pt", dtype, device)
+        decoded_output = decode_video(
+            args.model_path, args.output_path + "/encoded.pt", dtype, device
+        )
         save_video(decoded_output, args.output_path)

@@ -248,7 +248,9 @@ def make_time_attn(
         "vanilla",
         "vanilla-xformers",
     ], f"attn_type {attn_type} not supported for spatio-temporal attention"
-    print(f"making spatial and temporal attention of type '{attn_type}' with {in_channels} in_channels")
+    print(
+        f"making spatial and temporal attention of type '{attn_type}' with {in_channels} in_channels"
+    )
     if not XFORMERS_IS_AVAILABLE and attn_type == "vanilla-xformers":
         print(
             f"Attention mode '{attn_type}' is not available. Falling back to vanilla attention. "

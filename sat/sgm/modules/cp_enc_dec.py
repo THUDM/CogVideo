@@ -136,9 +136,9 @@ def _conv_split(input_, dim, kernel_size):
     if cp_rank == 0:
         output = input_.transpose(dim, 0)[: dim_size + kernel_size].transpose(dim, 0)
     else:
-        output = input_.transpose(dim, 0)[cp_rank * dim_size + 1 : (cp_rank + 1) * dim_size + kernel_size].transpose(
-            dim, 0
-        )
+        output = input_.transpose(dim, 0)[
+            cp_rank * dim_size + 1 : (cp_rank + 1) * dim_size + kernel_size
+        ].transpose(dim, 0)
     output = output.contiguous()
 
     # print('out _conv_split, cp_rank:', cp_rank, 'input_size:', output.shape)

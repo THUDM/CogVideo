@@ -55,7 +55,9 @@ def unload_model(model):
     model.to("cpu")
 
 
-def make_contiguous(x: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+def make_contiguous(
+    x: Union[torch.Tensor, Dict[str, torch.Tensor]],
+) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
     if isinstance(x, torch.Tensor):
         return x.contiguous()
     elif isinstance(x, dict):

@@ -11,7 +11,12 @@ from typing_extensions import override
 
 from finetune.constants import LOG_LEVEL, LOG_NAME
 
-from .utils import load_prompts, load_videos, preprocess_video_with_buckets, preprocess_video_with_resize
+from .utils import (
+    load_prompts,
+    load_videos,
+    preprocess_video_with_buckets,
+    preprocess_video_with_resize,
+)
 
 
 if TYPE_CHECKING:
@@ -93,7 +98,9 @@ class BaseT2VDataset(Dataset):
         train_resolution_str = "x".join(str(x) for x in self.trainer.args.train_resolution)
 
         cache_dir = self.trainer.args.data_root / "cache"
-        video_latent_dir = cache_dir / "video_latent" / self.trainer.args.model_name / train_resolution_str
+        video_latent_dir = (
+            cache_dir / "video_latent" / self.trainer.args.model_name / train_resolution_str
+        )
         prompt_embeddings_dir = cache_dir / "prompt_embeddings"
         video_latent_dir.mkdir(parents=True, exist_ok=True)
         prompt_embeddings_dir.mkdir(parents=True, exist_ok=True)
@@ -114,7 +121,9 @@ class BaseT2VDataset(Dataset):
             # [1, seq_len, hidden_size] -> [seq_len, hidden_size]
             prompt_embedding = prompt_embedding[0]
             save_file({"prompt_embedding": prompt_embedding}, prompt_embedding_path)
-            logger.info(f"Saved prompt embedding to {prompt_embedding_path}", main_process_only=False)
+            logger.info(
+                f"Saved prompt embedding to {prompt_embedding_path}", main_process_only=False
+            )
 
         if encoded_video_path.exists():
             # encoded_video = torch.load(encoded_video_path, weights_only=True)
@@ -202,7 +211,9 @@ class T2VDatasetWithResize(BaseT2VDataset):
         self.height = height
         self.width = width
 
-        self.__frame_transform = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+        self.__frame_transform = transforms.Compose(
+            [transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)]
+        )
 
     @override
     def preprocess(self, video_path: Path) -> torch.Tensor:
@@ -240,7 +251,9 @@ class T2VDatasetWithBuckets(BaseT2VDataset):
             for b in video_resolution_buckets
         ]
 
-        self.__frame_transform = transforms.Compose([transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)])
+        self.__frame_transform = transforms.Compose(
+            [transforms.Lambda(lambda x: x / 255.0 * 2.0 - 1.0)]
+        )
 
     @override
     def preprocess(self, video_path: Path) -> torch.Tensor:

@@ -30,7 +30,10 @@ import torchvision.transforms as T
 from diffusers.models.attention_processor import Attention, CogVideoXAttnProcessor2_0
 from diffusers.models.autoencoders import AutoencoderKLCogVideoX
 from diffusers.models.embeddings import apply_rotary_emb
-from diffusers.models.transformers.cogvideox_transformer_3d import CogVideoXBlock, CogVideoXTransformer3DModel
+from diffusers.models.transformers.cogvideox_transformer_3d import (
+    CogVideoXBlock,
+    CogVideoXTransformer3DModel,
+)
 from diffusers.pipelines.cogvideo.pipeline_cogvideox import CogVideoXPipeline, retrieve_timesteps
 from diffusers.schedulers import CogVideoXDDIMScheduler, DDIMInverseScheduler
 from diffusers.utils import export_to_video
@@ -62,22 +65,48 @@ class DDIMInversionArguments(TypedDict):
 def get_args() -> DDIMInversionArguments:
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model_path", type=str, required=True, help="Path of the pretrained model")
-    parser.add_argument("--prompt", type=str, required=True, help="Prompt for the direct sample procedure")
-    parser.add_argument("--video_path", type=str, required=True, help="Path of the video for inversion")
-    parser.add_argument("--output_path", type=str, default="output", help="Path of the output videos")
-    parser.add_argument("--guidance_scale", type=float, default=6.0, help="Classifier-free guidance scale")
-    parser.add_argument("--num_inference_steps", type=int, default=50, help="Number of inference steps")
-    parser.add_argument("--skip_frames_start", type=int, default=0, help="Number of skipped frames from the start")
-    parser.add_argument("--skip_frames_end", type=int, default=0, help="Number of skipped frames from the end")
-    parser.add_argument("--frame_sample_step", type=int, default=None, help="Temporal stride of the sampled frames")
-    parser.add_argument("--max_num_frames", type=int, default=81, help="Max number of sampled frames")
+    parser.add_argument(
+        "--model_path", type=str, required=True, help="Path of the pretrained model"
+    )
+    parser.add_argument(
+        "--prompt", type=str, required=True, help="Prompt for the direct sample procedure"
+    )
+    parser.add_argument(
+        "--video_path", type=str, required=True, help="Path of the video for inversion"
+    )
+    parser.add_argument(
+        "--output_path", type=str, default="output", help="Path of the output videos"
+    )
+    parser.add_argument(
+        "--guidance_scale", type=float, default=6.0, help="Classifier-free guidance scale"
+    )
+    parser.add_argument(
+        "--num_inference_steps", type=int, default=50, help="Number of inference steps"
+    )
+    parser.add_argument(
+        "--skip_frames_start", type=int, default=0, help="Number of skipped frames from the start"
+    )
+    parser.add_argument(
+        "--skip_frames_end", type=int, default=0, help="Number of skipped frames from the end"
+    )
+    parser.add_argument(
+        "--frame_sample_step", type=int, default=None, help="Temporal stride of the sampled frames"
+    )
+    parser.add_argument(
+        "--max_num_frames", type=int, default=81, help="Max number of sampled frames"
+    )
     parser.add_argument("--width", type=int, default=720, help="Resized width of the video frames")
-    parser.add_argument("--height", type=int, default=480, help="Resized height of the video frames")
+    parser.add_argument(
+        "--height", type=int, default=480, help="Resized height of the video frames"
+    )
     parser.add_argument("--fps", type=int, default=8, help="Frame rate of the output videos")
-    parser.add_argument("--dtype", type=str, default="bf16", choices=["bf16", "fp16"], help="Dtype of the model")
+    parser.add_argument(
+        "--dtype", type=str, default="bf16", choices=["bf16", "fp16"], help="Dtype of the model"
+    )
     parser.add_argument("--seed", type=int, default=42, help="Seed for the random number generator")
-    parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cpu"], help="Device for inference")
+    parser.add_argument(
+        "--device", type=str, default="cuda", choices=["cuda", "cpu"], help="Device for inference"
+    )
 
     args = parser.parse_args()
     args.dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float16
@@ -116,13 +145,20 @@ class CogVideoXAttnProcessor2_0ForDDIMInversion(CogVideoXAttnProcessor2_0):
 
         # Apply RoPE if needed
         if image_rotary_emb is not None:
-            query[:, :, text_seq_length:] = apply_rotary_emb(query[:, :, text_seq_length:], image_rotary_emb)
+            query[:, :, text_seq_length:] = apply_rotary_emb(
+                query[:, :, text_seq_length:], image_rotary_emb
+            )
             if not attn.is_cross_attention:
                 if key.size(2) == query.size(2):  # Attention for reference hidden states
-                    key[:, :, text_seq_length:] = apply_rotary_emb(key[:, :, text_seq_length:], image_rotary_emb)
+                    key[:, :, text_seq_length:] = apply_rotary_emb(
+                        key[:, :, text_seq_length:], image_rotary_emb
+                    )
                 else:  # RoPE should be applied to each group of image tokens
-                    key[:, :, text_seq_length : text_seq_length + image_seq_length] = apply_rotary_emb(
-                        key[:, :, text_seq_length : text_seq_length + image_seq_length], image_rotary_emb
+                    key[:, :, text_seq_length : text_seq_length + image_seq_length] = (
+                        apply_rotary_emb(
+                            key[:, :, text_seq_length : text_seq_length + image_seq_length],
+                            image_rotary_emb,
+                        )
                     )
                     key[:, :, text_seq_length * 2 + image_seq_length :] = apply_rotary_emb(
                         key[:, :, text_seq_length * 2 + image_seq_length :], image_rotary_emb
@@ -162,8 +198,12 @@ class CogVideoXAttnProcessor2_0ForDDIMInversion(CogVideoXAttnProcessor2_0):
         )
 
         if attention_mask is not None:
-            attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length, batch_size)
-            attention_mask = attention_mask.view(batch_size, attn.heads, -1, attention_mask.shape[-1])
+            attention_mask = attn.prepare_attention_mask(
+                attention_mask, sequence_length, batch_size
+            )
+            attention_mask = attention_mask.view(
+                batch_size, attn.heads, -1, attention_mask.shape[-1]
+            )
 
         query = attn.to_q(hidden_states)
         key = attn.to_k(hidden_states)
@@ -260,14 +300,18 @@ def get_video_frames(
         return frames.permute(0, 3, 1, 2).contiguous()  # [F, C, H, W]
 
 
-def encode_video_frames(vae: AutoencoderKLCogVideoX, video_frames: torch.FloatTensor) -> torch.FloatTensor:
+def encode_video_frames(
+    vae: AutoencoderKLCogVideoX, video_frames: torch.FloatTensor
+) -> torch.FloatTensor:
     video_frames = video_frames.to(device=vae.device, dtype=vae.dtype)
     video_frames = video_frames.unsqueeze(0).permute(0, 2, 1, 3, 4)  # [B, C, F, H, W]
     latent_dist = vae.encode(x=video_frames).latent_dist.sample().transpose(1, 2)
     return latent_dist * vae.config.scaling_factor
 
 
-def export_latents_to_video(pipeline: CogVideoXPipeline, latents: torch.FloatTensor, video_path: str, fps: int):
+def export_latents_to_video(
+    pipeline: CogVideoXPipeline, latents: torch.FloatTensor, video_path: str, fps: int
+):
     video = pipeline.decode_latents(latents)
     frames = pipeline.video_processor.postprocess_video(video=video, output_type="pil")
     export_to_video(video_frames=frames[0], output_video_path=video_path, fps=fps)
@@ -320,7 +364,9 @@ def sample(
 
     # 6. Prepare extra step kwargs. TODO: Logic should ideally just be moved out of the pipeline
     extra_step_kwargs = pipeline.prepare_extra_step_kwargs(generator, eta)
-    if isinstance(scheduler, DDIMInverseScheduler):  # Inverse scheduler does not accept extra kwargs
+    if isinstance(
+        scheduler, DDIMInverseScheduler
+    ):  # Inverse scheduler does not accept extra kwargs
         extra_step_kwargs = {}
 
     # 7. Create rotary embeds if required
@@ -344,7 +390,9 @@ def sample(
             if pipeline.interrupt:
                 continue
 
-            latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
+            latent_model_input = (
+                torch.cat([latents] * 2) if do_classifier_free_guidance else latents
+            )
             if reference_latents is not None:
                 reference = reference_latents[i]
                 reference = torch.cat([reference] * 2) if do_classifier_free_guidance else reference
@@ -371,18 +419,31 @@ def sample(
             # perform guidance
             if use_dynamic_cfg:
                 pipeline._guidance_scale = 1 + guidance_scale * (
-                    (1 - math.cos(math.pi * ((num_inference_steps - t.item()) / num_inference_steps) ** 5.0)) / 2
+                    (
+                        1
+                        - math.cos(
+                            math.pi
+                            * ((num_inference_steps - t.item()) / num_inference_steps) ** 5.0
+                        )
+                    )
+                    / 2
                 )
             if do_classifier_free_guidance:
                 noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-                noise_pred = noise_pred_uncond + pipeline.guidance_scale * (noise_pred_text - noise_pred_uncond)
+                noise_pred = noise_pred_uncond + pipeline.guidance_scale * (
+                    noise_pred_text - noise_pred_uncond
+                )
 
             # compute the noisy sample x_t-1 -> x_t
-            latents = scheduler.step(noise_pred, t, latents, **extra_step_kwargs, return_dict=False)[0]
+            latents = scheduler.step(
+                noise_pred, t, latents, **extra_step_kwargs, return_dict=False
+            )[0]
             latents = latents.to(prompt_embeds.dtype)
             trajectory[i] = latents
 
-            if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % scheduler.order == 0):
+            if i == len(timesteps) - 1 or (
+                (i + 1) > num_warmup_steps and (i + 1) % scheduler.order == 0
+            ):
                 progress_bar.update()
 
     # Offload all models
@@ -410,7 +471,9 @@ def ddim_inversion(
     seed: int,
     device: torch.device,
 ):
-    pipeline: CogVideoXPipeline = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype).to(device=device)
+    pipeline: CogVideoXPipeline = CogVideoXPipeline.from_pretrained(
+        model_path, torch_dtype=dtype
+    ).to(device=device)
     if not pipeline.transformer.config.use_rotary_positional_embeddings:
         raise NotImplementedError("This script supports CogVideoX 5B model only.")
     video_frames = get_video_frames(

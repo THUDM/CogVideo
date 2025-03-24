@@ -332,7 +332,7 @@ Encoder 使用。
   eval_iters: 1 # 验证迭代次数
   eval_interval: 100    # 验证间隔
   eval_batch_size: 1  # 验证集 batch size
-  save: ckpts # 模型保存路径 
+  save: ckpts # 模型保存路径
   save_interval: 100 # 模型保存间隔
   log_interval: 20 # 日志输出间隔
   train_data: [ "your train data path" ]
@@ -403,7 +403,7 @@ run_cmd="$environs python sample_video.py --base configs/cogvideox_<模型参数
 然后，执行代码:
 
 ```
-bash inference.sh 
+bash inference.sh
 ```
 
 ### 转换到 Huggingface Diffusers 库支持的权重

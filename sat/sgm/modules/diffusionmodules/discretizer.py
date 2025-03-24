@@ -52,7 +52,9 @@ class LegacyDDPMDiscretization(Discretization):
     ):
         super().__init__()
         self.num_timesteps = num_timesteps
-        betas = make_beta_schedule("linear", num_timesteps, linear_start=linear_start, linear_end=linear_end)
+        betas = make_beta_schedule(
+            "linear", num_timesteps, linear_start=linear_start, linear_end=linear_end
+        )
         alphas = 1.0 - betas
         self.alphas_cumprod = np.cumprod(alphas, axis=0)
         self.to_torch = partial(torch.tensor, dtype=torch.float32)
@@ -85,14 +87,18 @@ class ZeroSNRDDPMDiscretization(Discretization):
         if keep_start and not post_shift:
             linear_start = linear_start / (shift_scale + (1 - shift_scale) * linear_start)
         self.num_timesteps = num_timesteps
-        betas = make_beta_schedule("linear", num_timesteps, linear_start=linear_start, linear_end=linear_end)
+        betas = make_beta_schedule(
+            "linear", num_timesteps, linear_start=linear_start, linear_end=linear_end
+        )
         alphas = 1.0 - betas
         self.alphas_cumprod = np.cumprod(alphas, axis=0)
         self.to_torch = partial(torch.tensor, dtype=torch.float32)
 
         # SNR shift
         if not post_shift:
-            self.alphas_cumprod = self.alphas_cumprod / (shift_scale + (1 - shift_scale) * self.alphas_cumprod)
+            self.alphas_cumprod = self.alphas_cumprod / (
+                shift_scale + (1 - shift_scale) * self.alphas_cumprod
+            )
 
         self.post_shift = post_shift
         self.shift_scale = shift_scale
@@ -113,11 +119,14 @@ class ZeroSNRDDPMDiscretization(Discretization):
         alphas_cumprod_sqrt_T = alphas_cumprod_sqrt[-1].clone()
 
         alphas_cumprod_sqrt -= alphas_cumprod_sqrt_T
-        alphas_cumprod_sqrt *= alphas_cumprod_sqrt_0 / (alphas_cumprod_sqrt_0 - alphas_cumprod_sqrt_T)
+        alphas_cumprod_sqrt *= alphas_cumprod_sqrt_0 / (
+            alphas_cumprod_sqrt_0 - alphas_cumprod_sqrt_T
+        )
 
         if self.post_shift:
             alphas_cumprod_sqrt = (
-                alphas_cumprod_sqrt**2 / (self.shift_scale + (1 - self.shift_scale) * alphas_cumprod_sqrt**2)
+                alphas_cumprod_sqrt**2
+                / (self.shift_scale + (1 - self.shift_scale) * alphas_cumprod_sqrt**2)
             ) ** 0.5
 
         if return_idx:

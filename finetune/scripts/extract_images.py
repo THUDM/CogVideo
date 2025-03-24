@@ -8,7 +8,10 @@ import cv2
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--datadir", type=str, required=True, help="Root directory containing videos.txt and video subdirectory"
+        "--datadir",
+        type=str,
+        required=True,
+        help="Root directory containing videos.txt and video subdirectory",
     )
     return parser.parse_args()
 

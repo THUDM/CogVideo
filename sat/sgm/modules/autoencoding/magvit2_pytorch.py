@@ -147,7 +147,9 @@ def hinge_gen_loss(fake):
 @autocast(enabled=False)
 @beartype
 def grad_layer_wrt_loss(loss: Tensor, layer: nn.Parameter):
-    return torch_grad(outputs=loss, inputs=layer, grad_outputs=torch.ones_like(loss), retain_graph=True)[0].detach()
+    return torch_grad(
+        outputs=loss, inputs=layer, grad_outputs=torch.ones_like(loss), retain_graph=True
+    )[0].detach()
 
 
 # helper decorators
@@ -223,7 +225,10 @@ class SqueezeExcite(Module):
         dim_hidden = max(dim_hidden_min, dim_out // 2)
 
         self.net = nn.Sequential(
-            nn.Conv2d(dim, dim_hidden, 1), nn.LeakyReLU(0.1), nn.Conv2d(dim_hidden, dim_out, 1), nn.Sigmoid()
+            nn.Conv2d(dim, dim_hidden, 1),
+            nn.LeakyReLU(0.1),
+            nn.Conv2d(dim_hidden, dim_out, 1),
+            nn.Sigmoid(),
         )
 
         nn.init.zeros_(self.net[-2].weight)
@@ -282,7 +287,10 @@ class RMSNorm(Module):
         self.bias = nn.Parameter(torch.zeros(shape)) if bias else 0.0
 
     def forward(self, x):
-        return F.normalize(x, dim=(1 if self.channel_first else -1)) * self.scale * self.gamma + self.bias
+        return (
+            F.normalize(x, dim=(1 if self.channel_first else -1)) * self.scale * self.gamma
+            + self.bias
+        )
 
 
 class AdaptiveRMSNorm(Module):
@@ -353,7 +361,8 @@ class Attention(Module):
             self.norm = RMSNorm(dim)
 
         self.to_qkv = nn.Sequential(
-            nn.Linear(dim, dim_inner * 3, bias=False), Rearrange("b n (qkv h d) -> qkv b h n d", qkv=3, h=heads)
+            nn.Linear(dim, dim_inner * 3, bias=False),
+            Rearrange("b n (qkv h d) -> qkv b h n d", qkv=3, h=heads),
         )
 
         assert num_memory_kv > 0
@@ -361,7 +370,9 @@ class Attention(Module):
 
         self.attend = Attend(causal=causal, dropout=dropout, flash=flash)
 
-        self.to_out = nn.Sequential(Rearrange("b h n d -> b n (h d)"), nn.Linear(dim_inner, dim, bias=False))
+        self.to_out = nn.Sequential(
+            Rearrange("b h n d -> b n (h d)"), nn.Linear(dim_inner, dim, bias=False)
+        )
 
     @beartype
     def forward(self, x, mask: Optional[Tensor] = None, cond: Optional[Tensor] = None):
@@ -455,7 +466,9 @@ class FeedForward(Module):
         super().__init__()
         conv_klass = nn.Conv2d if images else nn.Conv3d
 
-        rmsnorm_klass = RMSNorm if not exists(dim_cond) else partial(AdaptiveRMSNorm, dim_cond=dim_cond)
+        rmsnorm_klass = (
+            RMSNorm if not exists(dim_cond) else partial(AdaptiveRMSNorm, dim_cond=dim_cond)
+        )
 
         maybe_adaptive_norm_klass = partial(rmsnorm_klass, channel_first=True, images=images)
 
@@ -463,7 +476,9 @@ class FeedForward(Module):
 
         self.norm = maybe_adaptive_norm_klass(dim)
 
-        self.net = Sequential(conv_klass(dim, dim_inner * 2, 1), GEGLU(), conv_klass(dim_inner, dim, 1))
+        self.net = Sequential(
+            conv_klass(dim, dim_inner * 2, 1), GEGLU(), conv_klass(dim_inner, dim, 1)
+        )
 
     @beartype
     def forward(self, x: Tensor, *, cond: Optional[Tensor] = None):
@@ -525,7 +540,8 @@ class DiscriminatorBlock(Module):
 
         self.downsample = (
             nn.Sequential(
-                Rearrange("b c (h p1) (w p2) -> b (c p1 p2) h w", p1=2, p2=2), nn.Conv2d(filters * 4, filters, 1)
+                Rearrange("b c (h p1) (w p2) -> b (c p1 p2) h w", p1=2, p2=2),
+                nn.Conv2d(filters * 4, filters, 1),
             )
             if downsample
             else None
@@ -584,11 +600,18 @@ class Discriminator(Module):
             is_not_last = ind != (len(layer_dims_in_out) - 1)
 
             block = DiscriminatorBlock(
-                in_chan, out_chan, downsample=is_not_last, antialiased_downsample=antialiased_downsample
+                in_chan,
+                out_chan,
+                downsample=is_not_last,
+                antialiased_downsample=antialiased_downsample,
             )
 
             attn_block = Sequential(
-                Residual(LinearSpaceAttention(dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head)),
+                Residual(
+                    LinearSpaceAttention(
+                        dim=out_chan, heads=linear_attn_heads, dim_head=linear_attn_dim_head
+                    )
+                ),
                 Residual(FeedForward(dim=out_chan, mult=ff_mult, images=True)),
             )
 
@@ -628,7 +651,16 @@ class Discriminator(Module):
 class Conv3DMod(Module):
     @beartype
     def __init__(
-        self, dim, *, spatial_kernel, time_kernel, causal=True, dim_out=None, demod=True, eps=1e-8, pad_mode="zeros"
+        self,
+        dim,
+        *,
+        spatial_kernel,
+        time_kernel,
+        causal=True,
+        dim_out=None,
+        demod=True,
+        eps=1e-8,
+        pad_mode="zeros",
     ):
         super().__init__()
         dim_out = default(dim_out, dim)
@@ -644,7 +676,9 @@ class Conv3DMod(Module):
 
         self.pad_mode = pad_mode
         self.padding = (*((spatial_kernel // 2,) * 4), *time_padding)
-        self.weights = nn.Parameter(torch.randn((dim_out, dim, time_kernel, spatial_kernel, spatial_kernel)))
+        self.weights = nn.Parameter(
+            torch.randn((dim_out, dim, time_kernel, spatial_kernel, spatial_kernel))
+        )
 
         self.demod = demod
 
@@ -675,7 +709,11 @@ class Conv3DMod(Module):
         weights = weights * (cond + 1)
 
         if self.demod:
-            inv_norm = reduce(weights**2, "b o i k0 k1 k2 -> b o 1 1 1 1", "sum").clamp(min=self.eps).rsqrt()
+            inv_norm = (
+                reduce(weights**2, "b o i k0 k1 k2 -> b o 1 1 1 1", "sum")
+                .clamp(min=self.eps)
+                .rsqrt()
+            )
             weights = weights * inv_norm
 
         fmap = rearrange(fmap, "b c t h w -> 1 (b c) t h w")
@@ -742,7 +780,9 @@ class SpatialUpsample2x(Module):
         dim_out = default(dim_out, dim)
         conv = nn.Conv2d(dim, dim_out * 4, 1)
 
-        self.net = nn.Sequential(conv, nn.SiLU(), Rearrange("b (c p1 p2) h w -> b c (h p1) (w p2)", p1=2, p2=2))
+        self.net = nn.Sequential(
+            conv, nn.SiLU(), Rearrange("b (c p1 p2) h w -> b c (h p1) (w p2)", p1=2, p2=2)
+        )
 
         self.init_conv_(conv)
 
@@ -808,7 +848,12 @@ def SameConv2d(dim_in, dim_out, kernel_size):
 class CausalConv3d(Module):
     @beartype
     def __init__(
-        self, chan_in, chan_out, kernel_size: Union[int, Tuple[int, int, int]], pad_mode="constant", **kwargs
+        self,
+        chan_in,
+        chan_out,
+        kernel_size: Union[int, Tuple[int, int, int]],
+        pad_mode="constant",
+        **kwargs,
     ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 3)
@@ -830,7 +875,9 @@ class CausalConv3d(Module):
 
         stride = (stride, 1, 1)
         dilation = (dilation, 1, 1)
-        self.conv = nn.Conv3d(chan_in, chan_out, kernel_size, stride=stride, dilation=dilation, **kwargs)
+        self.conv = nn.Conv3d(
+            chan_in, chan_out, kernel_size, stride=stride, dilation=dilation, **kwargs
+        )
 
     def forward(self, x):
         pad_mode = self.pad_mode if self.time_pad < x.shape[2] else "constant"
@@ -855,7 +902,13 @@ def ResidualUnit(dim, kernel_size: Union[int, Tuple[int, int, int]], pad_mode: s
 @beartype
 class ResidualUnitMod(Module):
     def __init__(
-        self, dim, kernel_size: Union[int, Tuple[int, int, int]], *, dim_cond, pad_mode: str = "constant", demod=True
+        self,
+        dim,
+        kernel_size: Union[int, Tuple[int, int, int]],
+        *,
+        dim_cond,
+        pad_mode: str = "constant",
+        demod=True,
     ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 3)
@@ -892,7 +945,15 @@ class ResidualUnitMod(Module):
 
 
 class CausalConvTranspose3d(Module):
-    def __init__(self, chan_in, chan_out, kernel_size: Union[int, Tuple[int, int, int]], *, time_stride, **kwargs):
+    def __init__(
+        self,
+        chan_in,
+        chan_out,
+        kernel_size: Union[int, Tuple[int, int, int]],
+        *,
+        time_stride,
+        **kwargs,
+    ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 3)
 
@@ -908,7 +969,9 @@ class CausalConvTranspose3d(Module):
         stride = (time_stride, 1, 1)
         padding = (0, height_pad, width_pad)
 
-        self.conv = nn.ConvTranspose3d(chan_in, chan_out, kernel_size, stride, padding=padding, **kwargs)
+        self.conv = nn.ConvTranspose3d(
+            chan_in, chan_out, kernel_size, stride, padding=padding, **kwargs
+        )
 
     def forward(self, x):
         assert x.ndim == 5
@@ -936,7 +999,9 @@ LossBreakdown = namedtuple(
     ],
 )
 
-DiscrLossBreakdown = namedtuple("DiscrLossBreakdown", ["discr_loss", "multiscale_discr_losses", "gradient_penalty"])
+DiscrLossBreakdown = namedtuple(
+    "DiscrLossBreakdown", ["discr_loss", "multiscale_discr_losses", "gradient_penalty"]
+)
 
 
 class VideoTokenizer(Module):
@@ -1050,10 +1115,14 @@ class VideoTokenizer(Module):
                 has_cond = True
 
                 encoder_layer = ResidualUnitMod(
-                    dim, residual_conv_kernel_size, dim_cond=int(dim_cond * dim_cond_expansion_factor)
+                    dim,
+                    residual_conv_kernel_size,
+                    dim_cond=int(dim_cond * dim_cond_expansion_factor),
                 )
                 decoder_layer = ResidualUnitMod(
-                    dim, residual_conv_kernel_size, dim_cond=int(dim_cond * dim_cond_expansion_factor)
+                    dim,
+                    residual_conv_kernel_size,
+                    dim_cond=int(dim_cond * dim_cond_expansion_factor),
                 )
                 dim_out = dim
 
@@ -1080,15 +1149,25 @@ class VideoTokenizer(Module):
 
             elif layer_type == "attend_space":
                 attn_kwargs = dict(
-                    dim=dim, dim_head=attn_dim_head, heads=attn_heads, dropout=attn_dropout, flash=flash_attn
+                    dim=dim,
+                    dim_head=attn_dim_head,
+                    heads=attn_heads,
+                    dropout=attn_dropout,
+                    flash=flash_attn,
                 )
 
-                encoder_layer = Sequential(Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim)))
+                encoder_layer = Sequential(
+                    Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim))
+                )
 
-                decoder_layer = Sequential(Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim)))
+                decoder_layer = Sequential(
+                    Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim))
+                )
 
             elif layer_type == "linear_attend_space":
-                linear_attn_kwargs = dict(dim=dim, dim_head=linear_attn_dim_head, heads=linear_attn_heads)
+                linear_attn_kwargs = dict(
+                    dim=dim, dim_head=linear_attn_dim_head, heads=linear_attn_heads
+                )
 
                 encoder_layer = Sequential(
                     Residual(LinearSpaceAttention(**linear_attn_kwargs)), Residual(FeedForward(dim))
@@ -1136,9 +1215,13 @@ class VideoTokenizer(Module):
                     flash=flash_attn,
                 )
 
-                encoder_layer = Sequential(Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim)))
+                encoder_layer = Sequential(
+                    Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim))
+                )
 
-                decoder_layer = Sequential(Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim)))
+                decoder_layer = Sequential(
+                    Residual(SpaceAttention(**attn_kwargs)), Residual(FeedForward(dim))
+                )
 
             elif layer_type == "cond_linear_attend_space":
                 has_cond = True
@@ -1153,11 +1236,13 @@ class VideoTokenizer(Module):
                 )
 
                 encoder_layer = Sequential(
-                    Residual(LinearSpaceAttention(**attn_kwargs)), Residual(FeedForward(dim, dim_cond=dim_cond))
+                    Residual(LinearSpaceAttention(**attn_kwargs)),
+                    Residual(FeedForward(dim, dim_cond=dim_cond)),
                 )
 
                 decoder_layer = Sequential(
-                    Residual(LinearSpaceAttention(**attn_kwargs)), Residual(FeedForward(dim, dim_cond=dim_cond))
+                    Residual(LinearSpaceAttention(**attn_kwargs)),
+                    Residual(FeedForward(dim, dim_cond=dim_cond)),
                 )
 
             elif layer_type == "cond_attend_time":
@@ -1283,7 +1368,9 @@ class VideoTokenizer(Module):
 
         # discriminator
 
-        discr_kwargs = default(discr_kwargs, dict(dim=dim, image_size=image_size, channels=channels, max_dim=512))
+        discr_kwargs = default(
+            discr_kwargs, dict(dim=dim, image_size=image_size, channels=channels, max_dim=512)
+        )
 
         self.discr = Discriminator(**discr_kwargs)
 
@@ -1380,8 +1467,16 @@ class VideoTokenizer(Module):
         self.load_state_dict(state_dict, strict=strict)
 
     @beartype
-    def encode(self, video: Tensor, quantize=False, cond: Optional[Tensor] = None, video_contains_first_frame=True):
-        encode_first_frame_separately = self.separate_first_frame_encoding and video_contains_first_frame
+    def encode(
+        self,
+        video: Tensor,
+        quantize=False,
+        cond: Optional[Tensor] = None,
+        video_contains_first_frame=True,
+    ):
+        encode_first_frame_separately = (
+            self.separate_first_frame_encoding and video_contains_first_frame
+        )
 
         # whether to pad video or not
 
@@ -1389,12 +1484,16 @@ class VideoTokenizer(Module):
             video_len = video.shape[2]
 
             video = pad_at_dim(video, (self.time_padding, 0), value=0.0, dim=2)
-            video_packed_shape = [torch.Size([self.time_padding]), torch.Size([]), torch.Size([video_len - 1])]
+            video_packed_shape = [
+                torch.Size([self.time_padding]),
+                torch.Size([]),
+                torch.Size([video_len - 1]),
+            ]
 
         # conditioning, if needed
 
-        assert (not self.has_cond) or exists(
-            cond
+        assert (
+            (not self.has_cond) or exists(cond)
         ), "`cond` must be passed into tokenizer forward method since conditionable layers were specified"
 
         if exists(cond):
@@ -1431,7 +1530,9 @@ class VideoTokenizer(Module):
         return maybe_quantize(video)
 
     @beartype
-    def decode_from_code_indices(self, codes: Tensor, cond: Optional[Tensor] = None, video_contains_first_frame=True):
+    def decode_from_code_indices(
+        self, codes: Tensor, cond: Optional[Tensor] = None, video_contains_first_frame=True
+    ):
         assert codes.dtype in (torch.long, torch.int32)
 
         if codes.ndim == 2:
@@ -1444,18 +1545,24 @@ class VideoTokenizer(Module):
 
         quantized = self.quantizers.indices_to_codes(codes)
 
-        return self.decode(quantized, cond=cond, video_contains_first_frame=video_contains_first_frame)
+        return self.decode(
+            quantized, cond=cond, video_contains_first_frame=video_contains_first_frame
+        )
 
     @beartype
-    def decode(self, quantized: Tensor, cond: Optional[Tensor] = None, video_contains_first_frame=True):
-        decode_first_frame_separately = self.separate_first_frame_encoding and video_contains_first_frame
+    def decode(
+        self, quantized: Tensor, cond: Optional[Tensor] = None, video_contains_first_frame=True
+    ):
+        decode_first_frame_separately = (
+            self.separate_first_frame_encoding and video_contains_first_frame
+        )
 
         batch = quantized.shape[0]
 
         # conditioning, if needed
 
-        assert (not self.has_cond) or exists(
-            cond
+        assert (
+            (not self.has_cond) or exists(cond)
         ), "`cond` must be passed into tokenizer forward method since conditionable layers were specified"
 
         if exists(cond):
@@ -1558,14 +1665,18 @@ class VideoTokenizer(Module):
             aux_losses = self.zero
             quantizer_loss_breakdown = None
         else:
-            (quantized, codes, aux_losses), quantizer_loss_breakdown = self.quantizers(x, return_loss_breakdown=True)
+            (quantized, codes, aux_losses), quantizer_loss_breakdown = self.quantizers(
+                x, return_loss_breakdown=True
+            )
 
         if return_codes and not return_recon:
             return codes
 
         # decoder
 
-        recon_video = self.decode(quantized, cond=cond, video_contains_first_frame=video_contains_first_frame)
+        recon_video = self.decode(
+            quantized, cond=cond, video_contains_first_frame=video_contains_first_frame
+        )
 
         if return_codes:
             return codes, recon_video
@@ -1613,7 +1724,9 @@ class VideoTokenizer(Module):
                     multiscale_real_logits = discr(video)
                     multiscale_fake_logits = discr(recon_video.detach())
 
-                    multiscale_discr_loss = hinge_discr_loss(multiscale_fake_logits, multiscale_real_logits)
+                    multiscale_discr_loss = hinge_discr_loss(
+                        multiscale_fake_logits, multiscale_real_logits
+                    )
 
                     multiscale_discr_losses.append(multiscale_discr_loss)
             else:
@@ -1634,7 +1747,9 @@ class VideoTokenizer(Module):
                 + sum(multiscale_discr_losses) * self.multiscale_adversarial_loss_weight
             )
 
-            discr_loss_breakdown = DiscrLossBreakdown(discr_loss, multiscale_discr_losses, gradient_penalty_loss)
+            discr_loss_breakdown = DiscrLossBreakdown(
+                discr_loss, multiscale_discr_losses, gradient_penalty_loss
+            )
 
             return total_loss, discr_loss_breakdown
 
@@ -1669,7 +1784,9 @@ class VideoTokenizer(Module):
         norm_grad_wrt_perceptual_loss = None
 
         if self.training and self.use_vgg and (self.has_gan or self.has_multiscale_discrs):
-            norm_grad_wrt_perceptual_loss = grad_layer_wrt_loss(perceptual_loss, last_dec_layer).norm(p=2)
+            norm_grad_wrt_perceptual_loss = grad_layer_wrt_loss(
+                perceptual_loss, last_dec_layer
+            ).norm(p=2)
 
         # per-frame image discriminator
 
@@ -1686,7 +1803,9 @@ class VideoTokenizer(Module):
 
             if exists(norm_grad_wrt_perceptual_loss):
                 norm_grad_wrt_gen_loss = grad_layer_wrt_loss(gen_loss, last_dec_layer).norm(p=2)
-                adaptive_weight = norm_grad_wrt_perceptual_loss / norm_grad_wrt_gen_loss.clamp(min=1e-3)
+                adaptive_weight = norm_grad_wrt_perceptual_loss / norm_grad_wrt_gen_loss.clamp(
+                    min=1e-3
+                )
                 adaptive_weight.clamp_(max=1e3)
 
                 if torch.isnan(adaptive_weight).any():
@@ -1713,8 +1832,12 @@ class VideoTokenizer(Module):
                 multiscale_adaptive_weight = 1.0
 
                 if exists(norm_grad_wrt_perceptual_loss):
-                    norm_grad_wrt_gen_loss = grad_layer_wrt_loss(multiscale_gen_loss, last_dec_layer).norm(p=2)
-                    multiscale_adaptive_weight = norm_grad_wrt_perceptual_loss / norm_grad_wrt_gen_loss.clamp(min=1e-5)
+                    norm_grad_wrt_gen_loss = grad_layer_wrt_loss(
+                        multiscale_gen_loss, last_dec_layer
+                    ).norm(p=2)
+                    multiscale_adaptive_weight = (
+                        norm_grad_wrt_perceptual_loss / norm_grad_wrt_gen_loss.clamp(min=1e-5)
+                    )
                     multiscale_adaptive_weight.clamp_(max=1e3)
 
                 multiscale_gen_adaptive_weights.append(multiscale_adaptive_weight)
@@ -1730,10 +1853,13 @@ class VideoTokenizer(Module):
 
         if self.has_multiscale_discrs:
             weighted_multiscale_gen_losses = sum(
-                loss * weight for loss, weight in zip(multiscale_gen_losses, multiscale_gen_adaptive_weights)
+                loss * weight
+                for loss, weight in zip(multiscale_gen_losses, multiscale_gen_adaptive_weights)
             )
 
-            total_loss = total_loss + weighted_multiscale_gen_losses * multiscale_adversarial_loss_weight
+            total_loss = (
+                total_loss + weighted_multiscale_gen_losses * multiscale_adversarial_loss_weight
+            )
 
         # loss breakdown
 

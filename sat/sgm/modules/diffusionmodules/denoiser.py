@@ -35,7 +35,9 @@ class Denoiser(nn.Module):
         sigma = append_dims(sigma, input.ndim)
         c_skip, c_out, c_in, c_noise = self.scaling(sigma, **additional_model_inputs)
         c_noise = self.possibly_quantize_c_noise(c_noise.reshape(sigma_shape))
-        return network(input * c_in, c_noise, cond, **additional_model_inputs) * c_out + input * c_skip
+        return (
+            network(input * c_in, c_noise, cond, **additional_model_inputs) * c_out + input * c_skip
+        )
 
 
 class DiscreteDenoiser(Denoiser):
@@ -50,7 +52,9 @@ class DiscreteDenoiser(Denoiser):
         flip=True,
     ):
         super().__init__(weighting_config, scaling_config)
-        sigmas = instantiate_from_config(discretization_config)(num_idx, do_append_zero=do_append_zero, flip=flip)
+        sigmas = instantiate_from_config(discretization_config)(
+            num_idx, do_append_zero=do_append_zero, flip=flip
+        )
         self.sigmas = sigmas
         # self.register_buffer("sigmas", sigmas)
         self.quantize_c_noise = quantize_c_noise

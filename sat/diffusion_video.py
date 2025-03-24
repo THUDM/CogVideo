@@ -41,7 +41,9 @@ class SATVideoDiffusionEngine(nn.Module):
         latent_input = model_config.get("latent_input", False)
         disable_first_stage_autocast = model_config.get("disable_first_stage_autocast", False)
         no_cond_log = model_config.get("disable_first_stage_autocast", False)
-        not_trainable_prefixes = model_config.get("not_trainable_prefixes", ["first_stage_model", "conditioner"])
+        not_trainable_prefixes = model_config.get(
+            "not_trainable_prefixes", ["first_stage_model", "conditioner"]
+        )
         compile_model = model_config.get("compile_model", False)
         en_and_decode_n_samples_a_time = model_config.get("en_and_decode_n_samples_a_time", None)
         lr_scale = model_config.get("lr_scale", None)
@@ -76,12 +78,18 @@ class SATVideoDiffusionEngine(nn.Module):
         )
 
         self.denoiser = instantiate_from_config(denoiser_config)
-        self.sampler = instantiate_from_config(sampler_config) if sampler_config is not None else None
-        self.conditioner = instantiate_from_config(default(conditioner_config, UNCONDITIONAL_CONFIG))
+        self.sampler = (
+            instantiate_from_config(sampler_config) if sampler_config is not None else None
+        )
+        self.conditioner = instantiate_from_config(
+            default(conditioner_config, UNCONDITIONAL_CONFIG)
+        )
 
         self._init_first_stage(first_stage_config)
 
-        self.loss_fn = instantiate_from_config(loss_fn_config) if loss_fn_config is not None else None
+        self.loss_fn = (
+            instantiate_from_config(loss_fn_config) if loss_fn_config is not None else None
+        )
 
         self.latent_input = latent_input
         self.scale_factor = scale_factor
@@ -151,8 +159,12 @@ class SATVideoDiffusionEngine(nn.Module):
     def shared_step(self, batch: Dict) -> Any:
         x = self.get_input(batch)
         if self.lr_scale is not None:
-            lr_x = F.interpolate(x, scale_factor=1 / self.lr_scale, mode="bilinear", align_corners=False)
-            lr_x = F.interpolate(lr_x, scale_factor=self.lr_scale, mode="bilinear", align_corners=False)
+            lr_x = F.interpolate(
+                x, scale_factor=1 / self.lr_scale, mode="bilinear", align_corners=False
+            )
+            lr_x = F.interpolate(
+                lr_x, scale_factor=self.lr_scale, mode="bilinear", align_corners=False
+            )
             lr_z = self.encode_first_stage(lr_x, batch)
             batch["lr_input"] = lr_z
 
@@ -195,7 +207,11 @@ class SATVideoDiffusionEngine(nn.Module):
             recons = []
             start_frame = 0
             for i in range(fake_cp_size):
-                end_frame = start_frame + latent_time // fake_cp_size + (1 if i < latent_time % fake_cp_size else 0)
+                end_frame = (
+                    start_frame
+                    + latent_time // fake_cp_size
+                    + (1 if i < latent_time % fake_cp_size else 0)
+                )
 
                 use_cp = True if i == 0 else False
                 clear_fake_cp_cache = True if i == fake_cp_size - 1 else False
@@ -264,7 +280,9 @@ class SATVideoDiffusionEngine(nn.Module):
             self.model, input, sigma, c, concat_images=concat_images, **addtional_model_inputs
         )
 
-        samples = self.sampler(denoiser, randn, cond, uc=uc, scale=scale, scale_emb=scale_emb, ofs=ofs)
+        samples = self.sampler(
+            denoiser, randn, cond, uc=uc, scale=scale, scale_emb=scale_emb, ofs=ofs
+        )
         samples = samples.to(self.dtype)
         return samples
 
@@ -278,7 +296,9 @@ class SATVideoDiffusionEngine(nn.Module):
         log = dict()
 
         for embedder in self.conditioner.embedders:
-            if ((self.log_keys is None) or (embedder.input_key in self.log_keys)) and not self.no_cond_log:
+            if (
+                (self.log_keys is None) or (embedder.input_key in self.log_keys)
+            ) and not self.no_cond_log:
                 x = batch[embedder.input_key][:n]
                 if isinstance(x, torch.Tensor):
                     if x.dim() == 1:
@@ -354,7 +374,9 @@ class SATVideoDiffusionEngine(nn.Module):
             image = torch.concat([image, torch.zeros_like(z[:, 1:])], dim=1)
             c["concat"] = image
             uc["concat"] = image
-            samples = self.sample(c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs)  # b t c h w
+            samples = self.sample(
+                c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs
+            )  # b t c h w
             samples = samples.permute(0, 2, 1, 3, 4).contiguous()
             if only_log_video_latents:
                 latents = 1.0 / self.scale_factor * samples
@@ -364,7 +386,9 @@ class SATVideoDiffusionEngine(nn.Module):
                 samples = samples.permute(0, 2, 1, 3, 4).contiguous()
                 log["samples"] = samples
         else:
-            samples = self.sample(c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs)  # b t c h w
+            samples = self.sample(
+                c, shape=z.shape[1:], uc=uc, batch_size=N, **sampling_kwargs
+            )  # b t c h w
             samples = samples.permute(0, 2, 1, 3, 4).contiguous()
             if only_log_video_latents:
                 latents = 1.0 / self.scale_factor * samples

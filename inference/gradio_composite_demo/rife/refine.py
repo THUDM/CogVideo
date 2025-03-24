@@ -24,7 +24,12 @@ def conv(in_planes, out_planes, kernel_size=3, stride=1, padding=1, dilation=1):
 def deconv(in_planes, out_planes, kernel_size=4, stride=2, padding=1):
     return nn.Sequential(
         torch.nn.ConvTranspose2d(
-            in_channels=in_planes, out_channels=out_planes, kernel_size=4, stride=2, padding=1, bias=True
+            in_channels=in_planes,
+            out_channels=out_planes,
+            kernel_size=4,
+            stride=2,
+            padding=1,
+            bias=True,
         ),
         nn.PReLU(out_planes),
     )
@@ -56,25 +61,49 @@ class Contextnet(nn.Module):
     def forward(self, x, flow):
         x = self.conv1(x)
         flow = (
-            F.interpolate(flow, scale_factor=0.5, mode="bilinear", align_corners=False, recompute_scale_factor=False)
+            F.interpolate(
+                flow,
+                scale_factor=0.5,
+                mode="bilinear",
+                align_corners=False,
+                recompute_scale_factor=False,
+            )
             * 0.5
         )
         f1 = warp(x, flow)
         x = self.conv2(x)
         flow = (
-            F.interpolate(flow, scale_factor=0.5, mode="bilinear", align_corners=False, recompute_scale_factor=False)
+            F.interpolate(
+                flow,
+                scale_factor=0.5,
+                mode="bilinear",
+                align_corners=False,
+                recompute_scale_factor=False,
+            )
             * 0.5
         )
         f2 = warp(x, flow)
         x = self.conv3(x)
         flow = (
-            F.interpolate(flow, scale_factor=0.5, mode="bilinear", align_corners=False, recompute_scale_factor=False)
+            F.interpolate(
+                flow,
+                scale_factor=0.5,
+                mode="bilinear",
+                align_corners=False,
+                recompute_scale_factor=False,
+            )
             * 0.5
         )
         f3 = warp(x, flow)
         x = self.conv4(x)
         flow = (
-            F.interpolate(flow, scale_factor=0.5, mode="bilinear", align_corners=False, recompute_scale_factor=False)
+            F.interpolate(
+                flow,
+                scale_factor=0.5,
+                mode="bilinear",
+                align_corners=False,
+                recompute_scale_factor=False,
+            )
             * 0.5
         )
         f4 = warp(x, flow)

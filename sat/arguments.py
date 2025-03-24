@@ -18,7 +18,10 @@ def add_model_config_args(parser):
     group = parser.add_argument_group("model", "model configuration")
     group.add_argument("--base", type=str, nargs="*", help="config for input and saving")
     group.add_argument(
-        "--model-parallel-size", type=int, default=1, help="size of the model parallel. only use if you are an expert."
+        "--model-parallel-size",
+        type=int,
+        default=1,
+        help="size of the model parallel. only use if you are an expert.",
     )
     group.add_argument("--force-pretrain", action="store_true")
     group.add_argument("--device", type=int, default=-1)
@@ -74,10 +77,15 @@ def get_args(args_list=None, parser=None):
     if not args.train_data:
         print_rank0("No training data specified", level="WARNING")
 
-    assert (args.train_iters is None) or (args.epochs is None), "only one of train_iters and epochs should be set."
+    assert (args.train_iters is None) or (
+        args.epochs is None
+    ), "only one of train_iters and epochs should be set."
     if args.train_iters is None and args.epochs is None:
         args.train_iters = 10000  # default 10k iters
-        print_rank0("No train_iters (recommended) or epochs specified, use default 10k iters.", level="WARNING")
+        print_rank0(
+            "No train_iters (recommended) or epochs specified, use default 10k iters.",
+            level="WARNING",
+        )
 
     args.cuda = torch.cuda.is_available()
 
@@ -213,7 +221,10 @@ def initialize_distributed(args):
     args.master_port = os.getenv("MASTER_PORT", default_master_port)
     init_method += args.master_ip + ":" + args.master_port
     torch.distributed.init_process_group(
-        backend=args.distributed_backend, world_size=args.world_size, rank=args.rank, init_method=init_method
+        backend=args.distributed_backend,
+        world_size=args.world_size,
+        rank=args.rank,
+        init_method=init_method,
     )
 
     # Set the model-parallel / data-parallel communicators.
@@ -232,7 +243,10 @@ def initialize_distributed(args):
         import deepspeed
 
         deepspeed.init_distributed(
-            dist_backend=args.distributed_backend, world_size=args.world_size, rank=args.rank, init_method=init_method
+            dist_backend=args.distributed_backend,
+            world_size=args.world_size,
+            rank=args.rank,
+            init_method=init_method,
         )
         # # It seems that it has no negative influence to configure it even without using checkpointing.
         # deepspeed.checkpointing.configure(mpu, deepspeed_config=args.deepspeed_config, num_checkpoints=args.num_layers)
@@ -262,7 +276,9 @@ def process_config_to_args(args):
 
     args_config = config.pop("args", OmegaConf.create())
     for key in args_config:
-        if isinstance(args_config[key], omegaconf.DictConfig) or isinstance(args_config[key], omegaconf.ListConfig):
+        if isinstance(args_config[key], omegaconf.DictConfig) or isinstance(
+            args_config[key], omegaconf.ListConfig
+        ):
             arg = OmegaConf.to_object(args_config[key])
         else:
             arg = args_config[key]

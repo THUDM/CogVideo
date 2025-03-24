@@ -67,7 +67,9 @@ def get_optimizer(
         optimizer_name = "adamw"
 
     if (use_8bit or use_4bit) and optimizer_name not in ["adam", "adamw"]:
-        raise ValueError("`use_8bit` and `use_4bit` can only be used with the Adam and AdamW optimizers.")
+        raise ValueError(
+            "`use_8bit` and `use_4bit` can only be used with the Adam and AdamW optimizers."
+        )
 
     if use_8bit:
         try:
@@ -81,7 +83,9 @@ def get_optimizer(
         if use_torchao:
             from torchao.prototype.low_bit_optim import AdamW4bit, AdamW8bit
 
-            optimizer_class = AdamW8bit if use_8bit else AdamW4bit if use_4bit else torch.optim.AdamW
+            optimizer_class = (
+                AdamW8bit if use_8bit else AdamW4bit if use_4bit else torch.optim.AdamW
+            )
         else:
             optimizer_class = bnb.optim.AdamW8bit if use_8bit else torch.optim.AdamW
 
@@ -109,7 +113,9 @@ def get_optimizer(
         try:
             import prodigyopt
         except ImportError:
-            raise ImportError("To use Prodigy, please install the prodigyopt library: `pip install prodigyopt`")
+            raise ImportError(
+                "To use Prodigy, please install the prodigyopt library: `pip install prodigyopt`"
+            )
 
         optimizer_class = prodigyopt.Prodigy
 
@@ -133,7 +139,9 @@ def get_optimizer(
         try:
             import came_pytorch
         except ImportError:
-            raise ImportError("To use CAME, please install the came-pytorch library: `pip install came-pytorch`")
+            raise ImportError(
+                "To use CAME, please install the came-pytorch library: `pip install came-pytorch`"
+            )
 
         optimizer_class = came_pytorch.CAME
 
@@ -151,7 +159,10 @@ def get_optimizer(
             init_kwargs.update({"fused": True})
 
         optimizer = CPUOffloadOptimizer(
-            params_to_optimize, optimizer_class=optimizer_class, offload_gradients=offload_gradients, **init_kwargs
+            params_to_optimize,
+            optimizer_class=optimizer_class,
+            offload_gradients=offload_gradients,
+            **init_kwargs,
         )
     else:
         optimizer = optimizer_class(params_to_optimize, **init_kwargs)
