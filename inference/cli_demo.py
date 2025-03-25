@@ -129,7 +129,7 @@ def generate_video(
         pipe.load_lora_weights(
             lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1"
         )
-        pipe.fuse_lora(components=["transformer"], lora_scale=1。0)
+        pipe.fuse_lora(components=["transformer"], lora_scale=1.0)
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
