@@ -14,7 +14,7 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 📚 View the <a href="https://arxiv.org/abs/2408.06072" target="_blank">paper</a> and <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">user guide</a>
 </p>
 <p align="center">
-    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/dCGfUsagrD" target="_blank">Discord</a> 
+    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/dCGfUsagrD" target="_blank">Discord</a>
 </p>
 <p align="center">
 📍 Visit <a href="https://chatglm.cn/video?lang=en?fr=osm_cogvideo">QingYing</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
@@ -22,10 +22,12 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 ## Project Updates
 
-- 🔥🔥 **News**: ```2025/01/08```: We have updated the code for `Lora` fine-tuning based on the `diffusers` version model, which uses less GPU memory. For more details, please see [here](finetune/README.md).
+- 🔥🔥 **News**: ```2025/03/24```: We have launched [CogKit](https://github.com/THUDM/CogKit), a fine-tuning and inference framework for the **CogView4** and **CogVideoX** series. This toolkit allows you to fully explore and utilize our multimodal generation models.
+- 🔥 **News**: ```2025/02/28```: DDIM Inverse is now supported in `CogVideoX-5B` and `CogVideoX1.5-5B`. Check [here](inference/ddim_inversion.py).
+- 🔥 **News**: ```2025/01/08```: We have updated the code for `Lora` fine-tuning based on the `diffusers` version model, which uses less GPU memory. For more details, please see [here](finetune/README.md).
 - 🔥 **News**: ```2024/11/15```: We released the `CogVideoX1.5` model in the diffusers version. Only minor parameter adjustments are needed to continue using previous code.
 - 🔥 **News**: ```2024/11/08```: We have released the CogVideoX1.5 model. CogVideoX1.5 is an upgraded version of the open-source model CogVideoX.
-The CogVideoX1.5-5B series supports 10-second videos with higher resolution, and CogVideoX1.5-5B-I2V supports video generation at any resolution. 
+The CogVideoX1.5-5B series supports 10-second videos with higher resolution, and CogVideoX1.5-5B-I2V supports video generation at any resolution.
 The SAT code has already been updated, while the diffusers version is still under adaptation. Download the SAT version code [here](https://huggingface.co/THUDM/CogVideoX1.5-5B-SAT).
 - 🔥 **News**: ```2024/10/13```: A more cost-effective fine-tuning framework for `CogVideoX-5B` that works with a single
   4090 GPU, [cogvideox-factory](https://github.com/a-r-r-o-w/cogvideox-factory), has been released. It supports
@@ -45,10 +47,10 @@ The SAT code has already been updated, while the diffusers version is still unde
   model [CogVLM2-Caption](https://huggingface.co/THUDM/cogvlm2-llama3-caption), used in the training process of
   CogVideoX to convert video data into text descriptions, has been open-sourced. Welcome to download and use it.
 - 🔥 ```2024/8/27```: We have open-sourced a larger model in the CogVideoX series, **CogVideoX-5B**. We have
-  significantly optimized the model's inference performance, greatly lowering the inference threshold. 
+  significantly optimized the model's inference performance, greatly lowering the inference threshold.
   You can run **CogVideoX-2B** on older GPUs like `GTX 1080TI`, and **CogVideoX-5B** on desktop GPUs like `RTX 3060`. Please strictly
   follow the [requirements](requirements.txt) to update and install dependencies, and refer
-  to [cli_demo](inference/cli_demo.py) for inference code. Additionally, the open-source license for 
+  to [cli_demo](inference/cli_demo.py) for inference code. Additionally, the open-source license for
   the **CogVideoX-2B** model has been changed to the **Apache 2.0 License**.
 - 🔥 ```2024/8/6```: We have open-sourced **3D Causal VAE**, used for **CogVideoX-2B**, which can reconstruct videos with
   almost no loss.
@@ -250,7 +252,7 @@ models we currently offer, along with their foundational information.
   <tr>
     <td style="text-align: center;">Position Encoding</td>
     <td colspan="2" style="text-align: center;">3d_rope_pos_embed</td>
-    <td style="text-align: center;">3d_sincos_pos_embed</td> 
+    <td style="text-align: center;">3d_sincos_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed</td>
     <td style="text-align: center;">3d_rope_pos_embed + learnable_pos_embed</td>
   </tr>
@@ -304,6 +306,8 @@ pipe.vae.enable_tiling()
 We highly welcome contributions from the community and actively contribute to the open-source community. The following
 works have already been adapted for CogVideoX, and we invite everyone to use them:
 
++ [RIFLEx-CogVideoX](https://github.com/thu-ml/RIFLEx)：
+  RIFLEx extends the video with just one line of code: `freq[k-1]=(2np.pi)/(Ls)`. The framework not only supports training-free inference, but also offers models fine-tuned based on CogVideoX. By fine-tuning the model for just 1,000 steps on original-length videos, RIFLEx significantly enhances its length extrapolation capability.
 + [CogVideoX-Fun](https://github.com/aigc-apps/CogVideoX-Fun): CogVideoX-Fun is a modified pipeline based on the
   CogVideoX architecture, supporting flexible resolutions and multiple launch methods.
 + [CogStudio](https://github.com/pinokiofactory/cogstudio): A separate repository for CogVideo's Gradio Web UI, which
@@ -441,8 +445,6 @@ hands-on practice on text-to-video generation. *The original input is in Chinese
   year={2022}
 }
 ```
-
-We welcome your contributions! You can click [here](resources/contribute.md) for more information.
 
 ## Model-License
 

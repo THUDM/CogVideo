@@ -9,7 +9,7 @@
 
 ## 通过 CogVLM2-Caption 模型生成视频Caption
 
-🤗 [Hugging Face](https://huggingface.co/THUDM/cogvlm2-llama3-caption) | 🤖 [ModelScope](https://modelscope.cn/models/ZhipuAI/cogvlm2-llama3-caption/) 
+🤗 [Hugging Face](https://huggingface.co/THUDM/cogvlm2-llama3-caption) | 🤖 [ModelScope](https://modelscope.cn/models/ZhipuAI/cogvlm2-llama3-caption/)
 
 CogVLM2-Caption是用于生成CogVideoX模型训练数据的视频caption模型。
 

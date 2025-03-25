@@ -35,7 +35,7 @@ Set the following environment variables in your system:
 ## Installation
 
 ```bash
-pip install -r requirements.txt 
+pip install -r requirements.txt
 ```
 
 ## Running the code
@@ -43,5 +43,3 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-
-

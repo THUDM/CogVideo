@@ -24,7 +24,9 @@ def make_beta_schedule(
     linear_end=2e-2,
 ):
     if schedule == "linear":
-        betas = torch.linspace(linear_start**0.5, linear_end**0.5, n_timestep, dtype=torch.float64) ** 2
+        betas = (
+            torch.linspace(linear_start**0.5, linear_end**0.5, n_timestep, dtype=torch.float64) ** 2
+        )
     return betas.numpy()
 
 
@@ -50,7 +52,9 @@ def mixed_checkpoint(func, inputs: dict, params, flag):
         tensor_keys = [key for key in inputs if isinstance(inputs[key], torch.Tensor)]
         tensor_inputs = [inputs[key] for key in inputs if isinstance(inputs[key], torch.Tensor)]
         non_tensor_keys = [key for key in inputs if not isinstance(inputs[key], torch.Tensor)]
-        non_tensor_inputs = [inputs[key] for key in inputs if not isinstance(inputs[key], torch.Tensor)]
+        non_tensor_inputs = [
+            inputs[key] for key in inputs if not isinstance(inputs[key], torch.Tensor)
+        ]
         args = tuple(tensor_inputs) + tuple(non_tensor_inputs) + tuple(params)
         return MixedCheckpointFunction.apply(
             func,
@@ -84,9 +88,14 @@ class MixedCheckpointFunction(torch.autograd.Function):
         }
         assert len(tensor_keys) == length_tensors and len(non_tensor_keys) == length_non_tensors
 
-        ctx.input_tensors = {key: val for (key, val) in zip(tensor_keys, list(args[: ctx.end_tensors]))}
+        ctx.input_tensors = {
+            key: val for (key, val) in zip(tensor_keys, list(args[: ctx.end_tensors]))
+        }
         ctx.input_non_tensors = {
-            key: val for (key, val) in zip(non_tensor_keys, list(args[ctx.end_tensors : ctx.end_non_tensors]))
+            key: val
+            for (key, val) in zip(
+                non_tensor_keys, list(args[ctx.end_tensors : ctx.end_non_tensors])
+            )
         }
         ctx.run_function = run_function
         ctx.input_params = list(args[ctx.end_non_tensors :])
@@ -98,13 +107,18 @@ class MixedCheckpointFunction(torch.autograd.Function):
     @staticmethod
     def backward(ctx, *output_grads):
         # additional_args = {key: ctx.input_tensors[key] for key in ctx.input_tensors if not isinstance(ctx.input_tensors[key],torch.Tensor)}
-        ctx.input_tensors = {key: ctx.input_tensors[key].detach().requires_grad_(True) for key in ctx.input_tensors}
+        ctx.input_tensors = {
+            key: ctx.input_tensors[key].detach().requires_grad_(True) for key in ctx.input_tensors
+        }
 
         with torch.enable_grad(), torch.cuda.amp.autocast(**ctx.gpu_autocast_kwargs):
             # Fixes a bug where the first op in run_function modifies the
             # Tensor storage in place, which is not allowed for detach()'d
             # Tensors.
-            shallow_copies = {key: ctx.input_tensors[key].view_as(ctx.input_tensors[key]) for key in ctx.input_tensors}
+            shallow_copies = {
+                key: ctx.input_tensors[key].view_as(ctx.input_tensors[key])
+                for key in ctx.input_tensors
+            }
             # shallow_copies.update(additional_args)
             output_tensors = ctx.run_function(**shallow_copies, **ctx.input_non_tensors)
         input_grads = torch.autograd.grad(
@@ -188,9 +202,9 @@ def timestep_embedding(timesteps, dim, max_period=10000, repeat_only=False, dtyp
     """
     if not repeat_only:
         half = dim // 2
-        freqs = torch.exp(-math.log(max_period) * torch.arange(start=0, end=half, dtype=torch.float32) / half).to(
-            device=timesteps.device
-        )
+        freqs = torch.exp(
+            -math.log(max_period) * torch.arange(start=0, end=half, dtype=torch.float32) / half
+        ).to(device=timesteps.device)
         args = timesteps[:, None].float() * freqs[None]
         embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
         if dim % 2:

@@ -6,7 +6,9 @@ OPENAIUNETWRAPPER = "sgm.modules.diffusionmodules.wrappers.OpenAIWrapper"
 
 
 class IdentityWrapper(nn.Module):
-    def __init__(self, diffusion_model, compile_model: bool = False, dtype: torch.dtype = torch.float32):
+    def __init__(
+        self, diffusion_model, compile_model: bool = False, dtype: torch.dtype = torch.float32
+    ):
         super().__init__()
         compile = (
             torch.compile

@@ -24,12 +24,16 @@ def load_prompts(prompt_path: Path) -> List[str]:
 
 def load_videos(video_path: Path) -> List[Path]:
     with open(video_path, "r", encoding="utf-8") as file:
-        return [video_path.parent / line.strip() for line in file.readlines() if len(line.strip()) > 0]
+        return [
+            video_path.parent / line.strip() for line in file.readlines() if len(line.strip()) > 0
+        ]
 
 
 def load_images(image_path: Path) -> List[Path]:
     with open(image_path, "r", encoding="utf-8") as file:
-        return [image_path.parent / line.strip() for line in file.readlines() if len(line.strip()) > 0]
+        return [
+            image_path.parent / line.strip() for line in file.readlines() if len(line.strip()) > 0
+        ]
 
 
 def load_images_from_videos(videos_path: List[Path]) -> List[Path]:
@@ -169,7 +173,9 @@ def preprocess_video_with_buckets(
     video_num_frames = len(video_reader)
     resolution_buckets = [bucket for bucket in resolution_buckets if bucket[0] <= video_num_frames]
     if len(resolution_buckets) == 0:
-        raise ValueError(f"video frame count in {video_path} is less than all frame buckets {resolution_buckets}")
+        raise ValueError(
+            f"video frame count in {video_path} is less than all frame buckets {resolution_buckets}"
+        )
 
     nearest_frame_bucket = min(
         resolution_buckets,
@@ -181,7 +187,9 @@ def preprocess_video_with_buckets(
     frames = frames[:nearest_frame_bucket].float()
     frames = frames.permute(0, 3, 1, 2).contiguous()
 
-    nearest_res = min(resolution_buckets, key=lambda x: abs(x[1] - frames.shape[2]) + abs(x[2] - frames.shape[3]))
+    nearest_res = min(
+        resolution_buckets, key=lambda x: abs(x[1] - frames.shape[2]) + abs(x[2] - frames.shape[3])
+    )
     nearest_res = (nearest_res[1], nearest_res[2])
     frames = torch.stack([resize(f, nearest_res) for f in frames], dim=0)
 

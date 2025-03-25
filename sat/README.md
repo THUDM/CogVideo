@@ -64,7 +64,7 @@ Arrange the model files in the following structure:
     └── 3d-vae.pt
 ```
 
-Since model weight files are large, it’s recommended to use `git lfs`.  
+Since model weight files are large, it’s recommended to use `git lfs`.
 See [here](https://github.com/git-lfs/git-lfs?tab=readme-ov-file#installing) for `git lfs` installation.
 
 ```
@@ -339,7 +339,7 @@ Modify the files in `configs/sft.yaml` (full fine-tuning) as follows:
   eval_iters: 1 # Evaluation iterations
   eval_interval: 100    # Evaluation interval
   eval_batch_size: 1  # Evaluation batch size
-  save: ckpts # Model save path 
+  save: ckpts # Model save path
   save_interval: 100 # Save interval
   log_interval: 20 # Log output interval
   train_data: [ "your train data path" ]
@@ -411,7 +411,7 @@ run_cmd="$environs python sample_video.py --base configs/cogvideox_<model parame
 Then, run the code:
 
 ```
-bash inference.sh 
+bash inference.sh
 ```
 
 ### Converting to Huggingface Diffusers-compatible Weights

@@ -88,7 +88,9 @@ class Trainer:
 
     def _init_distributed(self):
         logging_dir = Path(self.args.output_dir, "logs")
-        project_config = ProjectConfiguration(project_dir=self.args.output_dir, logging_dir=logging_dir)
+        project_config = ProjectConfiguration(
+            project_dir=self.args.output_dir, logging_dir=logging_dir
+        )
         ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
         init_process_group_kwargs = InitProcessGroupKwargs(
             backend="nccl", timeout=timedelta(seconds=self.args.nccl_timeout)
@@ -183,7 +185,9 @@ class Trainer:
         # Prepare VAE and text encoder for encoding
         self.components.vae.requires_grad_(False)
         self.components.text_encoder.requires_grad_(False)
-        self.components.vae = self.components.vae.to(self.accelerator.device, dtype=self.state.weight_dtype)
+        self.components.vae = self.components.vae.to(
+            self.accelerator.device, dtype=self.state.weight_dtype
+        )
         self.components.text_encoder = self.components.text_encoder.to(
             self.accelerator.device, dtype=self.state.weight_dtype
         )
@@ -263,7 +267,9 @@ class Trainer:
 
         # For LoRA, we only want to train the LoRA weights
         # For SFT, we want to train all the parameters
-        trainable_parameters = list(filter(lambda p: p.requires_grad, self.components.transformer.parameters()))
+        trainable_parameters = list(
+            filter(lambda p: p.requires_grad, self.components.transformer.parameters())
+        )
         transformer_parameters_with_lr = {
             "params": trainable_parameters,
             "lr": self.args.learning_rate,
@@ -287,7 +293,9 @@ class Trainer:
             use_deepspeed=use_deepspeed_opt,
         )
 
-        num_update_steps_per_epoch = math.ceil(len(self.data_loader) / self.args.gradient_accumulation_steps)
+        num_update_steps_per_epoch = math.ceil(
+            len(self.data_loader) / self.args.gradient_accumulation_steps
+        )
         if self.args.train_steps is None:
             self.args.train_steps = self.args.train_epochs * num_update_steps_per_epoch
             self.state.overwrote_max_train_steps = True
@@ -322,12 +330,16 @@ class Trainer:
         self.lr_scheduler = lr_scheduler
 
     def prepare_for_training(self) -> None:
-        self.components.transformer, self.optimizer, self.data_loader, self.lr_scheduler = self.accelerator.prepare(
-            self.components.transformer, self.optimizer, self.data_loader, self.lr_scheduler
+        self.components.transformer, self.optimizer, self.data_loader, self.lr_scheduler = (
+            self.accelerator.prepare(
+                self.components.transformer, self.optimizer, self.data_loader, self.lr_scheduler
+            )
         )
 
         # We need to recalculate our total training steps as the size of the training dataloader may have changed.
-        num_update_steps_per_epoch = math.ceil(len(self.data_loader) / self.args.gradient_accumulation_steps)
+        num_update_steps_per_epoch = math.ceil(
+            len(self.data_loader) / self.args.gradient_accumulation_steps
+        )
         if self.state.overwrote_max_train_steps:
             self.args.train_steps = self.args.train_epochs * num_update_steps_per_epoch
         # Afterwards we recalculate our number of training epochs
@@ -364,7 +376,9 @@ class Trainer:
         logger.info(f"Memory before training start: {json.dumps(memory_statistics, indent=4)}")
 
         self.state.total_batch_size_count = (
-            self.args.batch_size * self.accelerator.num_processes * self.args.gradient_accumulation_steps
+            self.args.batch_size
+            * self.accelerator.num_processes
+            * self.args.gradient_accumulation_steps
         )
         info = {
             "trainable parameters": self.state.num_trainable_parameters,
@@ -454,7 +468,9 @@ class Trainer:
                 progress_bar.set_postfix(logs)
 
                 # Maybe run validation
-                should_run_validation = self.args.do_validation and global_step % self.args.validation_steps == 0
+                should_run_validation = (
+                    self.args.do_validation and global_step % self.args.validation_steps == 0
+                )
                 if should_run_validation:
                     del loss
                     free_memory()
@@ -466,7 +482,9 @@ class Trainer:
                     break
 
             memory_statistics = get_memory_statistics()
-            logger.info(f"Memory after epoch {epoch + 1}: {json.dumps(memory_statistics, indent=4)}")
+            logger.info(
+                f"Memory after epoch {epoch + 1}: {json.dumps(memory_statistics, indent=4)}"
+            )
 
         accelerator.wait_for_everyone()
         self.__maybe_save_checkpoint(global_step, must_save=True)
@@ -504,7 +522,9 @@ class Trainer:
             # Can't using model_cpu_offload in deepspeed,
             # so we need to move all components in pipe to device
             # pipe.to(self.accelerator.device, dtype=self.state.weight_dtype)
-            self.__move_components_to_device(dtype=self.state.weight_dtype, ignore_list=["transformer"])
+            self.__move_components_to_device(
+                dtype=self.state.weight_dtype, ignore_list=["transformer"]
+            )
         else:
             # if not using deepspeed, use model_cpu_offload to further reduce memory usage
             # Or use pipe.enable_sequential_cpu_offload() to further reduce memory usage
@@ -528,7 +548,9 @@ class Trainer:
             video = self.state.validation_videos[i]
 
             if image is not None:
-                image = preprocess_image_with_resize(image, self.state.train_height, self.state.train_width)
+                image = preprocess_image_with_resize(
+                    image, self.state.train_height, self.state.train_width
+                )
                 # Convert image tensor (C, H, W) to PIL images
                 image = image.to(torch.uint8)
                 image = image.permute(1, 2, 0).cpu().numpy()
@@ -546,7 +568,9 @@ class Trainer:
                 f"Validating sample {i + 1}/{num_validation_samples} on process {accelerator.process_index}. Prompt: {prompt}",
                 main_process_only=False,
             )
-            validation_artifacts = self.validation_step({"prompt": prompt, "image": image, "video": video}, pipe)
+            validation_artifacts = self.validation_step(
+                {"prompt": prompt, "image": image, "video": video}, pipe
+            )
 
             if (
                 self.state.using_deepspeed
@@ -565,7 +589,9 @@ class Trainer:
                 "video": {"type": "video", "value": video},
             }
             for i, (artifact_type, artifact_value) in enumerate(validation_artifacts):
-                artifacts.update({f"artifact_{i}": {"type": artifact_type, "value": artifact_value}})
+                artifacts.update(
+                    {f"artifact_{i}": {"type": artifact_type, "value": artifact_value}}
+                )
             logger.debug(
                 f"Validation artifacts on process {accelerator.process_index}: {list(artifacts.keys())}",
                 main_process_only=False,
@@ -600,8 +626,12 @@ class Trainer:
             tracker_key = "validation"
             for tracker in accelerator.trackers:
                 if tracker.name == "wandb":
-                    image_artifacts = [artifact for artifact in all_artifacts if isinstance(artifact, wandb.Image)]
-                    video_artifacts = [artifact for artifact in all_artifacts if isinstance(artifact, wandb.Video)]
+                    image_artifacts = [
+                        artifact for artifact in all_artifacts if isinstance(artifact, wandb.Image)
+                    ]
+                    video_artifacts = [
+                        artifact for artifact in all_artifacts if isinstance(artifact, wandb.Video)
+                    ]
                     tracker.log(
                         {
                             tracker_key: {"images": image_artifacts, "videos": video_artifacts},
@@ -618,7 +648,9 @@ class Trainer:
             pipe.remove_all_hooks()
             del pipe
             # Load models except those not needed for training
-            self.__move_components_to_device(dtype=self.state.weight_dtype, ignore_list=self.UNLOAD_LIST)
+            self.__move_components_to_device(
+                dtype=self.state.weight_dtype, ignore_list=self.UNLOAD_LIST
+            )
             self.components.transformer.to(self.accelerator.device, dtype=self.state.weight_dtype)
 
             # Change trainable weights back to fp32 to keep with dtype after prepare the model
@@ -687,7 +719,9 @@ class Trainer:
         for name, component in components.items():
             if not isinstance(component, type) and hasattr(component, "to"):
                 if name not in ignore_list:
-                    setattr(self.components, name, component.to(self.accelerator.device, dtype=dtype))
+                    setattr(
+                        self.components, name, component.to(self.accelerator.device, dtype=dtype)
+                    )
 
     def __move_components_to_cpu(self, unload_list: List[str] = []):
         unload_list = set(unload_list)
@@ -732,11 +766,13 @@ class Trainer:
                     ):
                         transformer_ = unwrap_model(self.accelerator, model)
                     else:
-                        raise ValueError(f"Unexpected save model: {unwrap_model(self.accelerator, model).__class__}")
+                        raise ValueError(
+                            f"Unexpected save model: {unwrap_model(self.accelerator, model).__class__}"
+                        )
             else:
-                transformer_ = unwrap_model(self.accelerator, self.components.transformer).__class__.from_pretrained(
-                    self.args.model_path, subfolder="transformer"
-                )
+                transformer_ = unwrap_model(
+                    self.accelerator, self.components.transformer
+                ).__class__.from_pretrained(self.args.model_path, subfolder="transformer")
                 transformer_.add_adapter(transformer_lora_config)
 
             lora_state_dict = self.components.pipeline_cls.lora_state_dict(input_dir)
@@ -745,7 +781,9 @@ class Trainer:
                 for k, v in lora_state_dict.items()
                 if k.startswith("transformer.")
             }
-            incompatible_keys = set_peft_model_state_dict(transformer_, transformer_state_dict, adapter_name="default")
+            incompatible_keys = set_peft_model_state_dict(
+                transformer_, transformer_state_dict, adapter_name="default"
+            )
             if incompatible_keys is not None:
                 # check only for unexpected keys
                 unexpected_keys = getattr(incompatible_keys, "unexpected_keys", None)
@@ -759,7 +797,10 @@ class Trainer:
         self.accelerator.register_load_state_pre_hook(load_model_hook)
 
     def __maybe_save_checkpoint(self, global_step: int, must_save: bool = False):
-        if self.accelerator.distributed_type == DistributedType.DEEPSPEED or self.accelerator.is_main_process:
+        if (
+            self.accelerator.distributed_type == DistributedType.DEEPSPEED
+            or self.accelerator.is_main_process
+        ):
             if must_save or global_step % self.args.checkpointing_steps == 0:
                 # for training
                 save_path = get_intermediate_ckpt_path(

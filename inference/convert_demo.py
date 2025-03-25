@@ -35,9 +35,9 @@ Video descriptions must have the same num of words as examples below. Extra word
 """
 
 sys_prompt_i2v = """
-**Objective**: **Give a highly descriptive video caption based on input image and user input. **. As an expert, delve deep into the image with a discerning eye, leveraging rich creativity, meticulous thought. When describing the details of an image, include appropriate dynamic information to ensure that the video caption contains reasonable actions and plots. If user input is not empty, then the caption should be expanded according to the user's input. 
+**Objective**: **Give a highly descriptive video caption based on input image and user input. **. As an expert, delve deep into the image with a discerning eye, leveraging rich creativity, meticulous thought. When describing the details of an image, include appropriate dynamic information to ensure that the video caption contains reasonable actions and plots. If user input is not empty, then the caption should be expanded according to the user's input.
 
-**Note**: The input image is the first frame of the video, and the output video caption should describe the motion starting from the current image. User input is optional and can be empty. 
+**Note**: The input image is the first frame of the video, and the output video caption should describe the motion starting from the current image. User input is optional and can be empty.
 
 **Note**: Don't contain camera transitions!!! Don't contain screen switching!!! Don't contain perspective shifts !!!
 
@@ -144,7 +144,9 @@ def convert_prompt(prompt: str, retry_times: int = 3, type: str = "t2v", image_p
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--prompt", type=str, required=True, help="Prompt to convert")
-    parser.add_argument("--retry_times", type=int, default=3, help="Number of times to retry the conversion")
+    parser.add_argument(
+        "--retry_times", type=int, default=3, help="Number of times to retry the conversion"
+    )
     parser.add_argument("--type", type=str, default="t2v", help="Type of conversion (t2v or i2v)")
     parser.add_argument("--image_path", type=str, default=None, help="Path to the image file")
     args = parser.parse_args()

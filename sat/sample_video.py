@@ -19,6 +19,7 @@ from sat import mpu
 from diffusion_video import SATVideoDiffusionEngine
 from arguments import get_args
 
+
 def read_from_cli():
     cnt = 0
     try:
@@ -50,34 +51,50 @@ def get_batch(keys, value_dict, N: Union[List, ListConfig], T=None, device="cuda
 
     for key in keys:
         if key == "txt":
-            batch["txt"] = np.repeat([value_dict["prompt"]], repeats=math.prod(N)).reshape(N).tolist()
-            batch_uc["txt"] = np.repeat([value_dict["negative_prompt"]], repeats=math.prod(N)).reshape(N).tolist()
+            batch["txt"] = (
+                np.repeat([value_dict["prompt"]], repeats=math.prod(N)).reshape(N).tolist()
+            )
+            batch_uc["txt"] = (
+                np.repeat([value_dict["negative_prompt"]], repeats=math.prod(N)).reshape(N).tolist()
+            )
         elif key == "original_size_as_tuple":
             batch["original_size_as_tuple"] = (
-                torch.tensor([value_dict["orig_height"], value_dict["orig_width"]]).to(device).repeat(*N, 1)
+                torch.tensor([value_dict["orig_height"], value_dict["orig_width"]])
+                .to(device)
+                .repeat(*N, 1)
             )
         elif key == "crop_coords_top_left":
             batch["crop_coords_top_left"] = (
-                torch.tensor([value_dict["crop_coords_top"], value_dict["crop_coords_left"]]).to(device).repeat(*N, 1)
+                torch.tensor([value_dict["crop_coords_top"], value_dict["crop_coords_left"]])
+                .to(device)
+                .repeat(*N, 1)
             )
         elif key == "aesthetic_score":
-            batch["aesthetic_score"] = torch.tensor([value_dict["aesthetic_score"]]).to(device).repeat(*N, 1)
+            batch["aesthetic_score"] = (
+                torch.tensor([value_dict["aesthetic_score"]]).to(device).repeat(*N, 1)
+            )
             batch_uc["aesthetic_score"] = (
                 torch.tensor([value_dict["negative_aesthetic_score"]]).to(device).repeat(*N, 1)
             )
 
         elif key == "target_size_as_tuple":
             batch["target_size_as_tuple"] = (
-                torch.tensor([value_dict["target_height"], value_dict["target_width"]]).to(device).repeat(*N, 1)
+                torch.tensor([value_dict["target_height"], value_dict["target_width"]])
+                .to(device)
+                .repeat(*N, 1)
             )
         elif key == "fps":
             batch[key] = torch.tensor([value_dict["fps"]]).to(device).repeat(math.prod(N))
         elif key == "fps_id":
             batch[key] = torch.tensor([value_dict["fps_id"]]).to(device).repeat(math.prod(N))
         elif key == "motion_bucket_id":
-            batch[key] = torch.tensor([value_dict["motion_bucket_id"]]).to(device).repeat(math.prod(N))
+            batch[key] = (
+                torch.tensor([value_dict["motion_bucket_id"]]).to(device).repeat(math.prod(N))
+            )
         elif key == "pool_image":
-            batch[key] = repeat(value_dict[key], "1 ... -> b ...", b=math.prod(N)).to(device, dtype=torch.half)
+            batch[key] = repeat(value_dict[key], "1 ... -> b ...", b=math.prod(N)).to(
+                device, dtype=torch.half
+            )
         elif key == "cond_aug":
             batch[key] = repeat(
                 torch.tensor([value_dict["cond_aug"]]).to("cuda"),
@@ -100,7 +117,9 @@ def get_batch(keys, value_dict, N: Union[List, ListConfig], T=None, device="cuda
     return batch, batch_uc
 
 
-def save_video_as_grid_and_mp4(video_batch: torch.Tensor, save_path: str, fps: int = 5, args=None, key=None):
+def save_video_as_grid_and_mp4(
+    video_batch: torch.Tensor, save_path: str, fps: int = 5, args=None, key=None
+):
     os.makedirs(save_path, exist_ok=True)
 
     for i, vid in enumerate(video_batch):
@@ -160,7 +179,9 @@ def sampling_main(args, model_cls):
                     W = 96
                     H = int(nearest_multiple_of_16(img_H / img_W * W * 8)) // 8
                 chained_trainsforms = []
-                chained_trainsforms.append(TT.Resize(size=[int(H * 8), int(W * 8)], interpolation=1))
+                chained_trainsforms.append(
+                    TT.Resize(size=[int(H * 8), int(W * 8)], interpolation=1)
+                )
                 chained_trainsforms.append(TT.ToTensor())
                 transform = TT.Compose(chained_trainsforms)
                 image = transform(image).unsqueeze(0).to("cuda")
@@ -170,7 +191,9 @@ def sampling_main(args, model_cls):
                 image = image / model.scale_factor
                 image = image.permute(0, 2, 1, 3, 4).contiguous()
                 pad_shape = (image.shape[0], T - 1, C, H, W)
-                image = torch.concat([image, torch.zeros(pad_shape).to(image.device).to(image.dtype)], dim=1)
+                image = torch.concat(
+                    [image, torch.zeros(pad_shape).to(image.device).to(image.dtype)], dim=1
+                )
             else:
                 image_size = args.sampling_image_size
                 H, W = image_size[0], image_size[1]
@@ -181,12 +204,20 @@ def sampling_main(args, model_cls):
             mp_size = mpu.get_model_parallel_world_size()
             global_rank = torch.distributed.get_rank() // mp_size
             src = global_rank * mp_size
-            torch.distributed.broadcast_object_list(text_cast, src=src, group=mpu.get_model_parallel_group())
+            torch.distributed.broadcast_object_list(
+                text_cast, src=src, group=mpu.get_model_parallel_group()
+            )
             text = text_cast[0]
-            value_dict = {"prompt": text, "negative_prompt": "", "num_frames": torch.tensor(T).unsqueeze(0)}
+            value_dict = {
+                "prompt": text,
+                "negative_prompt": "",
+                "num_frames": torch.tensor(T).unsqueeze(0),
+            }
 
             batch, batch_uc = get_batch(
-                get_unique_embedder_keys_from_conditioner(model.conditioner), value_dict, num_samples
+                get_unique_embedder_keys_from_conditioner(model.conditioner),
+                value_dict,
+                num_samples,
             )
             for key in batch:
                 if isinstance(batch[key], torch.Tensor):
@@ -212,7 +243,11 @@ def sampling_main(args, model_cls):
             for index in range(args.batch_size):
                 if args.image2video:
                     samples_z = sample_func(
-                        c, uc=uc, batch_size=1, shape=(T, C, H, W), ofs=torch.tensor([2.0]).to("cuda")
+                        c,
+                        uc=uc,
+                        batch_size=1,
+                        shape=(T, C, H, W),
+                        ofs=torch.tensor([2.0]).to("cuda"),
                     )
                 else:
                     samples_z = sample_func(
@@ -226,7 +261,9 @@ def sampling_main(args, model_cls):
                 if args.only_save_latents:
                     samples_z = 1.0 / model.scale_factor * samples_z
                     save_path = os.path.join(
-                        args.output_dir, str(cnt) + "_" + text.replace(" ", "_").replace("/", "")[:120], str(index)
+                        args.output_dir,
+                        str(cnt) + "_" + text.replace(" ", "_").replace("/", "")[:120],
+                        str(index),
                     )
                     os.makedirs(save_path, exist_ok=True)
                     torch.save(samples_z, os.path.join(save_path, "latent.pt"))
@@ -237,7 +274,9 @@ def sampling_main(args, model_cls):
                     samples_x = samples_x.permute(0, 2, 1, 3, 4).contiguous()
                     samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0).cpu()
                     save_path = os.path.join(
-                        args.output_dir, str(cnt) + "_" + text.replace(" ", "_").replace("/", "")[:120], str(index)
+                        args.output_dir,
+                        str(cnt) + "_" + text.replace(" ", "_").replace("/", "")[:120],
+                        str(index),
                     )
                     if mpu.get_model_parallel_rank() == 0:
                         save_video_as_grid_and_mp4(samples, save_path, fps=args.sampling_fps)

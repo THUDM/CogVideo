@@ -56,7 +56,9 @@ def read_video(
         end_pts = float("inf")
 
     if end_pts < start_pts:
-        raise ValueError(f"end_pts should be larger than start_pts, got start_pts={start_pts} and end_pts={end_pts}")
+        raise ValueError(
+            f"end_pts should be larger than start_pts, got start_pts={start_pts} and end_pts={end_pts}"
+        )
 
     info = {}
     audio_frames = []
@@ -342,7 +344,11 @@ class VideoDataset(MetaDistributedWebDataset):
         super().__init__(
             path,
             partial(
-                process_fn_video, num_frames=num_frames, image_size=image_size, fps=fps, skip_frms_num=skip_frms_num
+                process_fn_video,
+                num_frames=num_frames,
+                image_size=image_size,
+                fps=fps,
+                skip_frms_num=skip_frms_num,
             ),
             seed,
             meta_names=meta_names,
@@ -400,7 +406,9 @@ class SFTDataset(Dataset):
             indices = np.arange(start, end, (end - start) // num_frames).astype(int)
             temp_frms = vr.get_batch(np.arange(start, end_safty))
             assert temp_frms is not None
-            tensor_frms = torch.from_numpy(temp_frms) if type(temp_frms) is not torch.Tensor else temp_frms
+            tensor_frms = (
+                torch.from_numpy(temp_frms) if type(temp_frms) is not torch.Tensor else temp_frms
+            )
             tensor_frms = tensor_frms[torch.tensor((indices - start).tolist())]
         else:
             if ori_vlen > self.max_num_frames:
@@ -410,7 +418,11 @@ class SFTDataset(Dataset):
                 indices = np.arange(start, end, max((end - start) // num_frames, 1)).astype(int)
                 temp_frms = vr.get_batch(np.arange(start, end))
                 assert temp_frms is not None
-                tensor_frms = torch.from_numpy(temp_frms) if type(temp_frms) is not torch.Tensor else temp_frms
+                tensor_frms = (
+                    torch.from_numpy(temp_frms)
+                    if type(temp_frms) is not torch.Tensor
+                    else temp_frms
+                )
                 tensor_frms = tensor_frms[torch.tensor((indices - start).tolist())]
             else:
 
@@ -423,11 +435,17 @@ class SFTDataset(Dataset):
 
                 start = int(self.skip_frms_num)
                 end = int(ori_vlen - self.skip_frms_num)
-                num_frames = nearest_smaller_4k_plus_1(end - start)  # 3D VAE requires the number of frames to be 4k+1
+                num_frames = nearest_smaller_4k_plus_1(
+                    end - start
+                )  # 3D VAE requires the number of frames to be 4k+1
                 end = int(start + num_frames)
                 temp_frms = vr.get_batch(np.arange(start, end))
                 assert temp_frms is not None
-                tensor_frms = torch.from_numpy(temp_frms) if type(temp_frms) is not torch.Tensor else temp_frms
+                tensor_frms = (
+                    torch.from_numpy(temp_frms)
+                    if type(temp_frms) is not torch.Tensor
+                    else temp_frms
+                )
 
         tensor_frms = pad_last_frame(
             tensor_frms, self.max_num_frames

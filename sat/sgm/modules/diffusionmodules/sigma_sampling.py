@@ -17,7 +17,15 @@ class EDMSampling:
 
 
 class DiscreteSampling:
-    def __init__(self, discretization_config, num_idx, do_append_zero=False, flip=True, uniform_sampling=False, group_num=0):
+    def __init__(
+        self,
+        discretization_config,
+        num_idx,
+        do_append_zero=False,
+        flip=True,
+        uniform_sampling=False,
+        group_num=0,
+    ):
         self.num_idx = num_idx
         self.sigmas = instantiate_from_config(discretization_config)(
             num_idx, do_append_zero=do_append_zero, flip=flip
@@ -30,7 +38,7 @@ class DiscreteSampling:
         if self.uniform_sampling:
             assert self.group_num > 0
             assert world_size % group_num == 0
-            self.group_width = world_size // group_num # the number of rank in one group
+            self.group_width = world_size // group_num  # the number of rank in one group
             self.sigma_interval = self.num_idx // self.group_num
 
     def idx_to_sigma(self, idx):
@@ -42,7 +50,11 @@ class DiscreteSampling:
             group_index = rank // self.group_width
             idx = default(
                 rand,
-                torch.randint(group_index * self.sigma_interval, (group_index + 1) * self.sigma_interval, (n_samples,)),
+                torch.randint(
+                    group_index * self.sigma_interval,
+                    (group_index + 1) * self.sigma_interval,
+                    (n_samples,),
+                ),
             )
         else:
             idx = default(
@@ -54,8 +66,11 @@ class DiscreteSampling:
         else:
             return self.idx_to_sigma(idx)
 
+
 class PartialDiscreteSampling:
-    def __init__(self, discretization_config, total_num_idx, partial_num_idx, do_append_zero=False, flip=True):
+    def __init__(
+        self, discretization_config, total_num_idx, partial_num_idx, do_append_zero=False, flip=True
+    ):
         self.total_num_idx = total_num_idx
         self.partial_num_idx = partial_num_idx
         self.sigmas = instantiate_from_config(discretization_config)(

@@ -54,7 +54,7 @@ You responses should just be the video generation prompt. Here are examples:
 """.strip()
 
 USER_PROMPT = """
-Could you generate a prompt for a video generation model? 
+Could you generate a prompt for a video generation model?
 Please limit the prompt to [{0}] words.
 """.strip()
 
@@ -65,7 +65,7 @@ def get_args():
         "--num_videos",
         type=int,
         default=5,
-        help="Number of unique videos you would like to generate."
+        help="Number of unique videos you would like to generate.",
     )
     parser.add_argument(
         "--model_path",
@@ -83,31 +83,28 @@ def get_args():
         "--caption_generator_cache_dir",
         type=str,
         default=None,
-        help="Cache directory for caption generation model."
+        help="Cache directory for caption generation model.",
     )
     parser.add_argument(
         "--image_generator_model_id",
         type=str,
         default="black-forest-labs/FLUX.1-dev",
-        help="Image generation model."
+        help="Image generation model.",
     )
     parser.add_argument(
         "--image_generator_cache_dir",
         type=str,
         default=None,
-        help="Cache directory for image generation model."
+        help="Cache directory for image generation model.",
     )
     parser.add_argument(
         "--image_generator_num_inference_steps",
         type=int,
         default=50,
-        help="Caption generation model."
+        help="Caption generation model.",
     )
     parser.add_argument(
-        "--guidance_scale",
-        type=float,
-        default=7,
-        help="Guidance scale to be use for generation."
+        "--guidance_scale", type=float, default=7, help="Guidance scale to be use for generation."
     )
     parser.add_argument(
         "--use_dynamic_cfg",
@@ -123,19 +120,14 @@ def get_args():
     parser.add_argument(
         "--compile",
         action="store_true",
-        help="Whether or not to compile the transformer of image and video generators."
+        help="Whether or not to compile the transformer of image and video generators.",
     )
     parser.add_argument(
         "--enable_vae_tiling",
         action="store_true",
-        help="Whether or not to use VAE tiling when encoding/decoding."
+        help="Whether or not to use VAE tiling when encoding/decoding.",
     )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Seed for reproducibility."
-    )
+    parser.add_argument("--seed", type=int, default=42, help="Seed for reproducibility.")
     return parser.parse_args()
 
 
@@ -157,7 +149,9 @@ def main(args: Dict[str, Any]) -> None:
     torch.cuda.manual_seed_all(args.seed)
 
     reset_memory()
-    tokenizer = AutoTokenizer.from_pretrained(args.caption_generator_model_id, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.caption_generator_model_id, trust_remote_code=True
+    )
     caption_generator = transformers.pipeline(
         "text-generation",
         model=args.caption_generator_model_id,
@@ -168,7 +162,7 @@ def main(args: Dict[str, Any]) -> None:
             "torch_dtype": torch.bfloat16,
         },
         trust_remote_code=True,
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
     )
 
     captions = []
@@ -197,12 +191,14 @@ def main(args: Dict[str, Any]) -> None:
     image_generator = DiffusionPipeline.from_pretrained(
         args.image_generator_model_id,
         cache_dir=args.image_generator_cache_dir,
-        torch_dtype=torch.bfloat16
+        torch_dtype=torch.bfloat16,
     )
     image_generator.to("cuda")
 
     if args.compile:
-        image_generator.transformer = torch.compile(image_generator.transformer, mode="max-autotune", fullgraph=True)
+        image_generator.transformer = torch.compile(
+            image_generator.transformer, mode="max-autotune", fullgraph=True
+        )
 
     if args.enable_vae_tiling:
         image_generator.vae.enable_tiling()
@@ -216,7 +212,9 @@ def main(args: Dict[str, Any]) -> None:
             num_inference_steps=args.image_generator_num_inference_steps,
             guidance_scale=3.5,
         ).images[0]
-        filename = caption[:25].replace(".", "_").replace("'", "_").replace('"', "_").replace(",", "_")
+        filename = (
+            caption[:25].replace(".", "_").replace("'", "_").replace('"', "_").replace(",", "_")
+        )
         image.save(output_dir / f"{index}_{filename}.png")
         images.append(image)
 
@@ -224,13 +222,16 @@ def main(args: Dict[str, Any]) -> None:
     reset_memory()
 
     video_generator = CogVideoXImageToVideoPipeline.from_pretrained(
-        args.model_path, torch_dtype=torch.bfloat16).to("cuda")
+        args.model_path, torch_dtype=torch.bfloat16
+    ).to("cuda")
     video_generator.scheduler = CogVideoXDPMScheduler.from_config(
-        video_generator.scheduler.config,
-        timestep_spacing="trailing")
+        video_generator.scheduler.config, timestep_spacing="trailing"
+    )
 
     if args.compile:
-        video_generator.transformer = torch.compile(video_generator.transformer, mode="max-autotune", fullgraph=True)
+        video_generator.transformer = torch.compile(
+            video_generator.transformer, mode="max-autotune", fullgraph=True
+        )
 
     if args.enable_vae_tiling:
         video_generator.vae.enable_tiling()
@@ -248,7 +249,9 @@ def main(args: Dict[str, Any]) -> None:
             use_dynamic_cfg=args.use_dynamic_cfg,
             generator=generator,
         ).frames[0]
-        filename = caption[:25].replace(".", "_").replace("'", "_").replace('"', "_").replace(",", "_")
+        filename = (
+            caption[:25].replace(".", "_").replace("'", "_").replace('"', "_").replace(",", "_")
+        )
         export_to_video(video, output_dir / f"{index}_{filename}.mp4", fps=8)
 
 

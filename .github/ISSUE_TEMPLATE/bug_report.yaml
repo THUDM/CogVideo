@@ -30,14 +30,14 @@ body:
         If you have code snippets, error messages, stack traces, please provide them here as well.
         Please format your code correctly using code tags. See https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks#syntax-highlighting
         Do not use screenshots, as they are difficult to read and (more importantly) do not allow others to copy and paste your code.
-        
+
         请提供能重现您遇到的问题的代码示例,最好是最小复现单元。
         如果您有代码片段、错误信息、堆栈跟踪，也请在此提供。
         请使用代码标签正确格式化您的代码。请参见 https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks#syntax-highlighting
         请勿使用截图，因为截图难以阅读，而且（更重要的是）不允许他人复制粘贴您的代码。
       placeholder: |
         Steps to reproduce the behavior/复现Bug的步骤:
-          
+
           1.
           2.
           3.

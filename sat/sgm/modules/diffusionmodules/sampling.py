@@ -1,7 +1,6 @@
 """
-    Partially ported from https://github.com/crowsonkb/k-diffusion/blob/master/k_diffusion/sampling.py
+Partially ported from https://github.com/crowsonkb/k-diffusion/blob/master/k_diffusion/sampling.py
 """
-
 
 from typing import Dict, Union
 
@@ -85,9 +84,7 @@ class SingleStepDiffusionSampler(BaseDiffusionSampler):
 
 
 class EDMSampler(SingleStepDiffusionSampler):
-    def __init__(
-        self, s_churn=0.0, s_tmin=0.0, s_tmax=float("inf"), s_noise=1.0, *args, **kwargs
-    ):
+    def __init__(self, s_churn=0.0, s_tmin=0.0, s_tmax=float("inf"), s_noise=1.0, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.s_churn = s_churn
@@ -106,15 +103,11 @@ class EDMSampler(SingleStepDiffusionSampler):
         dt = append_dims(next_sigma - sigma_hat, x.ndim)
 
         euler_step = self.euler_step(x, d, dt)
-        x = self.possible_correction_step(
-            euler_step, x, d, dt, next_sigma, denoiser, cond, uc
-        )
+        x = self.possible_correction_step(euler_step, x, d, dt, next_sigma, denoiser, cond, uc)
         return x
 
     def __call__(self, denoiser, x, cond, uc=None, num_steps=None):
-        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(
-            x, cond, uc, num_steps
-        )
+        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(x, cond, uc, num_steps)
 
         for i in self.get_sigma_gen(num_sigmas):
             gamma = (
@@ -136,30 +129,23 @@ class EDMSampler(SingleStepDiffusionSampler):
 
 
 class DDIMSampler(SingleStepDiffusionSampler):
-    def __init__(
-        self, s_noise=0.1, *args, **kwargs
-    ):
+    def __init__(self, s_noise=0.1, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.s_noise = s_noise
 
     def sampler_step(self, sigma, next_sigma, denoiser, x, cond, uc=None, s_noise=0.0):
-
         denoised = self.denoise(x, denoiser, sigma, cond, uc)
         d = to_d(x, sigma, denoised)
-        dt = append_dims(next_sigma * (1 - s_noise**2)**0.5 - sigma, x.ndim)
+        dt = append_dims(next_sigma * (1 - s_noise**2) ** 0.5 - sigma, x.ndim)
 
         euler_step = x + dt * d + s_noise * append_dims(next_sigma, x.ndim) * torch.randn_like(x)
 
-        x = self.possible_correction_step(
-            euler_step, x, d, dt, next_sigma, denoiser, cond, uc
-        )
+        x = self.possible_correction_step(euler_step, x, d, dt, next_sigma, denoiser, cond, uc)
         return x
 
     def __call__(self, denoiser, x, cond, uc=None, num_steps=None):
-        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(
-            x, cond, uc, num_steps
-        )
+        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(x, cond, uc, num_steps)
 
         for i in self.get_sigma_gen(num_sigmas):
             x = self.sampler_step(
@@ -198,9 +184,7 @@ class AncestralSampler(SingleStepDiffusionSampler):
         return x
 
     def __call__(self, denoiser, x, cond, uc=None, num_steps=None):
-        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(
-            x, cond, uc, num_steps
-        )
+        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(x, cond, uc, num_steps)
 
         for i in self.get_sigma_gen(num_sigmas):
             x = self.sampler_step(
@@ -227,43 +211,32 @@ class LinearMultistepSampler(BaseDiffusionSampler):
         self.order = order
 
     def __call__(self, denoiser, x, cond, uc=None, num_steps=None, **kwargs):
-        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(
-            x, cond, uc, num_steps
-        )
+        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(x, cond, uc, num_steps)
 
         ds = []
         sigmas_cpu = sigmas.detach().cpu().numpy()
         for i in self.get_sigma_gen(num_sigmas):
             sigma = s_in * sigmas[i]
-            denoised = denoiser(
-                *self.guider.prepare_inputs(x, sigma, cond, uc), **kwargs
-            )
+            denoised = denoiser(*self.guider.prepare_inputs(x, sigma, cond, uc), **kwargs)
             denoised = self.guider(denoised, sigma)
             d = to_d(x, sigma, denoised)
             ds.append(d)
             if len(ds) > self.order:
                 ds.pop(0)
             cur_order = min(i + 1, self.order)
-            coeffs = [
-                linear_multistep_coeff(cur_order, sigmas_cpu, i, j)
-                for j in range(cur_order)
-            ]
+            coeffs = [linear_multistep_coeff(cur_order, sigmas_cpu, i, j) for j in range(cur_order)]
             x = x + sum(coeff * d for coeff, d in zip(coeffs, reversed(ds)))
 
         return x
 
 
 class EulerEDMSampler(EDMSampler):
-    def possible_correction_step(
-        self, euler_step, x, d, dt, next_sigma, denoiser, cond, uc
-    ):
+    def possible_correction_step(self, euler_step, x, d, dt, next_sigma, denoiser, cond, uc):
         return euler_step
 
 
 class HeunEDMSampler(EDMSampler):
-    def possible_correction_step(
-        self, euler_step, x, d, dt, next_sigma, denoiser, cond, uc
-    ):
+    def possible_correction_step(self, euler_step, x, d, dt, next_sigma, denoiser, cond, uc):
         if torch.sum(next_sigma) < 1e-14:
             # Save a network evaluation if all noise levels are 0
             return euler_step
@@ -273,9 +246,7 @@ class HeunEDMSampler(EDMSampler):
             d_prime = (d + d_new) / 2.0
 
             # apply correction if noise level is not 0
-            x = torch.where(
-                append_dims(next_sigma, x.ndim) > 0.0, x + d_prime * dt, euler_step
-            )
+            x = torch.where(append_dims(next_sigma, x.ndim) > 0.0, x + d_prime * dt, euler_step)
             return x
 
 
@@ -314,9 +285,7 @@ class DPMPP2SAncestralSampler(AncestralSampler):
             x = x_euler
         else:
             h, s, t, t_next = self.get_variables(sigma, sigma_down)
-            mult = [
-                append_dims(mult, x.ndim) for mult in self.get_mult(h, s, t, t_next)
-            ]
+            mult = [append_dims(mult, x.ndim) for mult in self.get_mult(h, s, t, t_next)]
 
             x2 = mult[0] * x - mult[1] * denoised
             denoised2 = self.denoise(x2, denoiser, to_sigma(s), cond, uc)
@@ -367,8 +336,7 @@ class DPMPP2MSampler(BaseDiffusionSampler):
 
         h, r, t, t_next = self.get_variables(sigma, next_sigma, previous_sigma)
         mult = [
-            append_dims(mult, x.ndim)
-            for mult in self.get_mult(h, r, t, t_next, previous_sigma)
+            append_dims(mult, x.ndim) for mult in self.get_mult(h, r, t, t_next, previous_sigma)
         ]
 
         x_standard = mult[0] * x - mult[1] * denoised
@@ -380,16 +348,12 @@ class DPMPP2MSampler(BaseDiffusionSampler):
             x_advanced = mult[0] * x - mult[1] * denoised_d
 
             # apply correction if noise level is not 0 and not first step
-            x = torch.where(
-                append_dims(next_sigma, x.ndim) > 0.0, x_advanced, x_standard
-            )
+            x = torch.where(append_dims(next_sigma, x.ndim) > 0.0, x_advanced, x_standard)
 
         return x, denoised
 
     def __call__(self, denoiser, x, cond, uc=None, num_steps=None, **kwargs):
-        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(
-            x, cond, uc, num_steps
-        )
+        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(x, cond, uc, num_steps)
 
         old_denoised = None
         for i in self.get_sigma_gen(num_sigmas):
@@ -406,6 +370,7 @@ class DPMPP2MSampler(BaseDiffusionSampler):
 
         return x
 
+
 class SDEDPMPP2MSampler(BaseDiffusionSampler):
     def get_variables(self, sigma, next_sigma, previous_sigma=None):
         t, t_next = [to_neg_log_sigma(s) for s in (sigma, next_sigma)]
@@ -420,7 +385,7 @@ class SDEDPMPP2MSampler(BaseDiffusionSampler):
 
     def get_mult(self, h, r, t, t_next, previous_sigma):
         mult1 = to_sigma(t_next) / to_sigma(t) * (-h).exp()
-        mult2 = (-2*h).expm1()
+        mult2 = (-2 * h).expm1()
 
         if previous_sigma is not None:
             mult3 = 1 + 1 / (2 * r)
@@ -444,10 +409,9 @@ class SDEDPMPP2MSampler(BaseDiffusionSampler):
 
         h, r, t, t_next = self.get_variables(sigma, next_sigma, previous_sigma)
         mult = [
-            append_dims(mult, x.ndim)
-            for mult in self.get_mult(h, r, t, t_next, previous_sigma)
+            append_dims(mult, x.ndim) for mult in self.get_mult(h, r, t, t_next, previous_sigma)
         ]
-        mult_noise = append_dims(next_sigma * (1 - (-2*h).exp())**0.5, x.ndim)
+        mult_noise = append_dims(next_sigma * (1 - (-2 * h).exp()) ** 0.5, x.ndim)
 
         x_standard = mult[0] * x - mult[1] * denoised + mult_noise * torch.randn_like(x)
         if old_denoised is None or torch.sum(next_sigma) < 1e-14:
@@ -458,16 +422,12 @@ class SDEDPMPP2MSampler(BaseDiffusionSampler):
             x_advanced = mult[0] * x - mult[1] * denoised_d + mult_noise * torch.randn_like(x)
 
             # apply correction if noise level is not 0 and not first step
-            x = torch.where(
-                append_dims(next_sigma, x.ndim) > 0.0, x_advanced, x_standard
-            )
+            x = torch.where(append_dims(next_sigma, x.ndim) > 0.0, x_advanced, x_standard)
 
         return x, denoised
 
     def __call__(self, denoiser, x, cond, uc=None, num_steps=None, scale=None, **kwargs):
-        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(
-            x, cond, uc, num_steps
-        )
+        x, s_in, sigmas, num_sigmas, cond, uc = self.prepare_sampling_loop(x, cond, uc, num_steps)
 
         old_denoised = None
         for i in self.get_sigma_gen(num_sigmas):
@@ -483,6 +443,7 @@ class SDEDPMPP2MSampler(BaseDiffusionSampler):
             )
 
         return x
+
 
 class SdeditEDMSampler(EulerEDMSampler):
     def __init__(self, edit_ratio=0.5, *args, **kwargs):
@@ -525,8 +486,8 @@ class SdeditEDMSampler(EulerEDMSampler):
 
         return x
 
-class VideoDDIMSampler(BaseDiffusionSampler):
 
+class VideoDDIMSampler(BaseDiffusionSampler):
     def __init__(self, fixed_frames=0, sdedit=False, **kwargs):
         super().__init__(**kwargs)
         self.fixed_frames = fixed_frames
@@ -534,10 +495,15 @@ class VideoDDIMSampler(BaseDiffusionSampler):
 
     def prepare_sampling_loop(self, x, cond, uc=None, num_steps=None):
         alpha_cumprod_sqrt, timesteps = self.discretization(
-            self.num_steps if num_steps is None else num_steps, device=self.device, return_idx=True, do_append_zero=False
+            self.num_steps if num_steps is None else num_steps,
+            device=self.device,
+            return_idx=True,
+            do_append_zero=False,
         )
         alpha_cumprod_sqrt = torch.cat([alpha_cumprod_sqrt, alpha_cumprod_sqrt.new_ones([1])])
-        timesteps = torch.cat([torch.tensor(list(timesteps)).new_zeros([1])-1, torch.tensor(list(timesteps))])
+        timesteps = torch.cat(
+            [torch.tensor(list(timesteps)).new_zeros([1]) - 1, torch.tensor(list(timesteps))]
+        )
 
         uc = default(uc, cond)
 
@@ -547,7 +513,19 @@ class VideoDDIMSampler(BaseDiffusionSampler):
 
         return x, s_in, alpha_cumprod_sqrt, num_sigmas, cond, uc, timesteps
 
-    def denoise(self, x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep=None, idx=None, scale=None, scale_emb=None, ofs=None):
+    def denoise(
+        self,
+        x,
+        denoiser,
+        alpha_cumprod_sqrt,
+        cond,
+        uc,
+        timestep=None,
+        idx=None,
+        scale=None,
+        scale_emb=None,
+        ofs=None,
+    ):
         additional_model_inputs = {}
 
         if ofs is not None:
@@ -557,26 +535,62 @@ class VideoDDIMSampler(BaseDiffusionSampler):
             additional_model_inputs['idx'] = x.new_ones([x.shape[0]]) * timestep
             if scale_emb is not None:
                 additional_model_inputs['scale_emb'] = scale_emb
-            denoised = denoiser(x, alpha_cumprod_sqrt, cond, **additional_model_inputs).to(torch.float32)
+            denoised = denoiser(x, alpha_cumprod_sqrt, cond, **additional_model_inputs).to(
+                torch.float32
+            )
         else:
             additional_model_inputs['idx'] = torch.cat([x.new_ones([x.shape[0]]) * timestep] * 2)
-            denoised = denoiser(*self.guider.prepare_inputs(x, alpha_cumprod_sqrt, cond, uc), **additional_model_inputs).to(torch.float32)
+            denoised = denoiser(
+                *self.guider.prepare_inputs(x, alpha_cumprod_sqrt, cond, uc),
+                **additional_model_inputs,
+            ).to(torch.float32)
             if isinstance(self.guider, DynamicCFG):
-                denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt**2)**0.5, step_index=self.num_steps - timestep, scale=scale)
+                denoised = self.guider(
+                    denoised,
+                    (1 - alpha_cumprod_sqrt**2) ** 0.5,
+                    step_index=self.num_steps - timestep,
+                    scale=scale,
+                )
             else:
-                denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt**2)**0.5, scale=scale)
+                denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt**2) ** 0.5, scale=scale)
         return denoised
 
-    def sampler_step(self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, denoiser, x, cond, uc=None, idx=None, timestep=None, scale=None, scale_emb=None, ofs=None):
-        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep, idx, scale=scale, scale_emb=scale_emb, ofs=ofs).to(torch.float32) # 1020
+    def sampler_step(
+        self,
+        alpha_cumprod_sqrt,
+        next_alpha_cumprod_sqrt,
+        denoiser,
+        x,
+        cond,
+        uc=None,
+        idx=None,
+        timestep=None,
+        scale=None,
+        scale_emb=None,
+        ofs=None,
+    ):
+        denoised = self.denoise(
+            x,
+            denoiser,
+            alpha_cumprod_sqrt,
+            cond,
+            uc,
+            timestep,
+            idx,
+            scale=scale,
+            scale_emb=scale_emb,
+            ofs=ofs,
+        ).to(torch.float32)  # 1020
 
-        a_t = ((1-next_alpha_cumprod_sqrt**2)/(1-alpha_cumprod_sqrt**2))**0.5
+        a_t = ((1 - next_alpha_cumprod_sqrt**2) / (1 - alpha_cumprod_sqrt**2)) ** 0.5
         b_t = next_alpha_cumprod_sqrt - alpha_cumprod_sqrt * a_t
 
         x = append_dims(a_t, x.ndim) * x + append_dims(b_t, x.ndim) * denoised
         return x
 
-    def __call__(self, denoiser, x, cond, uc=None, num_steps=None, scale=None, scale_emb=None, ofs=None): # 1020
+    def __call__(
+        self, denoiser, x, cond, uc=None, num_steps=None, scale=None, scale_emb=None, ofs=None
+    ):  # 1020
         x, s_in, alpha_cumprod_sqrt, num_sigmas, cond, uc, timesteps = self.prepare_sampling_loop(
             x, cond, uc, num_steps
         )
@@ -590,17 +604,16 @@ class VideoDDIMSampler(BaseDiffusionSampler):
                 cond,
                 uc,
                 idx=self.num_steps - i,
-                timestep=timesteps[-(i+1)],
+                timestep=timesteps[-(i + 1)],
                 scale=scale,
                 scale_emb=scale_emb,
-                ofs=ofs # 1020
+                ofs=ofs,  # 1020
             )
 
         return x
 
 
 class Image2VideoDDIMSampler(BaseDiffusionSampler):
-
     def prepare_sampling_loop(self, x, cond, uc=None, num_steps=None):
         alpha_cumprod_sqrt, timesteps = self.discretization(
             self.num_steps if num_steps is None else num_steps, device=self.device, return_idx=True
@@ -616,22 +629,36 @@ class Image2VideoDDIMSampler(BaseDiffusionSampler):
     def denoise(self, x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep=None):
         additional_model_inputs = {}
         additional_model_inputs['idx'] = torch.cat([x.new_ones([x.shape[0]]) * timestep] * 2)
-        denoised = denoiser(*self.guider.prepare_inputs(x, alpha_cumprod_sqrt, cond, uc), **additional_model_inputs).to(
-            torch.float32)
+        denoised = denoiser(
+            *self.guider.prepare_inputs(x, alpha_cumprod_sqrt, cond, uc), **additional_model_inputs
+        ).to(torch.float32)
         if isinstance(self.guider, DynamicCFG):
-            denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt ** 2) ** 0.5, step_index=self.num_steps - timestep)
+            denoised = self.guider(
+                denoised, (1 - alpha_cumprod_sqrt**2) ** 0.5, step_index=self.num_steps - timestep
+            )
         else:
-            denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt ** 2) ** 0.5)
+            denoised = self.guider(denoised, (1 - alpha_cumprod_sqrt**2) ** 0.5)
         return denoised
 
-    def sampler_step(self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, denoiser, x, cond, uc=None, idx=None,
-                     timestep=None):
+    def sampler_step(
+        self,
+        alpha_cumprod_sqrt,
+        next_alpha_cumprod_sqrt,
+        denoiser,
+        x,
+        cond,
+        uc=None,
+        idx=None,
+        timestep=None,
+    ):
         # 此处的sigma实际上是alpha_cumprod_sqrt
-        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep).to(torch.float32)
+        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep).to(
+            torch.float32
+        )
         if idx == 1:
             return denoised
 
-        a_t = ((1 - next_alpha_cumprod_sqrt ** 2) / (1 - alpha_cumprod_sqrt ** 2)) ** 0.5
+        a_t = ((1 - next_alpha_cumprod_sqrt**2) / (1 - alpha_cumprod_sqrt**2)) ** 0.5
         b_t = next_alpha_cumprod_sqrt - alpha_cumprod_sqrt * a_t
 
         x = append_dims(a_t, x.ndim) * x + append_dims(b_t, x.ndim) * denoised
@@ -651,31 +678,36 @@ class Image2VideoDDIMSampler(BaseDiffusionSampler):
                 cond,
                 uc,
                 idx=self.num_steps - i,
-                timestep=timesteps[-(i + 1)]
+                timestep=timesteps[-(i + 1)],
             )
 
         return x
 
+
 class VPSDEDPMPP2MSampler(VideoDDIMSampler):
-    def get_variables(self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt=None):
-        alpha_cumprod = alpha_cumprod_sqrt ** 2
-        lamb = ((alpha_cumprod / (1-alpha_cumprod))**0.5).log()
-        next_alpha_cumprod = next_alpha_cumprod_sqrt ** 2
-        lamb_next = ((next_alpha_cumprod / (1-next_alpha_cumprod))**0.5).log()
+    def get_variables(
+        self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt=None
+    ):
+        alpha_cumprod = alpha_cumprod_sqrt**2
+        lamb = ((alpha_cumprod / (1 - alpha_cumprod)) ** 0.5).log()
+        next_alpha_cumprod = next_alpha_cumprod_sqrt**2
+        lamb_next = ((next_alpha_cumprod / (1 - next_alpha_cumprod)) ** 0.5).log()
         h = lamb_next - lamb
 
         if previous_alpha_cumprod_sqrt is not None:
-            previous_alpha_cumprod = previous_alpha_cumprod_sqrt ** 2
-            lamb_previous = ((previous_alpha_cumprod / (1-previous_alpha_cumprod))**0.5).log()
+            previous_alpha_cumprod = previous_alpha_cumprod_sqrt**2
+            lamb_previous = ((previous_alpha_cumprod / (1 - previous_alpha_cumprod)) ** 0.5).log()
             h_last = lamb - lamb_previous
             r = h_last / h
             return h, r, lamb, lamb_next
         else:
             return h, None, lamb, lamb_next
 
-    def get_mult(self, h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt):
-        mult1 = ((1-next_alpha_cumprod_sqrt**2) / (1-alpha_cumprod_sqrt**2))**0.5 * (-h).exp()
-        mult2 = (-2*h).expm1() * next_alpha_cumprod_sqrt
+    def get_mult(
+        self, h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt
+    ):
+        mult1 = ((1 - next_alpha_cumprod_sqrt**2) / (1 - alpha_cumprod_sqrt**2)) ** 0.5 * (-h).exp()
+        mult2 = (-2 * h).expm1() * next_alpha_cumprod_sqrt
 
         if previous_alpha_cumprod_sqrt is not None:
             mult3 = 1 + 1 / (2 * r)
@@ -698,18 +730,35 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
         timestep=None,
         scale=None,
         scale_emb=None,
-        ofs=None # 1020
+        ofs=None,  # 1020
     ):
-        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep, idx, scale=scale, scale_emb=scale_emb, ofs=ofs).to(torch.float32) # 1020
+        denoised = self.denoise(
+            x,
+            denoiser,
+            alpha_cumprod_sqrt,
+            cond,
+            uc,
+            timestep,
+            idx,
+            scale=scale,
+            scale_emb=scale_emb,
+            ofs=ofs,
+        ).to(torch.float32)  # 1020
         if idx == 1:
             return denoised, denoised
 
-        h, r, lamb, lamb_next = self.get_variables(alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt)
+        h, r, lamb, lamb_next = self.get_variables(
+            alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt
+        )
         mult = [
             append_dims(mult, x.ndim)
-            for mult in self.get_mult(h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt)
+            for mult in self.get_mult(
+                h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt
+            )
         ]
-        mult_noise = append_dims((1-next_alpha_cumprod_sqrt**2)**0.5 * (1 - (-2*h).exp())**0.5, x.ndim)
+        mult_noise = append_dims(
+            (1 - next_alpha_cumprod_sqrt**2) ** 0.5 * (1 - (-2 * h).exp()) ** 0.5, x.ndim
+        )
 
         x_standard = mult[0] * x - mult[1] * denoised + mult_noise * torch.randn_like(x)
         if old_denoised is None or torch.sum(next_alpha_cumprod_sqrt) < 1e-14:
@@ -723,23 +772,26 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
 
         return x, denoised
 
-    def __call__(self, denoiser, x, cond, uc=None, num_steps=None, scale=None, scale_emb=None, ofs=None): # 1020
+    def __call__(
+        self, denoiser, x, cond, uc=None, num_steps=None, scale=None, scale_emb=None, ofs=None
+    ):  # 1020
         x, s_in, alpha_cumprod_sqrt, num_sigmas, cond, uc, timesteps = self.prepare_sampling_loop(
             x, cond, uc, num_steps
         )
 
         if self.fixed_frames > 0:
-            prefix_frames = x[:, :self.fixed_frames]
+            prefix_frames = x[:, : self.fixed_frames]
         old_denoised = None
         for i in self.get_sigma_gen(num_sigmas):
-
             if self.fixed_frames > 0:
                 if self.sdedit:
                     rd = torch.randn_like(prefix_frames)
-                    noised_prefix_frames = alpha_cumprod_sqrt[i] * prefix_frames + rd * append_dims(s_in * (1 - alpha_cumprod_sqrt[i] ** 2)**0.5, len(prefix_frames.shape))
-                    x = torch.cat([noised_prefix_frames, x[:, self.fixed_frames:]], dim=1)
+                    noised_prefix_frames = alpha_cumprod_sqrt[i] * prefix_frames + rd * append_dims(
+                        s_in * (1 - alpha_cumprod_sqrt[i] ** 2) ** 0.5, len(prefix_frames.shape)
+                    )
+                    x = torch.cat([noised_prefix_frames, x[:, self.fixed_frames :]], dim=1)
                 else:
-                    x = torch.cat([prefix_frames, x[:, self.fixed_frames:]], dim=1)
+                    x = torch.cat([prefix_frames, x[:, self.fixed_frames :]], dim=1)
             x, old_denoised = self.sampler_step(
                 old_denoised,
                 None if i == 0 else s_in * alpha_cumprod_sqrt[i - 1],
@@ -750,37 +802,41 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
                 cond,
                 uc=uc,
                 idx=self.num_steps - i,
-                timestep=timesteps[-(i+1)],
+                timestep=timesteps[-(i + 1)],
                 scale=scale,
                 scale_emb=scale_emb,
-                ofs=ofs # 1020
+                ofs=ofs,  # 1020
             )
 
         if self.fixed_frames > 0:
-            x = torch.cat([prefix_frames, x[:, self.fixed_frames:]], dim=1)
+            x = torch.cat([prefix_frames, x[:, self.fixed_frames :]], dim=1)
 
         return x
 
 
 class VPODEDPMPP2MSampler(VideoDDIMSampler):
-    def get_variables(self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt=None):
-        alpha_cumprod = alpha_cumprod_sqrt ** 2
-        lamb = ((alpha_cumprod / (1-alpha_cumprod))**0.5).log()
-        next_alpha_cumprod = next_alpha_cumprod_sqrt ** 2
-        lamb_next = ((next_alpha_cumprod / (1-next_alpha_cumprod))**0.5).log()
+    def get_variables(
+        self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt=None
+    ):
+        alpha_cumprod = alpha_cumprod_sqrt**2
+        lamb = ((alpha_cumprod / (1 - alpha_cumprod)) ** 0.5).log()
+        next_alpha_cumprod = next_alpha_cumprod_sqrt**2
+        lamb_next = ((next_alpha_cumprod / (1 - next_alpha_cumprod)) ** 0.5).log()
         h = lamb_next - lamb
 
         if previous_alpha_cumprod_sqrt is not None:
-            previous_alpha_cumprod = previous_alpha_cumprod_sqrt ** 2
-            lamb_previous = ((previous_alpha_cumprod / (1-previous_alpha_cumprod))**0.5).log()
+            previous_alpha_cumprod = previous_alpha_cumprod_sqrt**2
+            lamb_previous = ((previous_alpha_cumprod / (1 - previous_alpha_cumprod)) ** 0.5).log()
             h_last = lamb - lamb_previous
             r = h_last / h
             return h, r, lamb, lamb_next
         else:
             return h, None, lamb, lamb_next
 
-    def get_mult(self, h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt):
-        mult1 = ((1-next_alpha_cumprod_sqrt**2) / (1-alpha_cumprod_sqrt**2))**0.5
+    def get_mult(
+        self, h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt
+    ):
+        mult1 = ((1 - next_alpha_cumprod_sqrt**2) / (1 - alpha_cumprod_sqrt**2)) ** 0.5
         mult2 = (-h).expm1() * next_alpha_cumprod_sqrt
 
         if previous_alpha_cumprod_sqrt is not None:
@@ -801,16 +857,22 @@ class VPODEDPMPP2MSampler(VideoDDIMSampler):
         cond,
         uc=None,
         idx=None,
-        timestep=None
+        timestep=None,
     ):
-        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep, idx).to(torch.float32)
+        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, timestep, idx).to(
+            torch.float32
+        )
         if idx == 1:
             return denoised, denoised
 
-        h, r, lamb, lamb_next = self.get_variables(alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt)
+        h, r, lamb, lamb_next = self.get_variables(
+            alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt
+        )
         mult = [
             append_dims(mult, x.ndim)
-            for mult in self.get_mult(h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt)
+            for mult in self.get_mult(
+                h, r, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, previous_alpha_cumprod_sqrt
+            )
         ]
 
         x_standard = mult[0] * x - mult[1] * denoised
@@ -842,22 +904,44 @@ class VPODEDPMPP2MSampler(VideoDDIMSampler):
                 cond,
                 uc=uc,
                 idx=self.num_steps - i,
-                timestep=timesteps[-(i+1)]
+                timestep=timesteps[-(i + 1)],
             )
 
         return x
 
+
 class VideoDDPMSampler(VideoDDIMSampler):
-    def sampler_step(self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, denoiser, x, cond, uc=None, idx=None):
+    def sampler_step(
+        self, alpha_cumprod_sqrt, next_alpha_cumprod_sqrt, denoiser, x, cond, uc=None, idx=None
+    ):
         # 此处的sigma实际上是alpha_cumprod_sqrt
-        denoised = self.denoise(x, denoiser, alpha_cumprod_sqrt, cond, uc, idx*1000//self.num_steps).to(torch.float32)
+        denoised = self.denoise(
+            x, denoiser, alpha_cumprod_sqrt, cond, uc, idx * 1000 // self.num_steps
+        ).to(torch.float32)
         if idx == 1:
             return denoised
 
         alpha_sqrt = alpha_cumprod_sqrt / next_alpha_cumprod_sqrt
-        x = append_dims(alpha_sqrt * (1-next_alpha_cumprod_sqrt**2) / (1-alpha_cumprod_sqrt**2), x.ndim) * x \
-            + append_dims(next_alpha_cumprod_sqrt * (1-alpha_sqrt**2) / (1-alpha_cumprod_sqrt**2), x.ndim) * denoised \
-            + append_dims(((1-next_alpha_cumprod_sqrt**2) * (1-alpha_sqrt**2) / (1-alpha_cumprod_sqrt**2))**0.5, x.ndim) * torch.randn_like(x)
+        x = (
+            append_dims(
+                alpha_sqrt * (1 - next_alpha_cumprod_sqrt**2) / (1 - alpha_cumprod_sqrt**2), x.ndim
+            )
+            * x
+            + append_dims(
+                next_alpha_cumprod_sqrt * (1 - alpha_sqrt**2) / (1 - alpha_cumprod_sqrt**2), x.ndim
+            )
+            * denoised
+            + append_dims(
+                (
+                    (1 - next_alpha_cumprod_sqrt**2)
+                    * (1 - alpha_sqrt**2)
+                    / (1 - alpha_cumprod_sqrt**2)
+                )
+                ** 0.5,
+                x.ndim,
+            )
+            * torch.randn_like(x)
+        )
 
         return x
 
@@ -874,7 +958,7 @@ class VideoDDPMSampler(VideoDDIMSampler):
                 x,
                 cond,
                 uc,
-                idx=self.num_steps - i
+                idx=self.num_steps - i,
             )
 
         return x

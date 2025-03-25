@@ -93,7 +93,12 @@ class SimpleDistributedWebDataset(DataPipeline):
 
 
 def tar_file_iterator_with_meta(
-    fileobj, meta_names, skip_meta=r"__[^/]*__($|/)", suffix=None, handler=reraise_exception, meta_stream=None
+    fileobj,
+    meta_names,
+    skip_meta=r"__[^/]*__($|/)",
+    suffix=None,
+    handler=reraise_exception,
+    meta_stream=None,
 ):
     """Iterate over tar file, yielding filename, content pairs for the given tar stream.
 
@@ -122,10 +127,13 @@ def tar_file_iterator_with_meta(
             except Exception as exn:
                 from sat.helpers import print_rank0
 
-                print_rank0(f"Error in loading jsonl {meta_file_name}, lineno {lineno}: {line}", level="DEBUG")
+                print_rank0(
+                    f"Error in loading jsonl {meta_file_name}, lineno {lineno}: {line}",
+                    level="DEBUG",
+                )
                 continue
             for item in meta_list:
-                if not item["key"] in meta_data:
+                if item["key"] not in meta_data:
                     meta_data[item["key"]] = {}
                 for meta_name in meta_names:
                     if meta_name in item:
@@ -186,7 +194,9 @@ def tar_file_expander_with_meta(data, meta_names, handler=reraise_exception):
         try:
             assert isinstance(source, dict)
             assert "stream" in source
-            for sample in tar_file_iterator_with_meta(source["stream"], meta_names, meta_stream=source["meta_stream"]):
+            for sample in tar_file_iterator_with_meta(
+                source["stream"], meta_names, meta_stream=source["meta_stream"]
+            ):
                 assert isinstance(sample, dict) and "data" in sample and "fname" in sample
                 sample["__url__"] = url
                 yield sample
@@ -250,7 +260,15 @@ class MetaDistributedWebDataset(DataPipeline):
     """
 
     def __init__(
-        self, path, process_fn, seed, *, meta_names=[], nshards=sys.maxsize, shuffle_buffer=1000, include_dirs=None
+        self,
+        path,
+        process_fn,
+        seed,
+        *,
+        meta_names=[],
+        nshards=sys.maxsize,
+        shuffle_buffer=1000,
+        include_dirs=None,
     ):
         # os.environ['WDS_SHOW_SEED'] = '1'
         import torch
@@ -361,7 +379,10 @@ def gopen_boto3(url, mode="rb", bufsize=8192 * 2):
 
     if mode[0] == "r":
         s3_client = boto3.client(
-            "s3", endpoint_url=endpoint_url, aws_access_key_id=access_key, aws_secret_access_key=secret_key
+            "s3",
+            endpoint_url=endpoint_url,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
         )
         bucket, key = url.split("/", 1)
 

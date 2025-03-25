@@ -11,9 +11,7 @@ from cog import BasePredictor, Input, Path
 
 
 MODEL_CACHE = "model_cache"
-MODEL_URL = (
-    f"https://weights.replicate.delivery/default/THUDM/CogVideo/{MODEL_CACHE}.tar"
-)
+MODEL_URL = f"https://weights.replicate.delivery/default/THUDM/CogVideo/{MODEL_CACHE}.tar"
 os.environ["HF_DATASETS_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["HF_HOME"] = MODEL_CACHE
@@ -59,9 +57,7 @@ class Predictor(BasePredictor):
         guidance_scale: float = Input(
             description="Scale for classifier-free guidance", ge=1, le=20, default=6
         ),
-        num_frames: int = Input(
-            description="Number of frames for the output video", default=49
-        ),
+        num_frames: int = Input(description="Number of frames for the output video", default=49),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),

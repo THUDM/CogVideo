@@ -99,7 +99,9 @@ def generate_video(
     desired_resolution = RESOLUTION_MAP[model_name]
     if width is None or height is None:
         height, width = desired_resolution
-        logging.info(f"\033[1mUsing default resolution {desired_resolution} for {model_name}\033[0m")
+        logging.info(
+            f"\033[1mUsing default resolution {desired_resolution} for {model_name}\033[0m"
+        )
     elif (height, width) != desired_resolution:
         if generate_type == "i2v":
             # For i2v models, use user-defined width and height
@@ -124,8 +126,10 @@ def generate_video(
 
     # If you're using with lora, add this code
     if lora_path:
-        pipe.load_lora_weights(lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
-        pipe.fuse_lora(components=["transformer"], lora_scale=1.0)
+        pipe.load_lora_weights(
+            lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1"
+        )
+        pipe.fuse_lora(components=["transformer"], lora_scale=1。0)
 
     # 2. Set Scheduler.
     # Can be changed to `CogVideoXDPMScheduler` or `CogVideoXDDIMScheduler`.
@@ -133,7 +137,9 @@ def generate_video(
     # using `CogVideoXDPMScheduler` for CogVideoX-5B / CogVideoX-5B-I2V.
 
     # pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
-    pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+    pipe.scheduler = CogVideoXDPMScheduler.from_config(
+        pipe.scheduler.config, timestep_spacing="trailing"
+    )
 
     # 3. Enable CPU offload for the model.
     # turn off if you have multiple GPUs or enough GPU memory(such as H100) and it will cost less time in inference
@@ -190,8 +196,12 @@ def generate_video(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate a video from a text prompt using CogVideoX")
-    parser.add_argument("--prompt", type=str, required=True, help="The description of the video to be generated")
+    parser = argparse.ArgumentParser(
+        description="Generate a video from a text prompt using CogVideoX"
+    )
+    parser.add_argument(
+        "--prompt", type=str, required=True, help="The description of the video to be generated"
+    )
     parser.add_argument(
         "--image_or_video_path",
         type=str,
@@ -199,20 +209,44 @@ if __name__ == "__main__":
         help="The path of the image to be used as the background of the video",
     )
     parser.add_argument(
-        "--model_path", type=str, default="THUDM/CogVideoX1.5-5B", help="Path of the pre-trained model use"
+        "--model_path",
+        type=str,
+        default="THUDM/CogVideoX1.5-5B",
+        help="Path of the pre-trained model use",
     )
-    parser.add_argument("--lora_path", type=str, default=None, help="The path of the LoRA weights to be used")
+    parser.add_argument(
+        "--lora_path", type=str, default=None, help="The path of the LoRA weights to be used"
+    )
     parser.add_argument("--lora_rank", type=int, default=128, help="The rank of the LoRA weights")
-    parser.add_argument("--output_path", type=str, default="./output.mp4", help="The path save generated video")
-    parser.add_argument("--guidance_scale", type=float, default=6.0, help="The scale for classifier-free guidance")
+    parser.add_argument(
+        "--output_path", type=str, default="./output.mp4", help="The path save generated video"
+    )
+    parser.add_argument(
+        "--guidance_scale", type=float, default=6.0, help="The scale for classifier-free guidance"
+    )
     parser.add_argument("--num_inference_steps", type=int, default=50, help="Inference steps")
-    parser.add_argument("--num_frames", type=int, default=81, help="Number of steps for the inference process")
+    parser.add_argument(
+        "--num_frames", type=int, default=81, help="Number of steps for the inference process"
+    )
     parser.add_argument("--width", type=int, default=None, help="The width of the generated video")
-    parser.add_argument("--height", type=int, default=None, help="The height of the generated video")
-    parser.add_argument("--fps", type=int, default=16, help="The frames per second for the generated video")
-    parser.add_argument("--num_videos_per_prompt", type=int, default=1, help="Number of videos to generate per prompt")
-    parser.add_argument("--generate_type", type=str, default="t2v", help="The type of video generation")
-    parser.add_argument("--dtype", type=str, default="bfloat16", help="The data type for computation")
+    parser.add_argument(
+        "--height", type=int, default=None, help="The height of the generated video"
+    )
+    parser.add_argument(
+        "--fps", type=int, default=16, help="The frames per second for the generated video"
+    )
+    parser.add_argument(
+        "--num_videos_per_prompt",
+        type=int,
+        default=1,
+        help="Number of videos to generate per prompt",
+    )
+    parser.add_argument(
+        "--generate_type", type=str, default="t2v", help="The type of video generation"
+    )
+    parser.add_argument(
+        "--dtype", type=str, default="bfloat16", help="The data type for computation"
+    )
     parser.add_argument("--seed", type=int, default=42, help="The seed for reproducibility")
 
     args = parser.parse_args()

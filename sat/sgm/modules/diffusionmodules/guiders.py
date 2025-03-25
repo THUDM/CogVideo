@@ -15,7 +15,9 @@ class Guider(ABC):
     def __call__(self, x: torch.Tensor, sigma: float) -> torch.Tensor:
         pass
 
-    def prepare_inputs(self, x: torch.Tensor, s: float, c: Dict, uc: Dict) -> Tuple[torch.Tensor, float, Dict]:
+    def prepare_inputs(
+        self, x: torch.Tensor, s: float, c: Dict, uc: Dict
+    ) -> Tuple[torch.Tensor, float, Dict]:
         pass
 
 
@@ -57,7 +59,8 @@ class DynamicCFG(VanillaCFG):
     def __init__(self, scale, exp, num_steps, dyn_thresh_config=None):
         super().__init__(scale, dyn_thresh_config)
         scale_schedule = (
-            lambda scale, sigma, step_index: 1 + scale * (1 - math.cos(math.pi * (step_index / num_steps) ** exp)) / 2
+            lambda scale, sigma, step_index: 1
+            + scale * (1 - math.cos(math.pi * (step_index / num_steps) ** exp)) / 2
         )
         self.scale_schedule = partial(scale_schedule, scale)
         self.dyn_thresh = instantiate_from_config(

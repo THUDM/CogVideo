@@ -3,8 +3,8 @@ set -x
 export PYTHONPATH=$PWD:$PYTHONPATH
 
 # Select the model type
-# The model is downloaded to a specified location on disk, 
-# or you can simply use the model's ID on Hugging Face, 
+# The model is downloaded to a specified location on disk,
+# or you can simply use the model's ID on Hugging Face,
 # which will then be downloaded to the default cache path on Hugging Face.
 
 export MODEL_TYPE="CogVideoX"

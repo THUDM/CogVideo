@@ -10,6 +10,7 @@ Original Script:
 https://github.com/huggingface/diffusers/blob/main/scripts/convert_cogvideox_to_diffusers.py
 
 """
+
 import argparse
 from typing import Any, Dict
 
@@ -143,7 +144,9 @@ def get_state_dict(saved_dict: Dict[str, Any]) -> Dict[str, Any]:
     return state_dict
 
 
-def update_state_dict_inplace(state_dict: Dict[str, Any], old_key: str, new_key: str) -> Dict[str, Any]:
+def update_state_dict_inplace(
+    state_dict: Dict[str, Any], old_key: str, new_key: str
+) -> Dict[str, Any]:
     state_dict[new_key] = state_dict.pop(old_key)
 
 
@@ -164,8 +167,11 @@ def convert_transformer(
         num_layers=num_layers,
         num_attention_heads=num_attention_heads,
         use_rotary_positional_embeddings=use_rotary_positional_embeddings,
-        ofs_embed_dim=512 if (i2v and init_kwargs["patch_size_t"] is not None) else None,  # CogVideoX1.5-5B-I2V
-        use_learned_positional_embeddings=i2v and init_kwargs["patch_size_t"] is None,  # CogVideoX-5B-I2V
+        ofs_embed_dim=512
+        if (i2v and init_kwargs["patch_size_t"] is not None)
+        else None,  # CogVideoX1.5-5B-I2V
+        use_learned_positional_embeddings=i2v
+        and init_kwargs["patch_size_t"] is None,  # CogVideoX-5B-I2V
         **init_kwargs,
     ).to(dtype=dtype)
 
@@ -240,17 +246,40 @@ def get_transformer_init_kwargs(version: str):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--transformer_ckpt_path", type=str, default=None, help="Path to original transformer checkpoint"
-    )
-    parser.add_argument("--vae_ckpt_path", type=str, default=None, help="Path to original vae checkpoint")
-    parser.add_argument("--output_path", type=str, required=True, help="Path where converted model should be saved")
-    parser.add_argument("--fp16", action="store_true", default=False, help="Whether to save the model weights in fp16")
-    parser.add_argument("--bf16", action="store_true", default=False, help="Whether to save the model weights in bf16")
-    parser.add_argument(
-        "--push_to_hub", action="store_true", default=False, help="Whether to push to HF Hub after saving"
+        "--transformer_ckpt_path",
+        type=str,
+        default=None,
+        help="Path to original transformer checkpoint",
     )
     parser.add_argument(
-        "--text_encoder_cache_dir", type=str, default=None, help="Path to text encoder cache directory"
+        "--vae_ckpt_path", type=str, default=None, help="Path to original vae checkpoint"
+    )
+    parser.add_argument(
+        "--output_path", type=str, required=True, help="Path where converted model should be saved"
+    )
+    parser.add_argument(
+        "--fp16",
+        action="store_true",
+        default=False,
+        help="Whether to save the model weights in fp16",
+    )
+    parser.add_argument(
+        "--bf16",
+        action="store_true",
+        default=False,
+        help="Whether to save the model weights in bf16",
+    )
+    parser.add_argument(
+        "--push_to_hub",
+        action="store_true",
+        default=False,
+        help="Whether to push to HF Hub after saving",
+    )
+    parser.add_argument(
+        "--text_encoder_cache_dir",
+        type=str,
+        default=None,
+        help="Path to text encoder cache directory",
     )
     parser.add_argument(
         "--typecast_text_encoder",
@@ -261,15 +290,24 @@ def get_args():
     # For CogVideoX-2B, num_layers is 30. For 5B, it is 42
     parser.add_argument("--num_layers", type=int, default=30, help="Number of transformer blocks")
     # For CogVideoX-2B, num_attention_heads is 30. For 5B, it is 48
-    parser.add_argument("--num_attention_heads", type=int, default=30, help="Number of attention heads")
+    parser.add_argument(
+        "--num_attention_heads", type=int, default=30, help="Number of attention heads"
+    )
     # For CogVideoX-2B, use_rotary_positional_embeddings is False. For 5B, it is True
     parser.add_argument(
-        "--use_rotary_positional_embeddings", action="store_true", default=False, help="Whether to use RoPE or not"
+        "--use_rotary_positional_embeddings",
+        action="store_true",
+        default=False,
+        help="Whether to use RoPE or not",
     )
     # For CogVideoX-2B, scaling_factor is 1.15258426. For 5B, it is 0.7
-    parser.add_argument("--scaling_factor", type=float, default=1.15258426, help="Scaling factor in the VAE")
+    parser.add_argument(
+        "--scaling_factor", type=float, default=1.15258426, help="Scaling factor in the VAE"
+    )
     # For CogVideoX-2B, snr_shift_scale is 3.0. For 5B, it is 1.0
-    parser.add_argument("--snr_shift_scale", type=float, default=3.0, help="Scaling factor in the VAE")
+    parser.add_argument(
+        "--snr_shift_scale", type=float, default=3.0, help="Scaling factor in the VAE"
+    )
     parser.add_argument(
         "--i2v",
         action="store_true",
@@ -313,7 +351,9 @@ if __name__ == "__main__":
 
     text_encoder_id = "google/t5-v1_1-xxl"
     tokenizer = T5Tokenizer.from_pretrained(text_encoder_id, model_max_length=TOKENIZER_MAX_LENGTH)
-    text_encoder = T5EncoderModel.from_pretrained(text_encoder_id, cache_dir=args.text_encoder_cache_dir)
+    text_encoder = T5EncoderModel.from_pretrained(
+        text_encoder_id, cache_dir=args.text_encoder_cache_dir
+    )
 
     if args.typecast_text_encoder:
         text_encoder = text_encoder.to(dtype=dtype)
@@ -355,4 +395,9 @@ if __name__ == "__main__":
 
     # This is necessary This is necessary for users with insufficient memory,
     # such as those using Colab and notebooks, as it can save some memory used for model loading.
-    pipe.save_pretrained(args.output_path, safe_serialization=True, max_shard_size="5GB", push_to_hub=args.push_to_hub)
+    pipe.save_pretrained(
+        args.output_path,
+        safe_serialization=True,
+        max_shard_size="5GB",
+        push_to_hub=args.push_to_hub,
+    )

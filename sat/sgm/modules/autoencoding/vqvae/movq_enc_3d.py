@@ -51,7 +51,12 @@ def nonlinearity(x):
 class CausalConv3d(nn.Module):
     @beartype
     def __init__(
-        self, chan_in, chan_out, kernel_size: Union[int, Tuple[int, int, int]], pad_mode="constant", **kwargs
+        self,
+        chan_in,
+        chan_out,
+        kernel_size: Union[int, Tuple[int, int, int]],
+        pad_mode="constant",
+        **kwargs,
     ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 3)
@@ -75,11 +80,20 @@ class CausalConv3d(nn.Module):
 
         stride = (stride, 1, 1)
         dilation = (dilation, 1, 1)
-        self.conv = nn.Conv3d(chan_in, chan_out, kernel_size, stride=stride, dilation=dilation, **kwargs)
+        self.conv = nn.Conv3d(
+            chan_in, chan_out, kernel_size, stride=stride, dilation=dilation, **kwargs
+        )
 
     def forward(self, x):
         if self.pad_mode == "constant":
-            causal_padding_3d = (self.time_pad, 0, self.width_pad, self.width_pad, self.height_pad, self.height_pad)
+            causal_padding_3d = (
+                self.time_pad,
+                0,
+                self.width_pad,
+                self.width_pad,
+                self.height_pad,
+                self.height_pad,
+            )
             x = F.pad(x, causal_padding_3d, mode="constant", value=0)
         elif self.pad_mode == "first":
             pad_x = torch.cat([x[:, :, :1]] * self.time_pad, dim=2)
@@ -91,7 +105,9 @@ class CausalConv3d(nn.Module):
             reflect_x = x[:, :, 1 : self.time_pad + 1, :, :].flip(dims=[2])
             if reflect_x.shape[2] < self.time_pad:
                 reflect_x = torch.cat(
-                    [torch.zeros_like(x[:, :, :1, :, :])] * (self.time_pad - reflect_x.shape[2]) + [reflect_x], dim=2
+                    [torch.zeros_like(x[:, :, :1, :, :])] * (self.time_pad - reflect_x.shape[2])
+                    + [reflect_x],
+                    dim=2,
                 )
             x = torch.cat([reflect_x, x], dim=2)
             causal_padding_2d = (self.width_pad, self.width_pad, self.height_pad, self.height_pad)
@@ -110,7 +126,9 @@ class Upsample3D(nn.Module):
         super().__init__()
         self.with_conv = with_conv
         if self.with_conv:
-            self.conv = torch.nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1)
+            self.conv = torch.nn.Conv2d(
+                in_channels, in_channels, kernel_size=3, stride=1, padding=1
+            )
         self.compress_time = compress_time
 
     def forward(self, x):
@@ -149,7 +167,9 @@ class DownSample3D(nn.Module):
             out_channels = in_channels
         if self.with_conv:
             # no asymmetric padding in torch conv, must do it ourselves
-            self.conv = torch.nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=2, padding=0)
+            self.conv = torch.nn.Conv2d(
+                in_channels, out_channels, kernel_size=3, stride=2, padding=0
+            )
         self.compress_time = compress_time
 
     def forward(self, x):
@@ -182,7 +202,14 @@ class DownSample3D(nn.Module):
 
 class ResnetBlock3D(nn.Module):
     def __init__(
-        self, *, in_channels, out_channels=None, conv_shortcut=False, dropout, temb_channels=512, pad_mode="constant"
+        self,
+        *,
+        in_channels,
+        out_channels=None,
+        conv_shortcut=False,
+        dropout,
+        temb_channels=512,
+        pad_mode="constant",
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -214,9 +241,13 @@ class ResnetBlock3D(nn.Module):
                 #                                      kernel_size=3,
                 #                                      stride=1,
                 #                                      padding=1)
-                self.conv_shortcut = CausalConv3d(in_channels, out_channels, kernel_size=3, pad_mode=pad_mode)
+                self.conv_shortcut = CausalConv3d(
+                    in_channels, out_channels, kernel_size=3, pad_mode=pad_mode
+                )
             else:
-                self.nin_shortcut = torch.nn.Conv3d(in_channels, out_channels, kernel_size=1, stride=1, padding=0)
+                self.nin_shortcut = torch.nn.Conv3d(
+                    in_channels, out_channels, kernel_size=1, stride=1, padding=0
+                )
                 # self.nin_shortcut = CausalConv3d(in_channels, out_channels, kernel_size=1, pad_mode=pad_mode)
 
     def forward(self, x, temb):
@@ -251,7 +282,9 @@ class AttnBlock2D(nn.Module):
         self.q = torch.nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, padding=0)
         self.k = torch.nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, padding=0)
         self.v = torch.nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, padding=0)
-        self.proj_out = torch.nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, padding=0)
+        self.proj_out = torch.nn.Conv2d(
+            in_channels, in_channels, kernel_size=1, stride=1, padding=0
+        )
 
     def forward(self, x):
         h_ = x
@@ -365,12 +398,20 @@ class Encoder3D(nn.Module):
         # middle
         self.mid = nn.Module()
         self.mid.block_1 = ResnetBlock3D(
-            in_channels=block_in, out_channels=block_in, temb_channels=self.temb_ch, dropout=dropout, pad_mode=pad_mode
+            in_channels=block_in,
+            out_channels=block_in,
+            temb_channels=self.temb_ch,
+            dropout=dropout,
+            pad_mode=pad_mode,
         )
         # remove attention block
         # self.mid.attn_1 = AttnBlock2D(block_in)
         self.mid.block_2 = ResnetBlock3D(
-            in_channels=block_in, out_channels=block_in, temb_channels=self.temb_ch, dropout=dropout, pad_mode=pad_mode
+            in_channels=block_in,
+            out_channels=block_in,
+            temb_channels=self.temb_ch,
+            dropout=dropout,
+            pad_mode=pad_mode,
         )
 
         # end

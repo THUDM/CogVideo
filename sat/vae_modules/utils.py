@@ -78,7 +78,9 @@ class SafeConv3d(torch.nn.Conv3d):
             input_chunks = torch.chunk(input, part_num, dim=2)  # NCTHW
             if kernel_size > 1:
                 input_chunks = [input_chunks[0]] + [
-                    torch.cat((input_chunks[i - 1][:, :, -kernel_size + 1 :], input_chunks[i]), dim=2)
+                    torch.cat(
+                        (input_chunks[i - 1][:, :, -kernel_size + 1 :], input_chunks[i]), dim=2
+                    )
                     for i in range(1, len(input_chunks))
                 ]
 
@@ -244,7 +246,7 @@ def count_params(model, verbose=False):
 
 
 def instantiate_from_config(config):
-    if not "target" in config:
+    if "target" not in config:
         if config == "__is_first_stage__":
             return None
         elif config == "__is_unconditional__":

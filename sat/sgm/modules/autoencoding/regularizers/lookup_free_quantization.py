@@ -78,7 +78,9 @@ class LFQ(Module):
 
         # some assert validations
 
-        assert exists(dim) or exists(codebook_size), "either dim or codebook_size must be specified for LFQ"
+        assert exists(dim) or exists(
+            codebook_size
+        ), "either dim or codebook_size must be specified for LFQ"
         assert (
             not exists(codebook_size) or log2(codebook_size).is_integer()
         ), f"your codebook size must be a power of 2 for lookup free quantization (suggested {2 ** ceil(log2(codebook_size))})"
@@ -195,7 +197,9 @@ class LFQ(Module):
             x = rearrange(x, "b d ... -> b ... d")
             x, ps = pack_one(x, "b * d")
 
-        assert x.shape[-1] == self.dim, f"expected dimension of {self.dim} but received {x.shape[-1]}"
+        assert (
+            x.shape[-1] == self.dim
+        ), f"expected dimension of {self.dim} but received {x.shape[-1]}"
 
         x = self.project_in(x)
 
@@ -299,7 +303,9 @@ class LFQ(Module):
 
         # complete aux loss
 
-        aux_loss = entropy_aux_loss * self.entropy_loss_weight + commit_loss * self.commitment_loss_weight
+        aux_loss = (
+            entropy_aux_loss * self.entropy_loss_weight + commit_loss * self.commitment_loss_weight
+        )
 
         ret = Return(x, indices, aux_loss)
 

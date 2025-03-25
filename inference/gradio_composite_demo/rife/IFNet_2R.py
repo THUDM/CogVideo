@@ -3,7 +3,9 @@ from .refine_2R import *
 
 def deconv(in_planes, out_planes, kernel_size=4, stride=2, padding=1):
     return nn.Sequential(
-        torch.nn.ConvTranspose2d(in_channels=in_planes, out_channels=out_planes, kernel_size=4, stride=2, padding=1),
+        torch.nn.ConvTranspose2d(
+            in_channels=in_planes, out_channels=out_planes, kernel_size=4, stride=2, padding=1
+        ),
         nn.PReLU(out_planes),
     )
 
@@ -46,7 +48,11 @@ class IFBlock(nn.Module):
         if scale != 1:
             x = F.interpolate(x, scale_factor=1.0 / scale, mode="bilinear", align_corners=False)
         if flow != None:
-            flow = F.interpolate(flow, scale_factor=1.0 / scale, mode="bilinear", align_corners=False) * 1.0 / scale
+            flow = (
+                F.interpolate(flow, scale_factor=1.0 / scale, mode="bilinear", align_corners=False)
+                * 1.0
+                / scale
+            )
             x = torch.cat((x, flow), 1)
         x = self.conv0(x)
         x = self.convblock(x) + x
@@ -102,7 +108,9 @@ class IFNet(nn.Module):
             warped_img0_teacher = warp(img0, flow_teacher[:, :2])
             warped_img1_teacher = warp(img1, flow_teacher[:, 2:4])
             mask_teacher = torch.sigmoid(mask + mask_d)
-            merged_teacher = warped_img0_teacher * mask_teacher + warped_img1_teacher * (1 - mask_teacher)
+            merged_teacher = warped_img0_teacher * mask_teacher + warped_img1_teacher * (
+                1 - mask_teacher
+            )
         else:
             flow_teacher = None
             merged_teacher = None
@@ -110,11 +118,16 @@ class IFNet(nn.Module):
             merged[i] = merged[i][0] * mask_list[i] + merged[i][1] * (1 - mask_list[i])
             if gt.shape[1] == 3:
                 loss_mask = (
-                    ((merged[i] - gt).abs().mean(1, True) > (merged_teacher - gt).abs().mean(1, True) + 0.01)
+                    (
+                        (merged[i] - gt).abs().mean(1, True)
+                        > (merged_teacher - gt).abs().mean(1, True) + 0.01
+                    )
                     .float()
                     .detach()
                 )
-                loss_distill += (((flow_teacher.detach() - flow_list[i]) ** 2).mean(1, True) ** 0.5 * loss_mask).mean()
+                loss_distill += (
+                    ((flow_teacher.detach() - flow_list[i]) ** 2).mean(1, True) ** 0.5 * loss_mask
+                ).mean()
         c0 = self.contextnet(img0, flow[:, :2])
         c1 = self.contextnet(img1, flow[:, 2:4])
         tmp = self.unet(img0, img1, warped_img0, warped_img1, mask, flow, c0, c1)

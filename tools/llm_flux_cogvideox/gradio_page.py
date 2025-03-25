@@ -35,20 +35,16 @@ caption_generator = transformers.pipeline(
         "torch_dtype": torch.bfloat16,
     },
     trust_remote_code=True,
-    tokenizer=tokenizer
+    tokenizer=tokenizer,
 )
 
 image_generator = DiffusionPipeline.from_pretrained(
-    image_generator_model_id,
-    torch_dtype=torch.bfloat16,
-    device_map="balanced"
+    image_generator_model_id, torch_dtype=torch.bfloat16, device_map="balanced"
 )
 # image_generator.to("cuda")
 
 video_generator = CogVideoXImageToVideoPipeline.from_pretrained(
-    video_generator_model_id,
-    torch_dtype=torch.bfloat16,
-    device_map="balanced"
+    video_generator_model_id, torch_dtype=torch.bfloat16, device_map="balanced"
 )
 
 video_generator.vae.enable_slicing()
@@ -87,11 +83,7 @@ def generate_caption(prompt):
         {"role": "user", "content": prompt + "\n" + user_prompt},
     ]
 
-    response = caption_generator(
-        messages,
-        max_new_tokens=226,
-        return_full_text=False
-    )
+    response = caption_generator(messages, max_new_tokens=226, return_full_text=False)
     caption = response[0]["generated_text"]
     if caption.startswith("\"") and caption.endswith("\""):
         caption = caption[1:-1]
@@ -109,11 +101,7 @@ def generate_image(caption, progress=gr.Progress(track_tqdm=True)):
     return image, image  # One for output One for State
 
 
-def generate_video(
-        caption,
-        image,
-        progress=gr.Progress(track_tqdm=True)
-):
+def generate_video(caption, image, progress=gr.Progress(track_tqdm=True)):
     generator = torch.Generator().manual_seed(seed)
     video_frames = video_generator(
         image=image,
@@ -181,14 +169,19 @@ with gr.Blocks() as demo:
             image_output = gr.Image(label="Generated Image")
             state_image = gr.State()
             generate_caption_button.click(fn=generate_caption, inputs=prompt, outputs=caption)
-            generate_image_button.click(fn=generate_image, inputs=caption, outputs=[image_output, state_image])
+            generate_image_button.click(
+                fn=generate_image, inputs=caption, outputs=[image_output, state_image]
+            )
         with gr.Column():
             video_output = gr.Video(label="Generated Video", width=720, height=480)
             download_video_button = gr.File(label="📥 Download Video", visible=False)
             download_gif_button = gr.File(label="📥 Download GIF", visible=False)
             generate_video_button = gr.Button("Generate Video from Image")
-            generate_video_button.click(fn=generate_video, inputs=[caption, state_image],
-                                        outputs=[video_output, download_gif_button])
+            generate_video_button.click(
+                fn=generate_video,
+                inputs=[caption, state_image],
+                outputs=[video_output, download_gif_button],
+            )
 
 if __name__ == "__main__":
     demo.launch()

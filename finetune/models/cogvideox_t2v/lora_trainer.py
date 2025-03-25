@@ -31,13 +31,19 @@ class CogVideoXT2VLoraTrainer(Trainer):
 
         components.tokenizer = AutoTokenizer.from_pretrained(model_path, subfolder="tokenizer")
 
-        components.text_encoder = T5EncoderModel.from_pretrained(model_path, subfolder="text_encoder")
+        components.text_encoder = T5EncoderModel.from_pretrained(
+            model_path, subfolder="text_encoder"
+        )
 
-        components.transformer = CogVideoXTransformer3DModel.from_pretrained(model_path, subfolder="transformer")
+        components.transformer = CogVideoXTransformer3DModel.from_pretrained(
+            model_path, subfolder="transformer"
+        )
 
         components.vae = AutoencoderKLCogVideoX.from_pretrained(model_path, subfolder="vae")
 
-        components.scheduler = CogVideoXDPMScheduler.from_pretrained(model_path, subfolder="scheduler")
+        components.scheduler = CogVideoXDPMScheduler.from_pretrained(
+            model_path, subfolder="scheduler"
+        )
 
         return components
 
@@ -72,7 +78,9 @@ class CogVideoXT2VLoraTrainer(Trainer):
             return_tensors="pt",
         )
         prompt_token_ids = prompt_token_ids.input_ids
-        prompt_embedding = self.components.text_encoder(prompt_token_ids.to(self.accelerator.device))[0]
+        prompt_embedding = self.components.text_encoder(
+            prompt_token_ids.to(self.accelerator.device)
+        )[0]
         return prompt_embedding
 
     @override
@@ -115,7 +123,10 @@ class CogVideoXT2VLoraTrainer(Trainer):
 
         # Sample a random timestep for each sample
         timesteps = torch.randint(
-            0, self.components.scheduler.config.num_train_timesteps, (batch_size,), device=self.accelerator.device
+            0,
+            self.components.scheduler.config.num_train_timesteps,
+            (batch_size,),
+            device=self.accelerator.device,
         )
         timesteps = timesteps.long()
 
@@ -150,7 +161,9 @@ class CogVideoXT2VLoraTrainer(Trainer):
         )[0]
 
         # Denoise
-        latent_pred = self.components.scheduler.get_velocity(predicted_noise, latent_added_noise, timesteps)
+        latent_pred = self.components.scheduler.get_velocity(
+            predicted_noise, latent_added_noise, timesteps
+        )
 
         alphas_cumprod = self.components.scheduler.alphas_cumprod[timesteps]
         weights = 1 / (1 - alphas_cumprod)
@@ -196,7 +209,9 @@ class CogVideoXT2VLoraTrainer(Trainer):
         if transformer_config.patch_size_t is None:
             base_num_frames = num_frames
         else:
-            base_num_frames = (num_frames + transformer_config.patch_size_t - 1) // transformer_config.patch_size_t
+            base_num_frames = (
+                num_frames + transformer_config.patch_size_t - 1
+            ) // transformer_config.patch_size_t
         freqs_cos, freqs_sin = get_3d_rotary_pos_embed(
             embed_dim=transformer_config.attention_head_dim,
             crops_coords=None,

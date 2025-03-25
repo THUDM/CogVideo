@@ -96,7 +96,9 @@ class VideoTransformerBlock(nn.Module):
         if self.checkpoint:
             print(f"{self.__class__.__name__} is using checkpointing")
 
-    def forward(self, x: torch.Tensor, context: torch.Tensor = None, timesteps: int = None) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, context: torch.Tensor = None, timesteps: int = None
+    ) -> torch.Tensor:
         if self.checkpoint:
             return checkpoint(self._forward, x, context, timesteps)
         else:
@@ -239,7 +241,9 @@ class SpatialVideoTransformer(SpatialTransformer):
             spatial_context = context
 
         if self.use_spatial_context:
-            assert context.ndim == 3, f"n dims of spatial context should be 3 but are {context.ndim}"
+            assert (
+                context.ndim == 3
+            ), f"n dims of spatial context should be 3 but are {context.ndim}"
 
             time_context = context
             time_context_first_timestep = time_context[::timesteps]

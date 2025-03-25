@@ -38,7 +38,7 @@ python enhance_a_video.py \
 --solver_mode 'fast' --steps 15 \
 --input_path inputs/000000.mp4 \
 --prompt 'Wide-angle aerial shot at dawn,soft morning light casting long shadows,an elderly man walking his dog through a quiet,foggy park,trees and benches in the background,peaceful and serene atmosphere' \
---save_dir 'results/' 
+--save_dir 'results/'
 ```
 
 其中:
