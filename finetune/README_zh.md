@@ -6,7 +6,7 @@
 
 如果您想查看SAT版本微调，请查看[这里](../sat/README_zh.md)。其数据集格式与本版本不同。
 
-🔥🔥 我们已正式发布CogKit，这是一个专为CogView4和CogVideoX系列设计的微调与推理框架。我们建议迁移至CogKit，因为未来与CogVideo系列相关的微调工作将主要在CogKit中维护。
+🔥🔥 News：我们已正式发布[CogKit](https://github.com/THUDM/CogKit)，这是一个专为CogView4和CogVideoX系列设计的微调与推理框架。我们建议迁移至CogKit，因为未来与CogVideo系列相关的微调工作将主要在CogKit中维护。
 
 ## 硬件要求
 
