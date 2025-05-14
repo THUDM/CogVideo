@@ -7,6 +7,8 @@
 If you're looking for the fine-tuning instructions for the SAT version, please check [here](../sat/README_zh.md). The
 dataset format for this version differs from the one used here.
 
+🔥🔥 **News**: ```2025/03/24```: We have launched [CogKit](https://github.com/THUDM/CogKit), a fine-tuning and inference framework for the CogView4 and CogVideoX series. We recommend migrate to CogKit, as future fine-tuning work for the CogVideo series will primarily be maintained within CogKit.
+
 ## Hardware Requirements
 
 | Model                      | Training Type  | Distribution Strategy                | Mixed Precision | Training Resolution (FxHxW) | Hardware Requirements   |
